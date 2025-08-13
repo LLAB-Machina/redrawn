@@ -17,6 +17,9 @@ import (
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 )
 
@@ -25,20 +28,50 @@ type PhotosService struct{ app *app.App }
 func NewPhotosService(a *app.App) *PhotosService { return &PhotosService{app: a} }
 
 func (s *PhotosService) InitUpload(ctx context.Context, albumID, name, mime string, size int64) (api.UploadInitResponse, error) {
-	// Record a File row with metadata (without Cloudflare ID yet)
-	f, err := s.app.Ent.File.Create().
-		SetID(uuid.New()).
+	// Prefer R2 (S3-compatible). Require minimal R2 config.
+	if s.app.Config.R2AccessKeyID == "" || s.app.Config.R2SecretAccessKey == "" || s.app.Config.R2Bucket == "" || s.app.Config.R2S3Endpoint == "" {
+		return api.UploadInitResponse{}, errors.New("R2 not configured")
+	}
+
+	fid := uuid.New()
+	key := fid.String()
+
+	// Create DB row with provider=r2 and key stored in CloudflareID field
+	if _, err := s.app.Ent.File.Create().
+		SetID(fid).
+		SetProvider("r2").
+		SetCloudflareID(key).
 		SetOriginalName(name).
 		SetMime(mime).
 		SetSizeBytes(size).
-		Save(ctx)
+		Save(ctx); err != nil {
+		return api.UploadInitResponse{}, err
+	}
+
+	// Build S3 client and presigner
+	awsCfg := aws.Config{
+		Region: "auto",
+		Credentials: aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(
+			s.app.Config.R2AccessKeyID,
+			s.app.Config.R2SecretAccessKey,
+			"",
+		)),
+	}
+	s3c := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+		o.BaseEndpoint = aws.String(s.app.Config.R2S3Endpoint)
+	})
+	presigner := s3.NewPresignClient(s3c)
+
+	pre, err := presigner.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(s.app.Config.R2Bucket),
+		Key:         aws.String(key),
+		ContentType: aws.String(mime),
+	}, func(opts *s3.PresignOptions) { opts.Expires = 15 * time.Minute })
 	if err != nil {
 		return api.UploadInitResponse{}, err
 	}
-	// In a real impl, request a signed upload URL from Cloudflare Images API using CFImagesToken
-	// For now, return a placeholder URL and file_id
-	uploadURL := fmt.Sprintf("https://api.cloudflare.example/upload/%s", f.ID.String())
-	return api.UploadInitResponse{UploadURL: uploadURL, FileID: f.ID.String()}, nil
+	return api.UploadInitResponse{UploadURL: pre.URL, FileID: fid.String()}, nil
 }
 
 func (s *PhotosService) CreateOriginal(ctx context.Context, albumID, fileID string) (api.IDResponse, error) {
@@ -177,13 +210,45 @@ func (s *PhotosService) FileURL(ctx context.Context, fileID string) (string, err
 	if err != nil {
 		return "", err
 	}
-	if s.app.Config.CFImagesDeliveryHash == "" || f.CloudflareID == "" {
-		return "", errors.New("delivery not configured")
+
+	// If R2 configured, build a public URL or presigned GET
+	if s.app.Config.R2Bucket != "" && f.CloudflareID != "" {
+		if s.app.Config.R2PublicBaseURL != "" {
+			return fmt.Sprintf("%s/%s", s.app.Config.R2PublicBaseURL, f.CloudflareID), nil
+		}
+		if s.app.Config.R2AccessKeyID == "" || s.app.Config.R2SecretAccessKey == "" || s.app.Config.R2S3Endpoint == "" {
+			return "", errors.New("R2 delivery not configured")
+		}
+		awsCfg := aws.Config{
+			Region: "auto",
+			Credentials: aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(
+				s.app.Config.R2AccessKeyID,
+				s.app.Config.R2SecretAccessKey,
+				"",
+			)),
+		}
+		s3c := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+			o.UsePathStyle = true
+			o.BaseEndpoint = aws.String(s.app.Config.R2S3Endpoint)
+		})
+		presigner := s3.NewPresignClient(s3c)
+		pre, err := presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String(s.app.Config.R2Bucket),
+			Key:    aws.String(f.CloudflareID),
+		}, func(opts *s3.PresignOptions) { opts.Expires = 15 * time.Minute })
+		if err != nil {
+			return "", err
+		}
+		return pre.URL, nil
 	}
-	// Cloudflare Images signed URL format: https://imagedelivery.net/<account_hash>/<image_id>/<variant>?sig=<hmac>
-	base := fmt.Sprintf("https://imagedelivery.net/%s/%s/public", s.app.Config.CFImagesDeliveryHash, f.CloudflareID)
-	sig := signURL(base, s.app.Config.CFImagesToken)
-	return base + "?sig=" + sig, nil
+
+	// Fallback: Cloudflare Images
+	if s.app.Config.CFImagesDeliveryHash != "" && f.CloudflareID != "" {
+		base := fmt.Sprintf("https://imagedelivery.net/%s/%s/public", s.app.Config.CFImagesDeliveryHash, f.CloudflareID)
+		sig := signURL(base, s.app.Config.CFImagesToken)
+		return base + "?sig=" + sig, nil
+	}
+	return "", errors.New("delivery not configured")
 }
 
 func signURL(u, secret string) string {

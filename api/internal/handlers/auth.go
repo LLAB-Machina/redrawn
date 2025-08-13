@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 	"redrawn/api/internal/middleware"
@@ -32,11 +33,12 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.OkResponse{}, err
 		}
-		if err := svc.Verify(c.Context(), body.Token); err != nil {
+		userID, err := svc.Verify(c.Context(), body.Token)
+		if err != nil {
 			return api.OkResponse{}, err
 		}
-		// set session cookie
-		cookie := middleware.MakeSessionCookie(a.Config, body.Token)
+		// set session cookie to user ID
+		cookie := middleware.MakeSessionCookie(a.Config, userID)
 		httpRes := c.Response()
 		httpRes.Header().Add("Set-Cookie", cookie.String())
 		return api.OkResponse{Ok: "true"}, nil
@@ -49,5 +51,35 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		cookie := middleware.ClearSessionCookie()
 		c.Response().Header().Add("Set-Cookie", cookie.String())
 		return api.OkResponse{Ok: "true"}, nil
+	})
+
+	// Google OAuth start: returns redirect URL
+	fuego.Get(s, "/v1/auth/google/start", func(c fuego.ContextNoBody) (api.URLResponse, error) {
+		next := c.Request().URL.Query().Get("next")
+		u, err := svc.GoogleStartURL(next)
+		if err != nil {
+			return api.URLResponse{}, err
+		}
+		return api.URLResponse{URL: u}, nil
+	})
+
+	// Google OAuth callback: exchanges code, sets session cookie, redirects
+	fuego.Get(s, "/v1/auth/google/callback", func(c fuego.ContextNoBody) (any, error) {
+		code := c.Request().URL.Query().Get("code")
+		next := c.Request().URL.Query().Get("state")
+		uid, err := svc.GoogleVerify(c.Context(), code)
+		if err != nil {
+			return nil, err
+		}
+		cookie := middleware.MakeSessionCookie(a.Config, uid)
+		httpRes := c.Response()
+		httpRes.Header().Add("Set-Cookie", cookie.String())
+		dest := "/app"
+		if next != "" && next[0] == '/' {
+			dest = next
+		}
+		httpRes.Header().Set("Location", dest)
+		httpRes.WriteHeader(http.StatusFound)
+		return nil, nil
 	})
 }

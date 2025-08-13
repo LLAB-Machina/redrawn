@@ -12,7 +12,7 @@ endif
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down
+.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api
 
 dev: ## Run API and Web locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
@@ -73,37 +73,43 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
 	cd web && npm i
 	$(MAKE) init-env
 	@echo "Done. You can now run: 'docker compose up -d postgres' and then 'make dev'"
+	@echo "Installing Git pre-push hook..."
+	@HOOK_DIR=.git/hooks; HOOK_PATH=$$HOOK_DIR/pre-push; \
+		if [ -d .git ]; then \
+			mkdir -p $$HOOK_DIR; \
+			( \
+			  echo "#!/bin/sh"; \
+			  echo "set -e"; \
+			  echo 'REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"'; \
+			  echo 'cd "$$REPO_ROOT"'; \
+			  echo "echo '[pre-push] Running make revision'"; \
+			  echo "make revision"; \
+			  echo "echo '[pre-push] Running make generate-clients'"; \
+			  echo "make generate-clients"; \
+			  echo "echo '[pre-push] Running make lint'"; \
+			  echo "make lint"; \
+			  echo "echo '[pre-push] Running make format'"; \
+			  echo "make format"; \
+			  echo "echo '[pre-push] Building Go API'"; \
+			  echo "make build-api"; \
+			) > $$HOOK_PATH; \
+			chmod +x $$HOOK_PATH; \
+			echo "Git pre-push hook installed at $$HOOK_PATH"; \
+		else \
+			echo "No .git directory found; skipping Git hook installation."; \
+		fi
 
-init-env: ## Create a .env file with local defaults if missing
+init-env: ## Create .env by copying .env.example if missing
 	@if [ -s .env ]; then \
 		echo ".env already exists and is non-empty. Skipping creation."; \
 	else \
-		echo "Creating .env with local development defaults..."; \
-		printf "%s\n" \
-		"DATABASE_URL=postgres://redrawn:redrawn@localhost:5432/redrawn?sslmode=disable" \
-		"SESSION_SECRET=dev_session_secret" \
-		"PUBLIC_BASE_URL=http://localhost" \
-		"" \
-		"# Cloudflare Images (dev placeholders)" \
-		"CF_ACCOUNT_ID=dev_cf_account" \
-		"CF_IMAGES_TOKEN=dev_cf_images_token" \
-		"CF_IMAGES_DELIVERY_HASH=dev_cf_delivery_hash" \
-		"" \
-		"# Stripe (dev placeholders)" \
-		"STRIPE_SECRET_KEY=sk_test_xxx" \
-		"STRIPE_WEBHOOK_SECRET=whsec_test_xxx" \
-		"STRIPE_PRICE_ID=price_test_xxx" \
-		"" \
-		"# OpenAI (dev placeholder)" \
-		"OPENAI_API_KEY=sk-openai-test" \
-		"" \
-		"# Credits per billing cycle (default)" \
-		"CREDITS_PER_CYCLE=1000" \
-		"" \
-		"# Frontend base URL to the API" \
-		"NEXT_PUBLIC_API_BASE_URL=http://localhost:8080" \
-		> .env; \
-		echo ".env created."; \
+		if [ -f .env.example ]; then \
+			cp .env.example .env; \
+			echo ".env created from .env.example"; \
+		else \
+			echo ".env.example not found. Please create it with your local defaults."; \
+			exit 1; \
+		fi; \
 	fi
 
 db-up: ## Start only Postgres via docker compose (dev)
@@ -130,4 +136,11 @@ openapi: ## Generate OpenAPI JSON into api/openapi.json without running server
 
 generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 	cd web && npx --yes @rtk-query/codegen-openapi rtk.codegen.cjs
+
+format: ## Format Go and Web code
+	cd api && go fmt ./...
+	cd web && npm run format --silent || npx --yes prettier --write .
+
+build-api: ## Build Go API binary
+	cd api && mkdir -p bin && go build -o bin/api ./cmd/api
 

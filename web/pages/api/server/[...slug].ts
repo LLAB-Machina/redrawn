@@ -54,6 +54,67 @@ export default async function handler(
       validateStatus: () => true,
     });
 
+    // For non-OK responses, buffer and shape a dev-friendly JSON with backend stack
+    if (upstreamResponse.status >= 400) {
+      // Read the upstream stream fully
+      const chunks: any[] = [];
+      for await (const chunk of (upstreamResponse.data as any)) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      const bodyText = Buffer.concat(chunks as any).toString("utf8");
+      let parsed: any = null;
+      try {
+        parsed = bodyText ? JSON.parse(bodyText) : null;
+      } catch {
+        parsed = { raw: bodyText };
+      }
+
+      const isDev = process.env.NODE_ENV !== "production";
+      const stackFromBackend = (() => {
+        try {
+          if (parsed?.errors && Array.isArray(parsed.errors)) {
+            const itemWithStack = parsed.errors.find(
+              (e: any) => e?.more && typeof e.more.stack === "string",
+            );
+            return itemWithStack?.more?.stack as string | undefined;
+          }
+          if (typeof parsed?.stack === "string") return parsed.stack;
+          return undefined;
+        } catch {
+          return undefined;
+        }
+      })();
+
+      // Always forward the status, and prefer JSON to surface details in dev tools
+      res.status(upstreamResponse.status);
+      res.setHeader("content-type", "application/json; charset=utf-8");
+      if (stackFromBackend) {
+        res.setHeader("x-backend-stack-present", "1");
+      }
+
+      if (isDev) {
+        res.json({
+          success: false,
+          proxy_error: true,
+          message:
+            parsed?.detail || parsed?.title || parsed?.error || "Request failed",
+          backend: parsed,
+          stack: stackFromBackend,
+          status: upstreamResponse.status,
+          url: targetUrl,
+        });
+      } else {
+        // In prod, forward the upstream JSON (or raw text wrapper)
+        if (typeof parsed === "object" && parsed) {
+          res.json(parsed);
+        } else {
+          res.json({ success: false, message: "Request failed", body: parsed });
+        }
+      }
+      return;
+    }
+
+    // Success path: stream through
     res.status(upstreamResponse.status);
 
     const headersToForward = [

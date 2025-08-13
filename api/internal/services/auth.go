@@ -2,7 +2,11 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"net/http"
+	"net/url"
+	"strings"
 
 	"redrawn/api/ent/user"
 	"redrawn/api/internal/app"
@@ -22,10 +26,9 @@ func (s *AuthService) RequestMagicLink(ctx context.Context, email string) error 
 	return err
 }
 
-func (s *AuthService) Verify(ctx context.Context, token string) error {
-	// For MVP: accept token as email and set context user (middleware should set cookie)
-	_, err := s.ensureUser(ctx, token)
-	return err
+func (s *AuthService) Verify(ctx context.Context, token string) (string, error) {
+	// For MVP: accept token as email; return user ID to set session cookie
+	return s.ensureUser(ctx, token)
 }
 
 func (s *AuthService) Logout(ctx context.Context) error {
@@ -47,4 +50,74 @@ func (s *AuthService) ensureUser(ctx context.Context, email string) (string, err
 		return "", err
 	}
 	return nu.ID.String(), nil
+}
+
+// Google OAuth
+func (s *AuthService) GoogleStartURL(next string) (string, error) {
+	cfg := s.app.Config
+	if cfg.PublicBaseURL == "" || cfg.GoogleClientID == "" {
+		return "", errors.New("google oauth not configured")
+	}
+	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/api/server/v1/auth/google/callback"
+	q := url.Values{}
+	q.Set("client_id", cfg.GoogleClientID)
+	q.Set("redirect_uri", callback)
+	q.Set("response_type", "code")
+	q.Set("scope", "openid email profile")
+	if next != "" {
+		q.Set("state", next)
+	}
+	return "https://accounts.google.com/o/oauth2/v2/auth?" + q.Encode(), nil
+}
+
+func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, error) {
+	cfg := s.app.Config
+	if cfg.PublicBaseURL == "" || cfg.GoogleClientID == "" || cfg.GoogleClientSecret == "" {
+		return "", errors.New("google oauth not configured")
+	}
+	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/api/server/v1/auth/google/callback"
+	form := url.Values{}
+	form.Set("code", code)
+	form.Set("client_id", cfg.GoogleClientID)
+	form.Set("client_secret", cfg.GoogleClientSecret)
+	form.Set("redirect_uri", callback)
+	form.Set("grant_type", "authorization_code")
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://oauth2.googleapis.com/token", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	var tok struct {
+		AccessToken string `json:"access_token"`
+		IDToken     string `json:"id_token"`
+		TokenType   string `json:"token_type"`
+		ExpiresIn   int    `json:"expires_in"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&tok); err != nil {
+		return "", err
+	}
+	if tok.AccessToken == "" {
+		return "", errors.New("token exchange failed")
+	}
+	// Fetch userinfo
+	ureq, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://openidconnect.googleapis.com/v1/userinfo", nil)
+	ureq.Header.Set("Authorization", "Bearer "+tok.AccessToken)
+	ures, err := http.DefaultClient.Do(ureq)
+	if err != nil {
+		return "", err
+	}
+	defer ures.Body.Close()
+	var ui struct {
+		Email         string `json:"email"`
+		EmailVerified bool   `json:"email_verified"`
+	}
+	if err := json.NewDecoder(ures.Body).Decode(&ui); err != nil {
+		return "", err
+	}
+	if ui.Email == "" {
+		return "", errors.New("no email in userinfo")
+	}
+	return s.ensureUser(ctx, ui.Email)
 }

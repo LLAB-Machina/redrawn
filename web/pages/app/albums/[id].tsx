@@ -6,8 +6,8 @@ export default function AlbumDetail() {
   const { query } = useRouter()
   const id = query.id as string
 
-  const { data: album } = useGetV1AlbumsByIdQuery(id, { skip: !id })
-  const { data: originals, refetch: refetchOriginals } = useGetV1AlbumsByIdOriginalsQuery(id, { skip: !id })
+  const { data: album } = useGetV1AlbumsByIdQuery({ id }, { skip: !id })
+  const { data: originals, refetch: refetchOriginals } = useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id })
   const { data: themes } = useGetV1ThemesQuery(undefined as any)
   const [patchAlbumMutation] = usePatchV1AlbumsByIdMutation()
   const [deleteAlbumMutation] = useDeleteV1AlbumsByIdMutation()
@@ -37,7 +37,7 @@ export default function AlbumDetail() {
 
   async function onDeleteAlbum() {
     try {
-      await deleteAlbumMutation(id).unwrap()
+      await deleteAlbumMutation({ id }).unwrap()
       window.location.href = '/app'
     } catch (e) {}
   }
@@ -46,7 +46,7 @@ export default function AlbumDetail() {
     if (!fileId) return null
     if (fileUrls[fileId]) return fileUrls[fileId]
     try {
-      const data = await triggerFileUrl(fileId).unwrap()
+      const data = await triggerFileUrl({ id: fileId }).unwrap()
       const url = data.url || null
       if (url) setFileUrls((m) => ({ ...m, [fileId]: url }))
       return url
@@ -163,7 +163,7 @@ function LoadGenerated({ originalId, ensureUrl }: { originalId: string; ensureUr
   const [filterThemeId, setFilterThemeId] = useState<string | 'all'>('all')
 
   async function load() {
-    const data = await triggerGenerated(originalId).unwrap()
+    const data = await triggerGenerated({ id: originalId }).unwrap()
     const urls: string[] = []
     for (const g of data) {
       if (filterThemeId !== 'all' && g.theme_id !== filterThemeId) continue

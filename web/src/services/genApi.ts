@@ -137,6 +137,28 @@ const injectedRtkApi = api
           },
         }),
       }),
+      getV1AuthGoogleCallback: build.query<
+        GetV1AuthGoogleCallbackApiResponse,
+        GetV1AuthGoogleCallbackApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/auth/google/callback`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
+      getV1AuthGoogleStart: build.query<
+        GetV1AuthGoogleStartApiResponse,
+        GetV1AuthGoogleStartApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/auth/google/start`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
       postV1AuthLogout: build.mutation<
         PostV1AuthLogoutApiResponse,
         PostV1AuthLogoutApiArg
@@ -388,6 +410,11 @@ export type PostV1AlbumsByIdUploadsApiArg = {
   /** Request body for api.UploadInitRequest */
   uploadInitRequest: UploadInitRequest;
 };
+export type GetV1AuthGoogleCallbackApiResponse =
+  /** status 200 OK */ UnknownInterface;
+export type GetV1AuthGoogleCallbackApiArg = string | undefined;
+export type GetV1AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
+export type GetV1AuthGoogleStartApiArg = string | undefined;
 export type PostV1AuthLogoutApiResponse = /** status 200 OK */ OkResponse;
 export type PostV1AuthLogoutApiArg = string | undefined;
 export type PostV1AuthRequestMagicLinkApiResponse =
@@ -533,14 +560,15 @@ export type UploadInitRequest = {
   name?: string;
   size?: number;
 };
+export type UnknownInterface = any;
+export type UrlResponse = {
+  url?: string;
+};
 export type MagicLinkRequest = {
   email: string;
 };
 export type VerifyRequest = {
   token: string;
-};
-export type UrlResponse = {
-  url?: string;
 };
 export type User = {
   credits?: number;
@@ -610,6 +638,10 @@ export const {
   useLazyGetV1AlbumsByIdOriginalsQuery,
   usePostV1AlbumsByIdOriginalsMutation,
   usePostV1AlbumsByIdUploadsMutation,
+  useGetV1AuthGoogleCallbackQuery,
+  useLazyGetV1AuthGoogleCallbackQuery,
+  useGetV1AuthGoogleStartQuery,
+  useLazyGetV1AuthGoogleStartQuery,
   usePostV1AuthLogoutMutation,
   usePostV1AuthRequestMagicLinkMutation,
   usePostV1AuthVerifyMutation,

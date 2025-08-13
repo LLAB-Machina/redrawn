@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
+	"strings"
 	"syscall"
 	"time"
 
@@ -35,6 +38,51 @@ func main() {
 	// OpenAPI UI/Spec can be served via handlers if desired; omitted here for CLI generation
 
 	cfg := config.FromEnv()
+
+	// Configure logging and error behavior
+	// Map generic errors to structured HTTP errors (and map common strings to statuses)
+	fuego.WithEngineOptions(
+		fuego.WithErrorHandler(func(e error) error {
+			if e != nil {
+				msg := strings.ToLower(e.Error())
+				switch {
+				case strings.Contains(msg, "unauthorized"):
+					return fuego.UnauthorizedError{Err: e}
+				case strings.Contains(msg, "forbidden"):
+					return fuego.ForbiddenError{Err: e}
+				case strings.Contains(msg, "not found"):
+					return fuego.NotFoundError{Err: e}
+				}
+			}
+			return fuego.HandleHTTPError(e)
+		}),
+	)(s)
+	// Structured request/response logging (keep defaults; could be tuned via config later)
+	fuego.WithLoggingMiddleware(fuego.LoggingConfig{})(s)
+
+	// In dev, serialize errors with stack traces for easier debugging
+	fuego.WithErrorSerializer(func(w http.ResponseWriter, r *http.Request, err error) {
+		// Use default mapping to HTTPError
+		mapped := fuego.HandleHTTPError(err)
+		if cfg.Dev {
+			var httpErr fuego.HTTPError
+			if errors.As(mapped, &httpErr) {
+				st := string(debug.Stack())
+				// Ensure human-readable message in dev
+				if httpErr.Detail == "" && httpErr.Err != nil {
+					httpErr.Detail = httpErr.Err.Error()
+				}
+				httpErr.Errors = append(httpErr.Errors, fuego.ErrorItem{
+					Name:   "stack",
+					Reason: "see more",
+					More:   map[string]any{"stack": st},
+				})
+				fuego.SendJSONError(w, r, httpErr)
+				return
+			}
+		}
+		fuego.SendJSONError(w, r, mapped)
+	})(s)
 	if *openapiOnly {
 		// Minimal app with nil DB to allow route registration for OpenAPI
 		application := &app.App{Config: cfg, Ent: nil}
@@ -58,7 +106,7 @@ func main() {
 	}
 
 	// Initialize DB connection (migrations handled via Atlas CLI)
-	entClient, err := db.Open(nil)
+	entClient, err := db.Open(context.Background())
 	if err != nil {
 		slog.Error("db open failed", slog.String("err", err.Error()))
 		os.Exit(1)
