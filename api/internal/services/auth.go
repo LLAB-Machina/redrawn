@@ -88,7 +88,7 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	var tok struct {
 		AccessToken string `json:"access_token"`
 		IDToken     string `json:"id_token"`
@@ -108,7 +108,7 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	if err != nil {
 		return "", err
 	}
-	defer ures.Body.Close()
+	defer func() { _ = ures.Body.Close() }()
 	var ui struct {
 		Email         string `json:"email"`
 		EmailVerified bool   `json:"email_verified"`

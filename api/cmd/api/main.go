@@ -88,13 +88,16 @@ func main() {
 		application := &app.App{Config: cfg, Ent: nil}
 		registerRoutes(s, application)
 		// Print OpenAPI spec JSON
-		spec := s.Engine.OutputOpenAPISpec()
+		spec := s.OutputOpenAPISpec()
 		data, err := json.MarshalIndent(spec, "", "  ")
 		if err != nil {
 			slog.Error("marshal openapi", slog.String("err", err.Error()))
 			os.Exit(1)
 		}
-		os.Stdout.Write(data)
+		if _, err := os.Stdout.Write(data); err != nil {
+			slog.Error("write openapi to stdout", slog.String("err", err.Error()))
+			os.Exit(1)
+		}
 		return
 	}
 	if cfg.DatabaseURL == "" {

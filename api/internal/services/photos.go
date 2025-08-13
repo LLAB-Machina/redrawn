@@ -146,7 +146,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		if err != nil {
 			return api.TaskResponse{}, err
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		_, _ = io.ReadAll(resp.Body)
 		// Create generated photo record in finished state without actual upload
 		gen := s.app.Ent.GeneratedPhoto.Create().
