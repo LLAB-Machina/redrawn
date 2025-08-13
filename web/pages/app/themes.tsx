@@ -1,0 +1,44 @@
+import { api, usePostV1ThemesMutation } from '../../src/services/genApi'
+
+export default function Themes() {
+  const [triggerListThemes] = api.useLazyGetV1ThemesQuery()
+  const [createThemeMutation] = usePostV1ThemesMutation()
+  async function listThemes() {
+    try {
+      const data = await triggerListThemes(undefined as any).unwrap()
+      alert(JSON.stringify(data))
+    } catch (e: any) { alert(String(e)) }
+  }
+
+  async function createTheme(e: any) {
+    e.preventDefault()
+    const form = e.currentTarget as HTMLFormElement
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value
+    const prompt = (form.elements.namedItem('prompt') as HTMLInputElement).value
+    const cssTokensRaw = (form.elements.namedItem('css_tokens') as HTMLTextAreaElement).value
+    let css_tokens: any = {}
+    try { css_tokens = cssTokensRaw ? JSON.parse(cssTokensRaw) : {} } catch {}
+    try {
+      const data = await createThemeMutation({ name, prompt, css_tokens }).unwrap(); alert(JSON.stringify(data))
+    } catch (e: any) { alert(String(e)) }
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold tracking-tight">Themes</h2>
+      <div className="grid max-w-2xl gap-6">
+        <div>
+          <button className="inline-flex h-9 items-center rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-800 shadow-sm hover:bg-neutral-50" onClick={listThemes}>List Themes</button>
+        </div>
+        <form onSubmit={createTheme} className="grid max-w-sm gap-2">
+          <div className="text-sm font-medium">Create Theme</div>
+          <input className="h-9 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10" name="name" placeholder="name" />
+          <input className="h-9 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10" name="prompt" placeholder="prompt" />
+          <textarea className="min-h-24 rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/10" name="css_tokens" placeholder='css tokens JSON (e.g. {"color":"#000"})' />
+          <button className="inline-flex h-9 items-center rounded-md bg-black px-4 text-sm font-medium text-white shadow-sm ring-1 ring-black/10 hover:bg-neutral-900" type="submit">Create</button>
+        </form>
+      </div>
+    </div>
+  )
+}
+

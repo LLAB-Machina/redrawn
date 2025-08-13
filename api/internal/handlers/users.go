@@ -1,0 +1,30 @@
+package handlers
+
+import (
+	"redrawn/api/internal/api"
+	"redrawn/api/internal/app"
+	"redrawn/api/internal/services"
+
+	"github.com/go-fuego/fuego"
+)
+
+type patchMeReq = api.PatchMeRequest
+
+func RegisterUsers(s *fuego.Server, a *app.App) {
+	svc := services.NewUsersService(a)
+
+	fuego.Get(s, "/v1/me", func(c fuego.ContextNoBody) (api.User, error) {
+		return svc.GetMe(c.Context())
+	})
+
+	fuego.Patch(s, "/v1/me", func(c fuego.ContextWithBody[patchMeReq]) (api.OkResponse, error) {
+		body, err := c.Body()
+		if err != nil {
+			return api.OkResponse{}, err
+		}
+		if err := svc.PatchMe(c.Context(), body.Name, body.Handle); err != nil {
+			return api.OkResponse{}, err
+		}
+		return api.OkResponse{Ok: "true"}, nil
+	})
+}

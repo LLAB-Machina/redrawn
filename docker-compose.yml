@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: redrawn
+      POSTGRES_PASSWORD: redrawn
+      POSTGRES_DB: redrawn
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    image: golang:1.25-alpine
+    working_dir: /app
+    volumes:
+      - ./api:/app
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://redrawn:redrawn@postgres:5432/redrawn?sslmode=disable
+      - SESSION_SECRET=${SESSION_SECRET:-dev_session_secret}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL:-http://localhost}
+      - CF_ACCOUNT_ID=${CF_ACCOUNT_ID:-dev_cf_account}
+      - CF_IMAGES_TOKEN=${CF_IMAGES_TOKEN:-dev_cf_images_token}
+      - CF_IMAGES_DELIVERY_HASH=${CF_IMAGES_DELIVERY_HASH:-dev_cf_delivery_hash}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_xxx}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_test_xxx}
+      - STRIPE_PRICE_ID=${STRIPE_PRICE_ID:-price_test_xxx}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-openai-test}
+      - CREDITS_PER_CYCLE=${CREDITS_PER_CYCLE:-1000}
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    command: sh -c "go run ./cmd/api"
+
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./web:/app
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL:-/api}
+      - API_PROXY_TARGET=${API_PROXY_TARGET:-http://api:8080}
+    depends_on:
+      - api
+    command: sh -c "npm install && npm run dev"
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:
+

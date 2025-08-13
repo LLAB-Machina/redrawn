@@ -1,0 +1,15 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/api ./cmd/api"
+  bin = "./tmp/api"
+  delay = 200
+  exclude_dir = ["tmp", "ent"]
+  include_ext = ["go", "tmpl", "html"]
+  log = "build.log"
+  stop_on_error = true
+
+[log]
+  time = true
+

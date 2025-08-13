@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global tweaks */
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Simple button variants */
+.btn {
+  @apply inline-flex h-9 items-center rounded-md px-4 text-sm font-medium shadow-sm;
+}
+.btn-primary {
+  @apply bg-black text-white ring-1 ring-black/10 hover:bg-neutral-900;
+}
+.btn-neutral {
+  @apply border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50;
+}
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-500;
+}
