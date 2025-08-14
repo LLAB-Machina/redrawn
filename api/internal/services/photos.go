@@ -75,6 +75,15 @@ func (s *PhotosService) InitUpload(ctx context.Context, albumID, name, mime stri
 }
 
 func (s *PhotosService) CreateOriginal(ctx context.Context, albumID, fileID string) (api.IDResponse, error) {
+	// Ensure request is authenticated so we can set the uploaded_by edge
+	uid, ok := app.UserIDFromContext(ctx)
+	if !ok {
+		return api.IDResponse{}, errors.New("unauthorized")
+	}
+	uploaderID, err := uuid.Parse(uid)
+	if err != nil {
+		return api.IDResponse{}, err
+	}
 	aid, err := uuid.Parse(albumID)
 	if err != nil {
 		return api.IDResponse{}, err
@@ -91,6 +100,7 @@ func (s *PhotosService) CreateOriginal(ctx context.Context, albumID, fileID stri
 		SetID(uuid.New()).
 		SetAlbumID(aid).
 		SetFileID(fid).
+		SetUploadedByID(uploaderID).
 		Save(ctx)
 	if err != nil {
 		return api.IDResponse{}, err

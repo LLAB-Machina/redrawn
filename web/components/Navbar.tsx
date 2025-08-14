@@ -13,10 +13,8 @@ export default function Navbar() {
   const { data: me, error: meError } = useGetV1MeQuery(undefined);
   const [logout] = usePostV1AuthLogoutMutation();
   const isAuthed = !(meError && (meError as any).status === 401) && !!me;
-  const { error: adminError, isLoading: adminLoading } = useGetV1AdminPricesQuery(
-    undefined as any,
-    { skip: !isAuthed }
-  );
+  const { error: adminError, isLoading: adminLoading } =
+    useGetV1AdminPricesQuery(undefined as any, { skip: !isAuthed });
   const isAdmin = isAuthed && !adminLoading && !adminError;
   useEffect(() => {
     const isDark = localStorage.getItem("theme") === "dark";
