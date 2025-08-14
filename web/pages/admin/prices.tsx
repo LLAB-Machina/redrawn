@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useGetV1AdminPricesQuery,
   usePostV1AdminPricesMutation,
@@ -7,11 +7,12 @@ import {
   useGetV1AdminAlbumsQuery,
   useGetV1ThemesQuery,
   usePostV1ThemesMutation,
+  api,
 } from "../../src/services/genApi";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<
-    "prices" | "users" | "albums" | "themes"
+    "prices" | "users" | "albums" | "themes" | "jobs"
   >("prices");
 
   const tabs = [
@@ -19,6 +20,7 @@ export default function AdminPanel() {
     { id: "users" as const, label: "Users", icon: "👥" },
     { id: "albums" as const, label: "Albums", icon: "📸" },
     { id: "themes" as const, label: "Themes", icon: "🎨" },
+    { id: "jobs" as const, label: "Jobs", icon: "🧵" },
   ];
 
   return (
@@ -52,6 +54,7 @@ export default function AdminPanel() {
       {activeTab === "users" && <UsersTab />}
       {activeTab === "albums" && <AlbumsTab />}
       {activeTab === "themes" && <ThemesTab />}
+      {activeTab === "jobs" && <JobsTab />}
     </div>
   );
 }
@@ -284,27 +287,18 @@ function ThemesTab() {
   const [formData, setFormData] = useState({
     name: "",
     prompt: "",
-    css_tokens: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let cssTokens: Record<string, any> = {};
-    try {
-      cssTokens = formData.css_tokens ? JSON.parse(formData.css_tokens) : {};
-    } catch (err) {
-      alert("Invalid JSON for CSS Tokens");
-      return;
-    }
     try {
       await createTheme({
         createThemeRequest: {
           name: formData.name,
           prompt: formData.prompt,
-          css_tokens: cssTokens,
         },
       }).unwrap();
-      setFormData({ name: "", prompt: "", css_tokens: "" });
+      setFormData({ name: "", prompt: "" });
       setShowForm(false);
       refetch();
     } catch (err: any) {
@@ -360,22 +354,7 @@ function ThemesTab() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                CSS Tokens (JSON)
-              </label>
-              <textarea
-                value={formData.css_tokens}
-                onChange={(e) =>
-                  setFormData({ ...formData, css_tokens: e.target.value })
-                }
-                className="w-full h-28 px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-                placeholder='{"--primary":"210 20% 98%"}'
-              />
-              <p className="text-xs text-neutral-500 mt-1">
-                Optional map of CSS variable tokens
-              </p>
-            </div>
+            {/* CSS tokens removed */}
 
             <div className="flex gap-2">
               <button type="submit" className="btn btn-primary">
@@ -569,6 +548,133 @@ function AlbumsTab() {
                 </tbody>
               </table>
             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JobsTab() {
+  const [triggerJobs] = api.useLazyGetV1AdminJobsQuery();
+  const [triggerSummary] = api.useLazyGetV1AdminJobsSummaryQuery();
+  const [triggerLogs] = api.useLazyGetV1AdminJobsByIdLogsQuery();
+  const [items, setItems] = useState<any[] | null>(null);
+  type JobsSummary = { queued: number; running: number; succeeded: number; failed: number };
+  const [summary, setSummary] = useState<JobsSummary | null>(null);
+  const [selectedLogs, setSelectedLogs] = useState<string | null>(null);
+
+  async function load() {
+    const [jobs, sum] = await Promise.all([
+      triggerJobs(undefined as any).unwrap(),
+      triggerSummary(undefined as any).unwrap(),
+    ]);
+    setItems(jobs || []);
+    setSummary(sum as unknown as JobsSummary);
+  }
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold">Jobs</h2>
+      <div className="card p-4">
+        <div className="flex gap-4 text-sm">
+          <div>
+            <span className="font-medium">Queued:</span> {summary?.queued ?? 0}
+          </div>
+          <div>
+            <span className="font-medium">Running:</span> {summary?.running ?? 0}
+          </div>
+          <div>
+            <span className="font-medium">Succeeded:</span> {summary?.succeeded ?? 0}
+          </div>
+          <div>
+            <span className="font-medium">Failed:</span> {summary?.failed ?? 0}
+          </div>
+          <button className="ml-auto btn btn-neutral h-8" onClick={load}>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="p-6">
+          <h3 className="text-xl font-semibold mb-4">Recent Jobs</h3>
+          {!items || items.length === 0 ? (
+            <p className="text-neutral-600">No jobs found.</p>
+          ) : (
+            <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2">ID</th>
+                    <th className="text-left py-2">Type</th>
+                    <th className="text-left py-2">Status</th>
+                    <th className="text-left py-2">Error</th>
+                    <th className="text-left py-2">Enqueued</th>
+                    <th className="text-left py-2">Started</th>
+                    <th className="text-left py-2">Completed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((j) => (
+                    <tr key={j.id} className="border-b text-sm">
+                      <td className="py-2 font-mono text-xs">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const data = await triggerLogs({ id: j.id, accept: "application/json" }).unwrap();
+                              setSelectedLogs((data as any)?.logs || "");
+                            } catch {}
+                          }}
+                          className="underline decoration-neutral-300 underline-offset-4 hover:text-black"
+                        >
+                          {j.id}
+                        </button>
+                      </td>
+                      <td className="py-2">{j.type}</td>
+                      <td className="py-2">
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            j.status === "queued"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : j.status === "running"
+                                ? "bg-blue-100 text-blue-800"
+                                : j.status === "succeeded"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {j.status}
+                        </span>
+                      </td>
+                      <td className="py-2 text-red-600 truncate max-w-[200px]">
+                        {j.error || "-"}
+                      </td>
+                      <td className="py-2">{j.enqueued_at}</td>
+                      <td className="py-2">{j.started_at || "-"}</td>
+                      <td className="py-2">{j.completed_at || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {selectedLogs !== null && (
+              <div className="mt-6 rounded border bg-white p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="text-sm font-semibold">Job Logs</div>
+                  <button className="btn btn-neutral h-8" onClick={() => setSelectedLogs(null)}>Close</button>
+                </div>
+                <pre className="max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5">{selectedLogs || "(no logs)"}</pre>
+              </div>
+            )}
+            </>
           )}
         </div>
       </div>

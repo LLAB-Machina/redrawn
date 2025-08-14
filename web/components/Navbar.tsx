@@ -6,13 +6,17 @@ import {
   useGetV1MeQuery,
   usePostV1AuthLogoutMutation,
   useGetV1AdminPricesQuery,
+  type User,
 } from "../src/services/genApi";
 
-export default function Navbar() {
+type NavbarProps = { initialMe?: User | null };
+
+export default function Navbar({ initialMe }: NavbarProps) {
   const [dark, setDark] = useState(false);
   const { data: me, error: meError } = useGetV1MeQuery(undefined);
   const [logout] = usePostV1AuthLogoutMutation();
-  const isAuthed = !(meError && (meError as any).status === 401) && !!me;
+  const user = initialMe ?? me;
+  const isAuthed = !(meError && (meError as any).status === 401) && !!user;
   const { error: adminError, isLoading: adminLoading } =
     useGetV1AdminPricesQuery(undefined as any, { skip: !isAuthed });
   const isAdmin = isAuthed && !adminLoading && !adminError;
@@ -78,10 +82,10 @@ export default function Navbar() {
               <SunIcon className="h-4 w-4" />
             )}
           </button>
-          {!(meError && (meError as any).status === 401) && me ? (
+          {!(meError && (meError as any).status === 401) && user ? (
             <>
               <Link className="btn btn-ghost h-9 px-3" href="/app">
-                {me.name || me.email || "Account"}
+                {user.name || user.email || "Account"}
               </Link>
               <button
                 className="btn btn-primary h-9 px-3"

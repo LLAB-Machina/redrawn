@@ -15,6 +15,15 @@ type URLResponse struct {
 	URL string `json:"url"`
 }
 
+// RFC 7807 problem+json response shape used by our error serializer
+type ProblemResponse struct {
+	Type   string       `json:"type"`
+	Title  string       `json:"title"`
+	Status int          `json:"status"`
+	Detail string       `json:"detail,omitempty"`
+	Errors []FieldError `json:"errors,omitempty"`
+}
+
 type IDResponse struct {
 	ID string `json:"id"`
 }
@@ -37,17 +46,18 @@ type Album struct {
 }
 
 type Theme struct {
-	ID        string         `json:"id"`
-	Name      string         `json:"name"`
-	Slug      string         `json:"slug"`
-	Prompt    string         `json:"prompt,omitempty"`
-	CSSTokens map[string]any `json:"css_tokens,omitempty"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Slug   string `json:"slug"`
+	Prompt string `json:"prompt,omitempty"`
 }
 
 type OriginalPhoto struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	FileID    string    `json:"file_id,omitempty"`
+	// Number of generated photos currently in processing state for this original
+	Processing int `json:"processing,omitempty"`
 }
 
 type GeneratedPhoto struct {
@@ -69,6 +79,11 @@ type TaskResponse struct {
 
 type TaskStatusResponse struct {
 	Status string `json:"status"`
+}
+
+// Admin/job logs
+type JobLogsResponse struct {
+	Logs string `json:"logs"`
 }
 
 // Public models
@@ -132,6 +147,25 @@ type AdminAlbum struct {
 	OwnerEmail string `json:"owner_email"`
 	CreatedAt  string `json:"created_at"`
 }
+
+// Admin - Jobs
+type AdminJob struct {
+	ID          string              `json:"id"`
+	Type        string              `json:"type"`
+	Status      string              `json:"status"`
+	Error       string              `json:"error,omitempty"`
+	EnqueuedAt  string              `json:"enqueued_at"`
+	StartedAt   *string             `json:"started_at,omitempty"`
+	CompletedAt *string             `json:"completed_at,omitempty"`
+	Payload     *GenerateJobPayload `json:"payload,omitempty"`
+}
+
+type AdminJobSummary struct {
+	Queued    int `json:"queued"`
+	Running   int `json:"running"`
+	Succeeded int `json:"succeeded"`
+	Failed    int `json:"failed"`
+}
 type PatchMeRequest struct {
 	Name   *string `json:"name"`
 	Handle *string `json:"handle"`
@@ -164,9 +198,17 @@ type GenerateRequest struct {
 }
 
 type CreateThemeRequest struct {
-	Name      string         `json:"name"`
-	Prompt    string         `json:"prompt"`
-	CSSTokens map[string]any `json:"css_tokens"`
+	Name   string `json:"name"`
+	Prompt string `json:"prompt"`
+}
+
+// Background job payloads
+type GenerateJobPayload struct {
+	Task        string `json:"task"`
+	OriginalID  string `json:"original_id"`
+	ThemeID     string `json:"theme_id"`
+	GeneratedID string `json:"generated_id"`
+	JobID       string `json:"job_id,omitempty"`
 }
 
 type InviteRequest struct {

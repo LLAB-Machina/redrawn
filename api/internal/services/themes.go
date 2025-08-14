@@ -30,8 +30,8 @@ func (s *ThemesService) List(ctx context.Context) ([]api.Theme, error) {
 	return out, nil
 }
 
-func (s *ThemesService) Create(ctx context.Context, name, prompt string, cssTokens map[string]any) (api.IDResponse, error) {
-	t, err := s.app.Ent.Theme.Create().SetName(name).SetSlug(name).SetPrompt(prompt).SetCSSTokens(cssTokens).Save(ctx)
+func (s *ThemesService) Create(ctx context.Context, name, prompt string) (api.IDResponse, error) {
+	t, err := s.app.Ent.Theme.Create().SetName(name).SetSlug(name).SetPrompt(prompt).Save(ctx)
 	if err != nil {
 		return api.IDResponse{}, err
 	}

@@ -18,7 +18,7 @@ func RegisterUsers(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Patch(s, "/v1/me", func(c fuego.ContextWithBody[patchMeReq]) (api.OkResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.OkResponse{}, err
 		}

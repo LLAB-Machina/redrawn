@@ -1,4 +1,5 @@
 import type { AppProps } from "next/app";
+import type { User } from "../src/services/genApi";
 import { Provider } from "react-redux";
 import { store } from "../src/services/store";
 import "../styles/globals.css";
@@ -7,7 +8,9 @@ import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-export default function App({ Component, pageProps }: AppProps) {
+type WithInitialMe = AppProps & { pageProps: AppProps["pageProps"] & { me?: User | null } };
+
+export default function App({ Component, pageProps }: WithInitialMe) {
   // Dev-only: show a lightweight popup when our proxy includes backend stack
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
@@ -99,7 +102,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <div className="min-h-screen bg-background text-foreground">
-        <Navbar />
+        <Navbar initialMe={pageProps.me} />
         <main className="mx-auto w-full max-w-[1440px] px-4 sm:px-4 md:px-8 lg:px-8 xl:px-10 py-10">
           <Toaster richColors position="top-center" />
           <Component {...pageProps} />

@@ -18,10 +18,10 @@ func RegisterThemes(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Post(s, "/v1/themes", func(c fuego.ContextWithBody[createThemeReq]) (api.IDResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.IDResponse{}, err
 		}
-		return svc.Create(c.Context(), body.Name, body.Prompt, body.CSSTokens)
+		return svc.Create(c.Context(), body.Name, body.Prompt)
 	})
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 
 	"redrawn/api/ent"
@@ -33,17 +33,43 @@ func main() {
 	flag.Parse()
 
 	cfg := config.FromEnv()
+
+	// Initialize slog default logger for the CLI
+	{
+		levelVar := new(slog.LevelVar)
+		switch cfg.LogLevel {
+		case "debug":
+			levelVar.Set(slog.LevelDebug)
+		case "info":
+			levelVar.Set(slog.LevelInfo)
+		case "warn", "warning":
+			levelVar.Set(slog.LevelWarn)
+		case "error":
+			levelVar.Set(slog.LevelError)
+		default:
+			levelVar.Set(slog.LevelInfo)
+		}
+		var handler slog.Handler
+		if cfg.LogFormat == "text" {
+			handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: levelVar})
+		} else {
+			handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: levelVar})
+		}
+		slog.SetDefault(slog.New(handler))
+	}
 	if cfg.DatabaseURL == "" {
-		log.Fatal("DATABASE_URL is required")
+		slog.Error("DATABASE_URL is required")
+		os.Exit(1)
 	}
 
 	client, err := ent.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		slog.Error("failed to connect to database", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 	defer func() {
 		if cerr := client.Close(); cerr != nil {
-			log.Printf("Failed to close ent client: %v", cerr)
+			slog.Warn("failed to close ent client", slog.String("err", cerr.Error()))
 		}
 	}()
 
@@ -60,15 +86,18 @@ func main() {
 		createPrice(ctx, client, *name, *stripePriceID, *credits, *active)
 	case *seedDefaultThemes:
 		if err := seedThemes(ctx, client); err != nil {
-			log.Fatalf("Failed to seed themes: %v", err)
+			slog.Error("failed to seed themes", slog.String("err", err.Error()))
+			os.Exit(1)
 		}
 		fmt.Println("Seeded default themes (no-op for existing)")
 	case *giveCredits:
 		if *targetUserID == "" || *amount <= 0 {
-			log.Fatalf("-give-credits requires -user-id and -amount (>0)")
+			slog.Error("-give-credits requires -user-id and -amount (>0)")
+			os.Exit(1)
 		}
 		if err := addCreditsToUser(ctx, client, *targetUserID, *amount); err != nil {
-			log.Fatalf("Failed to give credits: %v", err)
+			slog.Error("failed to give credits", slog.String("err", err.Error()))
+			os.Exit(1)
 		}
 	default:
 		fmt.Println("Usage:")
@@ -96,7 +125,8 @@ func main() {
 func listPrices(ctx context.Context, client *ent.Client) {
 	prices, err := client.Price.Query().All(ctx)
 	if err != nil {
-		log.Fatalf("Failed to list prices: %v", err)
+		slog.Error("failed to list prices", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 
 	if len(prices) == 0 {
@@ -120,7 +150,8 @@ func createPrice(ctx context.Context, client *ent.Client, name, stripePriceID st
 		SetActive(active).
 		Save(ctx)
 	if err != nil {
-		log.Fatalf("Failed to create price: %v", err)
+		slog.Error("failed to create price", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 
 	fmt.Printf("Created price: %s (ID: %s)\n", price.Name, price.ID.String())
@@ -130,17 +161,20 @@ func deletePriceByID(ctx context.Context, client *ent.Client, idStr string) {
 	// Parse UUID
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		log.Fatalf("Invalid UUID: %v", err)
+		slog.Error("invalid uuid", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 
 	price, err := client.Price.Get(ctx, id)
 	if err != nil {
-		log.Fatalf("Failed to find price with ID %s: %v", idStr, err)
+		slog.Error("failed to find price", slog.String("id", idStr), slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 
 	err = client.Price.DeleteOne(price).Exec(ctx)
 	if err != nil {
-		log.Fatalf("Failed to delete price: %v", err)
+		slog.Error("failed to delete price", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 	fmt.Printf("Deleted price: %s\n", price.Name)
 }
@@ -148,7 +182,8 @@ func deletePriceByID(ctx context.Context, client *ent.Client, idStr string) {
 func listAllUsers(ctx context.Context, client *ent.Client) {
 	users, err := client.User.Query().All(ctx)
 	if err != nil {
-		log.Fatalf("Failed to list users: %v", err)
+		slog.Error("failed to list users", slog.String("err", err.Error()))
+		os.Exit(1)
 	}
 	if len(users) == 0 {
 		fmt.Println("No users found.")
@@ -182,21 +217,14 @@ func addCreditsToUser(ctx context.Context, client *ent.Client, idStr string, amo
 func seedThemes(ctx context.Context, client *ent.Client) error {
 	// Desired defaults
 	defaults := []struct {
-		Name      string
-		Slug      string
-		Prompt    string
-		CSSTokens map[string]any
+		Name   string
+		Slug   string
+		Prompt string
 	}{
 		{
 			Name:   "Ghibli",
 			Slug:   "ghibli",
 			Prompt: "Studio Ghibli style, soft watercolor backgrounds, warm pastel palette, whimsical, gentle lighting, delicate linework, film-grain, storybook aesthetic, keep facial expressions and details",
-			CSSTokens: map[string]any{
-				"color_primary": "#6B8E23",
-				"color_accent":  "#F0C987",
-				"color_bg":      "#FAF7F2",
-				"grain":         true,
-			},
 		},
 	}
 
@@ -212,7 +240,6 @@ func seedThemes(ctx context.Context, client *ent.Client) error {
 			SetName(d.Name).
 			SetSlug(d.Slug).
 			SetPrompt(d.Prompt).
-			SetCSSTokens(d.CSSTokens).
 			Save(ctx); err != nil {
 			return err
 		}

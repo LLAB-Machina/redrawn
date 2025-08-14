@@ -15,7 +15,7 @@ Generate themed, on‑brand visuals from your photos and share them as collabora
 - **Backend**: Go, `github.com/go-fuego/fuego` (HTTP + OpenAPI), Ent (ORM), Atlas (migrations), Postgres
 - **Frontend**: Next.js (React), RTK Query (generated client), Tailwind CSS
 - **Infra**: Docker Compose, Caddy (local reverse proxy)
-- **Integrations**: Stripe, Cloudflare Images/R2, OpenAI
+- **Integrations**: Stripe, R2 (S3-compatible), OpenAI
 
 ### Monorepo layout
 ```text

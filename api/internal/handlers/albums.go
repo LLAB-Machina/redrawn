@@ -14,7 +14,7 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 	svc := services.NewAlbumsService(a)
 
 	fuego.Post(s, "/v1/albums", func(c fuego.ContextWithBody[albumCreateReq]) (api.Album, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.Album{}, err
 		}
@@ -36,22 +36,12 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Patch(s, "/v1/albums/{id}", func(c fuego.ContextWithBody[api.AlbumUpdateRequest]) (api.OkResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.OkResponse{}, err
 		}
 		id := c.PathParam("id")
-		payload := map[string]any{}
-		if body.Name != nil {
-			payload["name"] = *body.Name
-		}
-		if body.Slug != nil {
-			payload["slug"] = *body.Slug
-		}
-		if body.Visibility != nil {
-			payload["visibility"] = *body.Visibility
-		}
-		if err := svc.Update(c.Context(), id, payload); err != nil {
+		if err := svc.Update(c.Context(), id, body); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil

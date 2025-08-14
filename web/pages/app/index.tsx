@@ -3,15 +3,18 @@ import { useState } from "react";
 import {
   useGetV1AlbumsQuery,
   useGetV1MeQuery,
+  type Album,
 } from "../../src/services/genApi";
 import { AlbumWizard } from "../../components/AlbumWizard";
 
 export default function AppHome() {
-  const { data: me, error: meError } = useGetV1MeQuery(undefined);
-  const { data: albums, refetch } = useGetV1AlbumsQuery(undefined);
+  const { data: meQ, error: meError } = useGetV1MeQuery(undefined);
+  const { data: albumsQ, refetch } = useGetV1AlbumsQuery(undefined);
   const [showWizard, setShowWizard] = useState(false);
 
-  const isAuthed = !(meError && (meError as any).status === 401);
+  const me = meQ ?? null;
+  const albums = (albumsQ ?? []) as Album[];
+  const isAuthed = !!me && !(meError && (meError as any).status === 401);
 
   return (
     <div className="space-y-8">

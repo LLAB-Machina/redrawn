@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"redrawn/api/ent"
+	"redrawn/api/internal/api"
 	"redrawn/api/internal/config"
 )
 
@@ -16,6 +17,6 @@ type App struct {
 // TaskQueue is a minimal interface for enqueuing and querying background tasks.
 // It deliberately uses only basic types to avoid cross-package import cycles.
 type TaskQueue interface {
-	Enqueue(ctx context.Context, taskType string, payload map[string]any) (string, error)
-	Get(taskID string) (map[string]any, bool)
+	EnqueueGenerate(ctx context.Context, payload api.GenerateJobPayload) (string, error)
+	GetStatus(taskID string) (string, bool)
 }

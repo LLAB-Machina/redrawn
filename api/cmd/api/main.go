@@ -14,12 +14,17 @@ import (
 	"syscall"
 	"time"
 
+	// "redrawn/api/ent"
+	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 	"redrawn/api/internal/config"
 	"redrawn/api/internal/db"
 	"redrawn/api/internal/handlers"
 	"redrawn/api/internal/middleware"
 	"redrawn/api/internal/queue"
+	"redrawn/api/internal/worker"
+
+	// "github.com/google/uuid"
 
 	"github.com/go-fuego/fuego"
 )
@@ -38,6 +43,35 @@ func main() {
 	// OpenAPI UI/Spec can be served via handlers if desired; omitted here for CLI generation
 
 	cfg := config.FromEnv()
+
+	// Initialize global slog default logger based on config
+	{
+		levelVar := new(slog.LevelVar)
+		switch strings.ToLower(cfg.LogLevel) {
+		case "debug":
+			levelVar.Set(slog.LevelDebug)
+		case "info":
+			levelVar.Set(slog.LevelInfo)
+		case "warn", "warning":
+			levelVar.Set(slog.LevelWarn)
+		case "error":
+			levelVar.Set(slog.LevelError)
+		default:
+			levelVar.Set(slog.LevelInfo)
+		}
+		// When generating OpenAPI to stdout, redirect logs to stderr to avoid corrupting JSON output
+		logOutput := os.Stdout
+		if *openapiOnly {
+			logOutput = os.Stderr
+		}
+		var handler slog.Handler
+		if cfg.LogFormat == "text" {
+			handler = slog.NewTextHandler(logOutput, &slog.HandlerOptions{Level: levelVar})
+		} else {
+			handler = slog.NewJSONHandler(logOutput, &slog.HandlerOptions{Level: levelVar})
+		}
+		slog.SetDefault(slog.New(handler))
+	}
 
 	// Configure logging and error behavior
 	// Map generic errors to structured HTTP errors (and map common strings to statuses)
@@ -60,27 +94,45 @@ func main() {
 	// Structured request/response logging (keep defaults; could be tuned via config later)
 	fuego.WithLoggingMiddleware(fuego.LoggingConfig{})(s)
 
-	// In dev, serialize errors with stack traces for easier debugging
+	// Serialize errors as application/problem+json with optional field errors
 	fuego.WithErrorSerializer(func(w http.ResponseWriter, r *http.Request, err error) {
-		// Use default mapping to HTTPError
+		// Map to fuego HTTPError first
 		mapped := fuego.HandleHTTPError(err)
+
+		// If it's our validation error, shape it as problem+json 400 with details
+		if vErr, ok := err.(api.ErrValidation); ok {
+			w.Header().Set("Content-Type", "application/problem+json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(api.ProblemResponse{
+				Type:   "https://example.com/problems/validation-error",
+				Title:  "Invalid request parameters",
+				Status: http.StatusBadRequest,
+				Detail: "One or more fields failed validation",
+				Errors: vErr.Errors,
+			})
+			return
+		}
+
+		// In dev, attach stack trace for easier debugging
 		if cfg.Dev {
 			var httpErr fuego.HTTPError
 			if errors.As(mapped, &httpErr) {
 				st := string(debug.Stack())
-				// Ensure human-readable message in dev
 				if httpErr.Detail == "" && httpErr.Err != nil {
 					httpErr.Detail = httpErr.Err.Error()
 				}
+				// include stack trace in the error list without using generic maps
 				httpErr.Errors = append(httpErr.Errors, fuego.ErrorItem{
 					Name:   "stack",
-					Reason: "see more",
-					More:   map[string]any{"stack": st},
+					Reason: st,
 				})
+				// Let fuego send JSON error; consumers may treat as problem json
 				fuego.SendJSONError(w, r, httpErr)
 				return
 			}
 		}
+
+		// Default behavior
 		fuego.SendJSONError(w, r, mapped)
 	})(s)
 	if *openapiOnly {
@@ -117,11 +169,8 @@ func main() {
 
 	application := &app.App{Config: cfg, Ent: entClient}
 
-	// Processor for DB queue: receives payload only
-	processor := func(ctx context.Context, payload map[string]any) error {
-		// TODO: call generation pipeline using payload["original_id"], payload["theme_id"]
-		return nil
-	}
+	// Extracted processor
+	processor := worker.NewGenerateProcessor(cfg, entClient)
 	dbq := queue.NewDB(entClient, 500*time.Millisecond, 2, processor)
 	application.Queue = dbq
 

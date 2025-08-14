@@ -16,7 +16,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 	svc := services.NewPhotosService(a)
 
 	fuego.Post(s, "/v1/albums/{id}/uploads", func(c fuego.ContextWithBody[uploadInitReq]) (api.UploadInitResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.UploadInitResponse{}, err
 		}
@@ -25,7 +25,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Post(s, "/v1/albums/{id}/originals", func(c fuego.ContextWithBody[createOriginalReq]) (api.IDResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.IDResponse{}, err
 		}
@@ -39,7 +39,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Post(s, "/v1/originals/{id}/generate", func(c fuego.ContextWithBody[genReq]) (api.TaskResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.TaskResponse{}, err
 		}
@@ -65,14 +65,9 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		if a.Queue == nil {
 			return api.TaskStatusResponse{Status: "unknown"}, nil
 		}
-		// Note: fuego path params are not directly provided here; using the template key
-		// The framework replaces "{id}" before invoking handler
 		id := c.PathParam("id")
-		if t, ok := a.Queue.Get(id); ok {
-			if s, ok := t["status"].(string); ok {
-				return api.TaskStatusResponse{Status: s}, nil
-			}
-			return api.TaskStatusResponse{Status: "unknown"}, nil
+		if status, ok := a.Queue.GetStatus(id); ok {
+			return api.TaskStatusResponse{Status: status}, nil
 		}
 		return api.TaskStatusResponse{Status: "not_found"}, nil
 	})

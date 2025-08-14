@@ -96,20 +96,20 @@ func (s *AlbumsService) Get(ctx context.Context, id string) (api.Album, error) {
 	return api.Album{ID: a.ID.String(), Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
 }
 
-func (s *AlbumsService) Update(ctx context.Context, id string, payload map[string]any) error {
+func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpdateRequest) error {
 	aid, err := uuid.Parse(id)
 	if err != nil {
 		return err
 	}
 	m := s.app.Ent.Album.UpdateOneID(aid)
-	if v, ok := payload["name"].(string); ok && v != "" {
-		m.SetName(v)
+	if req.Name != nil && *req.Name != "" {
+		m.SetName(*req.Name)
 	}
-	if v, ok := payload["slug"].(string); ok && v != "" {
-		m.SetSlug(v)
+	if req.Slug != nil && *req.Slug != "" {
+		m.SetSlug(*req.Slug)
 	}
-	if v, ok := payload["visibility"].(string); ok && v != "" {
-		m.SetVisibility(album.Visibility(v))
+	if req.Visibility != nil && *req.Visibility != "" {
+		m.SetVisibility(album.Visibility(*req.Visibility))
 	}
 	return m.Exec(ctx)
 }

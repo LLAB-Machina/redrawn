@@ -20,11 +20,8 @@ Google Sign-In
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: From Google Cloud Console OAuth credentials.
 - Redirect URI to configure at Google: `{PUBLIC_BASE_URL}/api/server/v1/auth/google/callback`.
 
-Cloudflare Images (optional in dev)
-- `CF_ACCOUNT_ID`, `CF_IMAGES_TOKEN`, `CF_IMAGES_DELIVERY_HASH`: Used to sign delivery URLs. In dev, placeholders are fine; the File URL endpoint will error without real values.
-
-Cloudflare R2 (S3-compatible) (optional)
-- `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_S3_ENDPOINT`, `R2_PUBLIC_BASE_URL`: Only needed if switching storage backend from Cloudflare Images to R2.
+Cloudflare R2 (S3-compatible) storage
+- `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_S3_ENDPOINT`, `R2_PUBLIC_BASE_URL`
 
 Stripe (optional unless using billing)
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`: Needed for checkout/webhooks. Also set `PUBLIC_BASE_URL` for return URLs.
@@ -71,7 +68,7 @@ Configure Google OAuth redirect URI to `{PUBLIC_BASE_URL}/api/server/v1/auth/goo
   - `R2_S3_ENDPOINT` (e.g., `https://<account_id>.r2.cloudflarestorage.com`)
   - `R2_PUBLIC_BASE_URL` (e.g., `https://assets.example.com` if public; leave empty if you plan to presign GET URLs)
 
-Note: We are migrating to R2. You can remove legacy Cloudflare Images variables (`CF_ACCOUNT_ID`, `CF_IMAGES_TOKEN`, `CF_IMAGES_DELIVERY_HASH`) if you no longer use them.
+Note: Legacy Cloudflare Images variables have been removed.
 
 #### Stripe (billing)
 - Stripe Dashboard → Developers → API keys → copy Secret key → `STRIPE_SECRET_KEY`

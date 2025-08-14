@@ -7,6 +7,8 @@ import (
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 
+	"redrawn/api/ent/job"
+
 	"github.com/google/uuid"
 )
 
@@ -156,4 +158,83 @@ func (s *AdminService) ListAllAlbums(ctx context.Context) ([]api.AdminAlbum, err
 		})
 	}
 	return result, nil
+}
+
+// Jobs
+func (s *AdminService) ListJobs(ctx context.Context) ([]api.AdminJob, error) {
+	jobs, err := s.app.Ent.Job.Query().
+		Order(job.ByEnqueuedAt()).
+		Limit(200).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]api.AdminJob, 0, len(jobs))
+	for _, j := range jobs {
+		var started, completed *string
+		if j.StartedAt != nil {
+			s := j.StartedAt.Format("2006-01-02 15:04:05")
+			started = &s
+		}
+		if j.CompletedAt != nil {
+			s := j.CompletedAt.Format("2006-01-02 15:04:05")
+			completed = &s
+		}
+		jobItem := api.AdminJob{
+			ID:          j.ID.String(),
+			Type:        j.Type,
+			Status:      string(j.Status),
+			EnqueuedAt:  j.EnqueuedAt.Format("2006-01-02 15:04:05"),
+			StartedAt:   started,
+			CompletedAt: completed,
+		}
+		// Map stored JSON payload to typed payload if it matches the generate schema
+		if j.Type == "generate" {
+			p := api.GenerateJobPayload{}
+			if v, ok := j.Payload["task"].(string); ok {
+				p.Task = v
+			}
+			if v, ok := j.Payload["original_id"].(string); ok {
+				p.OriginalID = v
+			}
+			if v, ok := j.Payload["theme_id"].(string); ok {
+				p.ThemeID = v
+			}
+			if v, ok := j.Payload["generated_id"].(string); ok {
+				p.GeneratedID = v
+			}
+			jobItem.Payload = &p
+		}
+		if j.Error != nil {
+			jobItem.Error = *j.Error
+		}
+		out = append(out, jobItem)
+	}
+	return out, nil
+}
+
+func (s *AdminService) JobSummary(ctx context.Context) (api.AdminJobSummary, error) {
+	out := api.AdminJobSummary{}
+	type kv struct {
+		k string
+		v job.Status
+	}
+	keys := []kv{{"queued", job.StatusQueued}, {"running", job.StatusRunning}, {"succeeded", job.StatusSucceeded}, {"failed", job.StatusFailed}}
+	for _, item := range keys {
+		n, err := s.app.Ent.Job.Query().Where(job.StatusEQ(item.v)).Count(ctx)
+		if err != nil {
+			return api.AdminJobSummary{}, err
+		}
+		switch item.k {
+		case "queued":
+			out.Queued = n
+		case "running":
+			out.Running = n
+		case "succeeded":
+			out.Succeeded = n
+		case "failed":
+			out.Failed = n
+		}
+	}
+	return out, nil
 }

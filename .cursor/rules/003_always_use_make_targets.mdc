@@ -1,0 +1,16 @@
+---
+description: Prefer running defined Makefile targets directly instead of crafting ad-hoc commands
+globs: **/*
+alwaysApply: true
+---
+
+**Always run Makefile targets directly**
+
+- When a task has a corresponding Make target, run it instead of re-deriving commands.
+- Examples:
+  - `make dev` to run API + Web locally.
+  - `make api` or `make web` to run each service.
+  - `make revision`, `make uphead`, `make reset-db` for database migrations.
+  - `make code-gen` for OpenAPI and client generation.
+  - `make lint`, `make test`, `make format`, `make build-api` for quality gates and builds.
+- Respect environment prerequisites described by targets (e.g., `.env`, `DATABASE_URL`). Do not bypass Makefile logic.

@@ -17,6 +17,39 @@ const injectedRtkApi = api
           },
         }),
       }),
+      getV1AdminJobs: build.query<
+        GetV1AdminJobsApiResponse,
+        GetV1AdminJobsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/jobs`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
+      getV1AdminJobsSummary: build.query<
+        GetV1AdminJobsSummaryApiResponse,
+        GetV1AdminJobsSummaryApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/jobs/summary`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
+      getV1AdminJobsByIdLogs: build.query<
+        GetV1AdminJobsByIdLogsApiResponse,
+        GetV1AdminJobsByIdLogsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/jobs/${queryArg.id}/logs`,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
       getV1AdminPrices: build.query<
         GetV1AdminPricesApiResponse,
         GetV1AdminPricesApiArg
@@ -424,6 +457,17 @@ const injectedRtkApi = api
 export { injectedRtkApi as api };
 export type GetV1AdminAlbumsApiResponse = /** status 200 OK */ AdminAlbum[];
 export type GetV1AdminAlbumsApiArg = string | undefined;
+export type GetV1AdminJobsApiResponse = /** status 200 OK */ AdminJob[];
+export type GetV1AdminJobsApiArg = string | undefined;
+export type GetV1AdminJobsSummaryApiResponse =
+  /** status 200 OK */ AdminJobSummary;
+export type GetV1AdminJobsSummaryApiArg = string | undefined;
+export type GetV1AdminJobsByIdLogsApiResponse =
+  /** status 200 OK */ JobLogsResponse;
+export type GetV1AdminJobsByIdLogsApiArg = {
+  accept?: string;
+  id: string;
+};
 export type GetV1AdminPricesApiResponse = /** status 200 OK */ Price[];
 export type GetV1AdminPricesApiArg = string | undefined;
 export type PostV1AdminPricesApiResponse = /** status 200 OK */ Price;
@@ -519,7 +563,7 @@ export type PostV1AlbumsByIdUploadsApiArg = {
   uploadInitRequest: UploadInitRequest;
 };
 export type GetV1AuthGoogleCallbackApiResponse =
-  /** status 200 OK */ UnknownInterface;
+  /** status 200 OK */ OkResponse;
 export type GetV1AuthGoogleCallbackApiArg = string | undefined;
 export type GetV1AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
 export type GetV1AuthGoogleStartApiArg = string | undefined;
@@ -633,6 +677,31 @@ export type HttpError = {
   /** URL of the error type. Can be used to lookup the error in a documentation */
   type?: string | null;
 };
+export type AdminJob = {
+  completed_at?: string | null;
+  enqueued_at?: string;
+  error?: string | null;
+  id?: string;
+  payload?: {
+    generated_id?: string;
+    job_id?: string | null;
+    original_id?: string;
+    task?: string;
+    theme_id?: string;
+  } | null;
+  started_at?: string | null;
+  status?: string;
+  type?: string;
+};
+export type AdminJobSummary = {
+  failed?: number;
+  queued?: number;
+  running?: number;
+  succeeded?: number;
+};
+export type JobLogsResponse = {
+  logs?: string;
+};
 export type Price = {
   active?: boolean;
   credits?: number;
@@ -695,6 +764,7 @@ export type OriginalPhoto = {
   created_at?: string;
   file_id?: string | null;
   id?: string;
+  processing?: number | null;
 };
 export type IdResponse = {
   id?: string;
@@ -711,7 +781,6 @@ export type UploadInitRequest = {
   name?: string;
   size?: number;
 };
-export type UnknownInterface = any;
 export type UrlResponse = {
   url?: string;
 };
@@ -762,24 +831,24 @@ export type TaskStatusResponse = {
   status?: string;
 };
 export type Theme = {
-  css_tokens?: {
-    [key: string]: any;
-  } | null;
   id?: string;
   name?: string;
   prompt?: string | null;
   slug?: string;
 };
 export type CreateThemeRequest = {
-  css_tokens?: {
-    [key: string]: any;
-  };
   name?: string;
   prompt?: string;
 };
 export const {
   useGetV1AdminAlbumsQuery,
   useLazyGetV1AdminAlbumsQuery,
+  useGetV1AdminJobsQuery,
+  useLazyGetV1AdminJobsQuery,
+  useGetV1AdminJobsSummaryQuery,
+  useLazyGetV1AdminJobsSummaryQuery,
+  useGetV1AdminJobsByIdLogsQuery,
+  useLazyGetV1AdminJobsByIdLogsQuery,
   useGetV1AdminPricesQuery,
   useLazyGetV1AdminPricesQuery,
   usePostV1AdminPricesMutation,

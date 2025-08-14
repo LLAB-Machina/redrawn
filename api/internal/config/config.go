@@ -7,12 +7,9 @@ import (
 )
 
 type Config struct {
-	DatabaseURL          string
-	SessionSecret        string
-	PublicBaseURL        string
-	CFAccountID          string
-	CFImagesToken        string
-	CFImagesDeliveryHash string
+	DatabaseURL   string
+	SessionSecret string
+	PublicBaseURL string
 	// R2 (S3-compatible) configuration
 	R2AccessKeyID      string
 	R2SecretAccessKey  string
@@ -29,6 +26,9 @@ type Config struct {
 	Env                string
 	Dev                bool
 	AdminEmails        []string
+	// Logging configuration
+	LogLevel  string
+	LogFormat string // "json" or "text"
 }
 
 func FromEnv() Config {
@@ -42,21 +42,18 @@ func FromEnv() Config {
 	}
 
 	return Config{
-		DatabaseURL:          os.Getenv("DATABASE_URL"),
-		SessionSecret:        os.Getenv("SESSION_SECRET"),
-		PublicBaseURL:        os.Getenv("PUBLIC_BASE_URL"),
-		CFAccountID:          os.Getenv("CF_ACCOUNT_ID"),
-		CFImagesToken:        os.Getenv("CF_IMAGES_TOKEN"),
-		CFImagesDeliveryHash: os.Getenv("CF_IMAGES_DELIVERY_HASH"),
-		R2AccessKeyID:        os.Getenv("R2_ACCESS_KEY_ID"),
-		R2SecretAccessKey:    os.Getenv("R2_SECRET_ACCESS_KEY"),
-		R2Bucket:             os.Getenv("R2_BUCKET"),
-		R2S3Endpoint:         os.Getenv("R2_S3_ENDPOINT"),
-		R2PublicBaseURL:      os.Getenv("R2_PUBLIC_BASE_URL"),
-		StripeSecretKey:      os.Getenv("STRIPE_SECRET_KEY"),
-		StripeWebhook:        os.Getenv("STRIPE_WEBHOOK_SECRET"),
-		StripePriceID:        os.Getenv("STRIPE_PRICE_ID"),
-		OpenAIAPIKey:         os.Getenv("OPENAI_API_KEY"),
+		DatabaseURL:       os.Getenv("DATABASE_URL"),
+		SessionSecret:     os.Getenv("SESSION_SECRET"),
+		PublicBaseURL:     os.Getenv("PUBLIC_BASE_URL"),
+		R2AccessKeyID:     os.Getenv("R2_ACCESS_KEY_ID"),
+		R2SecretAccessKey: os.Getenv("R2_SECRET_ACCESS_KEY"),
+		R2Bucket:          os.Getenv("R2_BUCKET"),
+		R2S3Endpoint:      os.Getenv("R2_S3_ENDPOINT"),
+		R2PublicBaseURL:   os.Getenv("R2_PUBLIC_BASE_URL"),
+		StripeSecretKey:   os.Getenv("STRIPE_SECRET_KEY"),
+		StripeWebhook:     os.Getenv("STRIPE_WEBHOOK_SECRET"),
+		StripePriceID:     os.Getenv("STRIPE_PRICE_ID"),
+		OpenAIAPIKey:      os.Getenv("OPENAI_API_KEY"),
 		CreditsPerPurchase: func() int {
 			n, _ := strconv.Atoi(os.Getenv("CREDITS_PER_PURCHASE"))
 			if n == 0 {
@@ -76,6 +73,29 @@ func FromEnv() Config {
 			}
 		}(),
 		AdminEmails: loadAdminEmails(),
+		LogLevel: func() string {
+			lvl := strings.ToLower(strings.TrimSpace(os.Getenv("LOG_LEVEL")))
+			if lvl == "" {
+				if env == "production" || env == "prod" {
+					return "info"
+				}
+				return "debug"
+			}
+			return lvl
+		}(),
+		LogFormat: func() string {
+			fmt := strings.ToLower(strings.TrimSpace(os.Getenv("LOG_FORMAT")))
+			if fmt == "" {
+				if env == "production" || env == "prod" {
+					return "json"
+				}
+				return "text"
+			}
+			if fmt != "json" && fmt != "text" {
+				return "json"
+			}
+			return fmt
+		}(),
 	}
 }
 

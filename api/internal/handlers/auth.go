@@ -17,7 +17,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	svc := services.NewAuthService(a)
 
 	fuego.Post(s, "/v1/auth/request-magic-link", func(c fuego.ContextWithBody[magicLinkReq]) (api.StatusResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.StatusResponse{}, err
 		}
@@ -29,7 +29,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Post(s, "/v1/auth/verify", func(c fuego.ContextWithBody[verifyReq]) (api.OkResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.OkResponse{}, err
 		}
@@ -64,12 +64,12 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	})
 
 	// Google OAuth callback: exchanges code, sets session cookie, redirects
-	fuego.Get(s, "/v1/auth/google/callback", func(c fuego.ContextNoBody) (any, error) {
+	fuego.Get(s, "/v1/auth/google/callback", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		code := c.Request().URL.Query().Get("code")
 		next := c.Request().URL.Query().Get("state")
 		uid, err := svc.GoogleVerify(c.Context(), code)
 		if err != nil {
-			return nil, err
+			return api.OkResponse{}, err
 		}
 		cookie := middleware.MakeSessionCookie(a.Config, uid)
 		httpRes := c.Response()
@@ -80,6 +80,6 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		}
 		httpRes.Header().Set("Location", dest)
 		httpRes.WriteHeader(http.StatusFound)
-		return nil, nil
+		return api.OkResponse{Ok: "true"}, nil
 	})
 }

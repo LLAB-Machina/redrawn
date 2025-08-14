@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"os"
 
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
@@ -51,7 +52,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +64,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return nil, err
 		}
 		priceID := c.Request().PathValue("id")
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return nil, err
 		}
@@ -96,5 +97,43 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return nil, err
 		}
 		return svc.ListAllAlbums(c.Context())
+	})
+
+	// Jobs management
+	fuego.Get(s, "/v1/admin/jobs", func(c fuego.ContextNoBody) ([]api.AdminJob, error) {
+		if err := checkAdminAuth(c.Context()); err != nil {
+			return nil, err
+		}
+		return svc.ListJobs(c.Context())
+	})
+
+	fuego.Get(s, "/v1/admin/jobs/summary", func(c fuego.ContextNoBody) (api.AdminJobSummary, error) {
+		if err := checkAdminAuth(c.Context()); err != nil {
+			return api.AdminJobSummary{}, err
+		}
+		return svc.JobSummary(c.Context())
+	})
+
+	// Job logs endpoint: returns text logs captured by worker for a job
+	fuego.Get(s, "/v1/admin/jobs/{id}/logs", func(c fuego.ContextNoBody) (api.JobLogsResponse, error) {
+		if err := checkAdminAuth(c.Context()); err != nil {
+			return api.JobLogsResponse{}, err
+		}
+		id := c.PathParam("id")
+		// Primary path: logs/jobs/<id>/logs.txt (when API runs with cwd=api)
+		// Legacy path: api/logs/jobs/<id>/logs.txt (older runs)
+		primary := "logs/jobs/" + id + "/logs.txt"
+		legacy := "api/logs/jobs/" + id + "/logs.txt"
+		data, err := os.ReadFile(primary)
+		if err != nil {
+			if b, err2 := os.ReadFile(legacy); err2 == nil {
+				return api.JobLogsResponse{Logs: string(b)}, nil
+			}
+			// If file doesn't exist yet, create empty in the primary path to make it obvious
+			_ = os.MkdirAll("logs/jobs/"+id, 0o755)
+			_ = os.WriteFile(primary, []byte("(no logs yet)\n"), 0o644)
+			data = []byte("(no logs yet)\n")
+		}
+		return api.JobLogsResponse{Logs: string(data)}, nil
 	})
 }

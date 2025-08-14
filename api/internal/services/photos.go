@@ -2,9 +2,6 @@ package services
 
 import (
 	"context"
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -14,6 +11,7 @@ import (
 	"redrawn/api/ent/album"
 	"redrawn/api/ent/generatedphoto"
 	"redrawn/api/ent/originalphoto"
+	"redrawn/api/ent/theme"
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 
@@ -36,7 +34,7 @@ func (s *PhotosService) InitUpload(ctx context.Context, albumID, name, mime stri
 	fid := uuid.New()
 	key := fid.String()
 
-	// Create DB row with provider=r2 and key stored in CloudflareID field
+	// Create DB row with provider=r2
 	if _, err := s.app.Ent.File.Create().
 		SetID(fid).
 		SetProvider("r2").
@@ -126,6 +124,15 @@ func (s *PhotosService) ListOriginals(ctx context.Context, albumID string) ([]ap
 		if o.Edges.File != nil {
 			op.FileID = o.Edges.File.ID.String()
 		}
+		// Count how many generated photos are currently processing for this original
+		if n, err := s.app.Ent.GeneratedPhoto.Query().
+			Where(
+				generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(o.ID)),
+				generatedphoto.StateEQ(generatedphoto.StateProcessing),
+			).
+			Count(ctx); err == nil {
+			op.Processing = n
+		}
 		out = append(out, op)
 	}
 	return out, nil
@@ -173,12 +180,50 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		}
 		return api.TaskResponse{TaskID: g.ID.String()}, nil
 	}
-	payload := map[string]any{"original_id": originalID, "theme_id": themeID}
-	id, err := s.app.Queue.Enqueue(ctx, "generate", payload)
+
+	// Async path with queue: prevent duplicate pending jobs for same (original, theme).
+	oid, err := uuid.Parse(originalID)
 	if err != nil {
 		return api.TaskResponse{}, err
 	}
-	return api.TaskResponse{TaskID: id}, nil
+	var tidPtr *uuid.UUID
+	if themeID != "" {
+		if tid, err := uuid.Parse(themeID); err == nil {
+			tidPtr = &tid
+		}
+	}
+
+	// Check if a generation is already processing for this pair
+	q := s.app.Ent.GeneratedPhoto.Query().
+		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(oid)), generatedphoto.StateEQ(generatedphoto.StateProcessing))
+	if tidPtr != nil {
+		q = q.Where(generatedphoto.HasThemeWith(theme.IDEQ(*tidPtr)))
+	}
+	if existing, err := q.First(ctx); err == nil && existing != nil {
+		return api.TaskResponse{TaskID: existing.ID.String()}, nil
+	}
+
+	// Create a processing GeneratedPhoto row to represent the pending work
+	create := s.app.Ent.GeneratedPhoto.Create().
+		SetID(uuid.New()).
+		SetStartedAt(time.Now()).
+		SetState(generatedphoto.StateProcessing).
+		SetOriginalPhotoID(oid)
+	if tidPtr != nil {
+		create = create.SetThemeID(*tidPtr)
+	}
+	gp, err := create.Save(ctx)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+
+	// Enqueue background job with typed payload
+	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp.ID.String()}
+	jid, err := s.app.Queue.EnqueueGenerate(ctx, payload)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	return api.TaskResponse{TaskID: jid}, nil
 }
 
 func (s *PhotosService) ListGenerated(ctx context.Context, originalID string) ([]api.GeneratedPhoto, error) {
@@ -252,17 +297,6 @@ func (s *PhotosService) FileURL(ctx context.Context, fileID string) (string, err
 		return pre.URL, nil
 	}
 
-	// Fallback: Cloudflare Images
-	if s.app.Config.CFImagesDeliveryHash != "" && f.CloudflareID != "" {
-		base := fmt.Sprintf("https://imagedelivery.net/%s/%s/public", s.app.Config.CFImagesDeliveryHash, f.CloudflareID)
-		sig := signURL(base, s.app.Config.CFImagesToken)
-		return base + "?sig=" + sig, nil
-	}
+	// No legacy image hosting fallback supported anymore
 	return "", errors.New("delivery not configured")
-}
-
-func signURL(u, secret string) string {
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(u))
-	return hex.EncodeToString(mac.Sum(nil))
 }

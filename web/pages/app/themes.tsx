@@ -18,16 +18,9 @@ export default function Themes() {
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const prompt = (form.elements.namedItem("prompt") as HTMLInputElement)
       .value;
-    const cssTokensRaw = (
-      form.elements.namedItem("css_tokens") as HTMLTextAreaElement
-    ).value;
-    let css_tokens: any = {};
-    try {
-      css_tokens = cssTokensRaw ? JSON.parse(cssTokensRaw) : {};
-    } catch {}
     try {
       const data = await createThemeMutation({
-        createThemeRequest: { name, prompt, css_tokens },
+        createThemeRequest: { name, prompt },
       }).unwrap();
       alert(JSON.stringify(data));
     } catch (e: any) {
@@ -58,11 +51,7 @@ export default function Themes() {
             name="prompt"
             placeholder="prompt"
           />
-          <textarea
-            className="min-h-24 rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/10"
-            name="css_tokens"
-            placeholder='css tokens JSON (e.g. {"color":"#000"})'
-          />
+          {/* css_tokens removed */}
           <button className="btn btn-primary h-9 px-4" type="submit">
             Create
           </button>

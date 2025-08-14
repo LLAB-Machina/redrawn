@@ -25,6 +25,76 @@
         },
         "type": "object"
       },
+      "AdminJob": {
+        "description": "AdminJob schema",
+        "properties": {
+          "completed_at": {
+            "nullable": true,
+            "type": "string"
+          },
+          "enqueued_at": {
+            "type": "string"
+          },
+          "error": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "payload": {
+            "nullable": true,
+            "properties": {
+              "generated_id": {
+                "type": "string"
+              },
+              "job_id": {
+                "nullable": true,
+                "type": "string"
+              },
+              "original_id": {
+                "type": "string"
+              },
+              "task": {
+                "type": "string"
+              },
+              "theme_id": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "started_at": {
+            "nullable": true,
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AdminJobSummary": {
+        "description": "AdminJobSummary schema",
+        "properties": {
+          "failed": {
+            "type": "integer"
+          },
+          "queued": {
+            "type": "integer"
+          },
+          "running": {
+            "type": "integer"
+          },
+          "succeeded": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "AdminUser": {
         "description": "AdminUser schema",
         "properties": {
@@ -162,10 +232,6 @@
       "CreateThemeRequest": {
         "description": "CreateThemeRequest schema",
         "properties": {
-          "css_tokens": {
-            "additionalProperties": {},
-            "type": "object"
-          },
           "name": {
             "type": "string"
           },
@@ -283,6 +349,15 @@
         },
         "type": "object"
       },
+      "JobLogsResponse": {
+        "description": "JobLogsResponse schema",
+        "properties": {
+          "logs": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "MagicLinkRequest": {
         "description": "MagicLinkRequest schema",
         "properties": {
@@ -317,6 +392,10 @@
           },
           "id": {
             "type": "string"
+          },
+          "processing": {
+            "nullable": true,
+            "type": "integer"
           }
         },
         "type": "object"
@@ -425,11 +504,6 @@
       "Theme": {
         "description": "Theme schema",
         "properties": {
-          "css_tokens": {
-            "additionalProperties": {},
-            "nullable": true,
-            "type": "object"
-          },
           "id": {
             "type": "string"
           },
@@ -625,6 +699,218 @@
           }
         },
         "summary": "func7"
+      }
+    },
+    "/v1/admin/jobs": {
+      "get": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "operationId": "GET_/v1/admin/jobs",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminJob"
+                  },
+                  "type": "array"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminJob"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func8"
+      }
+    },
+    "/v1/admin/jobs/summary": {
+      "get": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "operationId": "GET_/v1/admin/jobs/summary",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminJobSummary"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminJobSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func9"
+      }
+    },
+    "/v1/admin/jobs/{id}/logs": {
+      "get": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func10`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "operationId": "GET_/v1/admin/jobs/:id/logs",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobLogsResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobLogsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func10"
       }
     },
     "/v1/admin/prices": {
@@ -1903,12 +2189,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/unknown-interface"
+                  "$ref": "#/components/schemas/OkResponse"
                 }
               }
             },

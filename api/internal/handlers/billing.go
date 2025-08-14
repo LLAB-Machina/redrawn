@@ -14,7 +14,7 @@ func RegisterBilling(s *fuego.Server, a *app.App) {
 	svc := services.NewBillingService(a)
 
 	fuego.Post(s, "/v1/billing/create-checkout-session", func(c fuego.ContextWithBody[api.CreateCheckoutSessionRequest]) (api.URLResponse, error) {
-		body, err := c.Body()
+		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.URLResponse{}, err
 		}

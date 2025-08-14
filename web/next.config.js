@@ -9,6 +9,11 @@ const nextConfig = {
         hostname: "1b0b50bfd75bc09853d30c816c711b08.r2.cloudflarestorage.com",
         pathname: "/redrawn-ai-albums/**",
       },
+      {
+        protocol: "https",
+        hostname: "pub-fb88bbd54ba144f2afbc11b1b101ebe8.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {

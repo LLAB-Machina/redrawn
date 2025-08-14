@@ -48,6 +48,7 @@ export default function AlbumDetail() {
   const [generateMutation] = usePostV1OriginalsByIdGenerateMutation();
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
+  const [triggerTask] = api.useLazyGetV1TasksByIdQuery();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(
     undefined,
@@ -150,10 +151,24 @@ export default function AlbumDetail() {
 
   async function generateForOriginal(originalId?: string) {
     if (!originalId || !selectedThemeId) return;
-    await generateMutation({
+    const resp = await generateMutation({
       id: originalId,
       generateRequest: { theme_id: selectedThemeId },
     }).unwrap();
+    // Optional: poll task status for quick UI feedback
+    if (resp.task_id) {
+      let attempts = 0;
+      const max = 10;
+      const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      while (attempts < max) {
+        try {
+          const ts = await triggerTask({ id: resp.task_id }).unwrap();
+          if (ts.status === "succeeded" || ts.status === "failed") break;
+        } catch {}
+        attempts++;
+        await delay(500);
+      }
+    }
   }
 
   async function generateForAll() {
@@ -169,6 +184,11 @@ export default function AlbumDetail() {
   }
 
   const themeOptions = useMemo(() => themes || [], [themes]);
+
+  const totalProcessing = useMemo(
+    () => (originals || []).reduce((n, o: any) => n + (o.processing || 0), 0),
+    [originals],
+  );
 
   return (
     <div className="space-y-8">
@@ -269,9 +289,13 @@ export default function AlbumDetail() {
             Generate all (1 credit each)
           </button>
           <div className="mt-2 text-xs text-neutral-500">
-            Tip: Invite collaborators to add photos and generate styles
-            together.
+            Tip: Invite collaborators to add photos and generate styles together.
           </div>
+          {totalProcessing > 0 && (
+            <div className="mt-2 text-xs text-blue-700">
+              {totalProcessing} image{totalProcessing === 1 ? "" : "s"} processing…
+            </div>
+          )}
           <a
             className="mt-1 inline-block text-xs underline decoration-neutral-300 underline-offset-4 hover:text-black"
             href={`/app/albums/${id}/invites`}
@@ -285,7 +309,7 @@ export default function AlbumDetail() {
         <div className="text-sm font-semibold">Photos</div>
         {originals && originals.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {originals.map((o) => (
+            {originals.map((o: any) => (
               <div
                 key={o.id}
                 className="group rounded-lg border border-neutral-200 bg-white p-2"
@@ -304,7 +328,14 @@ export default function AlbumDetail() {
                   >
                     Generate
                   </button>
-                  <LoadGenerated originalId={o.id!} ensureUrl={ensureFileUrl} />
+                  <div className="flex items-center gap-2">
+                    {o.processing > 0 && (
+                      <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-blue-800">
+                        processing ×{o.processing}
+                      </span>
+                    )}
+                    <LoadGenerated originalId={o.id!} ensureUrl={ensureFileUrl} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -352,19 +383,19 @@ function LoadGenerated({
   ensureUrl: (id?: string | null) => Promise<string | null>;
 }) {
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
-  const [images, setImages] = useState<string[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [filterThemeId, setFilterThemeId] = useState<string | "all">("all");
 
   async function load() {
     const data = await triggerGenerated({ id: originalId }).unwrap();
-    const urls: string[] = [];
+    const out: any[] = [];
     for (const g of data) {
       if (filterThemeId !== "all" && g.theme_id !== filterThemeId) continue;
       const url = await ensureUrl(g.file_id || undefined);
-      if (url) urls.push(url);
+      out.push({ id: g.id, state: g.state, url, error: g.error || null });
     }
-    setImages(urls);
+    setItems(out);
   }
 
   return (
@@ -394,17 +425,23 @@ function LoadGenerated({
           </select>
         )}
       </div>
-      {open && images.length > 0 && (
+      {open && items.length > 0 && (
         <div className="mt-2 grid grid-cols-3 gap-1">
-          {images.map((src, i) => (
+          {items.map((it, i) => (
             <div key={i} className="relative aspect-square">
-              <Image
-                src={src}
-                alt="generated"
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="rounded object-cover"
-              />
+              {it.url ? (
+                <Image
+                  src={it.url}
+                  alt="generated"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="rounded object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded bg-neutral-100 text-[10px] uppercase tracking-wide text-neutral-500">
+                  {it.state}
+                </div>
+              )}
             </div>
           ))}
         </div>

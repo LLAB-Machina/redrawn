@@ -12,7 +12,7 @@ endif
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits
+.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits
 
 dev: ## Run API and Web locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
@@ -84,8 +84,8 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
 			  echo 'cd "$$REPO_ROOT"'; \
 			  echo "echo '[pre-push] Running make revision'"; \
 			  echo "make revision"; \
-			  echo "echo '[pre-push] Running make generate-clients'"; \
-			  echo "make generate-clients"; \
+			  echo "echo '[pre-push] Running make code-gen'"; \
+			  echo "make code-gen"; \
 			  echo "echo '[pre-push] Running make lint'"; \
 			  echo "make lint"; \
 			  echo "echo '[pre-push] Running make format'"; \
@@ -128,14 +128,21 @@ uphead: ## Apply Atlas migrations
 reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	@echo "Resetting database..."
-	atlas schema apply --env local --url '$(DATABASE_URL)' --to "{}" --auto-approve || true
-	atlas migrate apply --env local --dir file://migrations --url '$(DATABASE_URL)'
+	# Force to an empty state (no tables) using an empty HCL, then re-apply migrations
+	atlas schema apply --url '$(DATABASE_URL)' --to file://migrations/empty.hcl --auto-approve
+	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
 
 openapi: ## Generate OpenAPI JSON into api/openapi.json without running server (stable key order)
 	cd api && go run ./cmd/api --openapi-only | (command -v jq >/dev/null 2>&1 && jq -S . || cat) > openapi.json
 
 generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 	cd web && npx --yes @rtk-query/codegen-openapi rtk.codegen.cjs
+
+ent-gen: ## Generate Ent ORM code from schema
+	cd api && go generate ./ent
+
+code-gen: ent-gen openapi generate-clients ## Generate Ent, OpenAPI JSON, and web client
+	@true
 
 format: ## Format Go and Web code
 	cd api && go fmt ./...
