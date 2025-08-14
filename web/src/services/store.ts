@@ -8,11 +8,11 @@ export const store = configureStore({
     gDM().concat(
       emptySplitApi.middleware,
       // User-friendly toast middleware for rejected API calls
-      () => (next) => (action: any) => {
+      () => (next: (action: unknown) => unknown) => (action: unknown) => {
         // RTK Query rejected action shape: type ends with '/rejected'
         if (
-          typeof action?.type === "string" &&
-          action.type.endsWith("/rejected") &&
+          typeof (action as any)?.type === "string" &&
+          (action as any).type.endsWith("/rejected") &&
           typeof window !== "undefined"
         ) {
           const payload = (action as any).payload as

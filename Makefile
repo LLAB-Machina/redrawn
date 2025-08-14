@@ -64,7 +64,7 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
 	fi; \
 	echo "Using Homebrew at: $$BREW_CMD"; \
 	$$BREW_CMD update; \
-	$$BREW_CMD install go node golangci-lint ariga/tap/atlas || true
+	$$BREW_CMD install go node golangci-lint jq ariga/tap/atlas || true
 	@echo "Installing air (Go live reload)..."; \
 	cd api && GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/air-verse/air@latest || true
 	@echo "Installing Go module dependencies..."
@@ -131,8 +131,8 @@ reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
 	atlas schema apply --env local --url '$(DATABASE_URL)' --to "{}" --auto-approve || true
 	atlas migrate apply --env local --dir file://migrations --url '$(DATABASE_URL)'
 
-openapi: ## Generate OpenAPI JSON into api/openapi.json without running server
-	cd api && go run ./cmd/api --openapi-only > openapi.json
+openapi: ## Generate OpenAPI JSON into api/openapi.json without running server (stable key order)
+	cd api && go run ./cmd/api --openapi-only | (command -v jq >/dev/null 2>&1 && jq -S . || cat) > openapi.json
 
 generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 	cd web && npx --yes @rtk-query/codegen-openapi rtk.codegen.cjs

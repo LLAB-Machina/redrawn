@@ -2,6 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "1b0b50bfd75bc09853d30c816c711b08.r2.cloudflarestorage.com",
+        pathname: "/redrawn-ai-albums/**",
+      },
+    ],
+  },
   async rewrites() {
     const apiTarget = process.env.API_PROXY_TARGET || "http://localhost:8080";
     return [

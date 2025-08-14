@@ -5,7 +5,11 @@ import {
 } from "../src/services/genApi";
 
 export default function Billing() {
-  const { data: prices, isLoading, error } = useGetV1BillingPricesQuery();
+  const {
+    data: prices,
+    isLoading,
+    error,
+  } = useGetV1BillingPricesQuery(undefined);
   const [createCheckout] = usePostV1BillingCreateCheckoutSessionMutation();
   const [selectedPriceId, setSelectedPriceId] = useState<string>("");
 
@@ -16,7 +20,9 @@ export default function Billing() {
     }
 
     try {
-      const data = await createCheckout({ price_id: priceId }).unwrap();
+      const data = await createCheckout({
+        createCheckoutSessionRequest: { price_id: priceId },
+      }).unwrap();
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -76,32 +82,36 @@ export default function Billing() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {prices.map((price) => (
           <div
-            key={price.id}
+            key={price.id ?? "unknown"}
             className={`card p-6 border-2 transition-colors cursor-pointer ${
-              selectedPriceId === price.id
+              selectedPriceId === (price.id ?? "")
                 ? "border-blue-500 bg-blue-50"
                 : "border-gray-200 hover:border-gray-300"
             }`}
-            onClick={() => setSelectedPriceId(price.id)}
+            onClick={() => price.id && setSelectedPriceId(price.id)}
           >
             <div className="space-y-3">
               <div>
-                <h3 className="text-lg font-semibold">{price.name}</h3>
+                <h3 className="text-lg font-semibold">
+                  {price.name ?? "Untitled"}
+                </h3>
                 <p className="text-sm text-neutral-600">
-                  {price.credits} credits
+                  {price.credits ?? 0} credits
                 </p>
               </div>
 
               <button
                 className={`btn w-full ${
-                  selectedPriceId === price.id ? "btn-primary" : "btn-secondary"
+                  selectedPriceId === (price.id ?? "")
+                    ? "btn-primary"
+                    : "btn-secondary"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  startCheckout(price.id);
+                  if (price.id) startCheckout(price.id);
                 }}
               >
-                {selectedPriceId === price.id ? "Buy Now" : "Select"}
+                {selectedPriceId === (price.id ?? "") ? "Buy Now" : "Select"}
               </button>
             </div>
           </div>
@@ -111,8 +121,12 @@ export default function Billing() {
       {selectedPriceId && (
         <div className="card p-4 bg-blue-50 border-blue-200">
           <p className="text-sm text-blue-800">
-            Selected: {prices.find((p) => p.id === selectedPriceId)?.name}(
-            {prices.find((p) => p.id === selectedPriceId)?.credits} credits)
+            Selected:{" "}
+            {prices.find((p) => (p.id ?? "") === selectedPriceId)?.name ??
+              "Untitled"}
+            (
+            {prices.find((p) => (p.id ?? "") === selectedPriceId)?.credits ?? 0}{" "}
+            credits)
           </p>
         </div>
       )}
