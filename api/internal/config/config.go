@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -22,11 +23,12 @@ type Config struct {
 	StripeWebhook      string
 	StripePriceID      string
 	OpenAIAPIKey       string
-	CreditsPerCycle    int
+	CreditsPerPurchase int
 	GoogleClientID     string
 	GoogleClientSecret string
 	Env                string
 	Dev                bool
+	AdminEmails        []string
 }
 
 func FromEnv() Config {
@@ -55,10 +57,10 @@ func FromEnv() Config {
 		StripeWebhook:        os.Getenv("STRIPE_WEBHOOK_SECRET"),
 		StripePriceID:        os.Getenv("STRIPE_PRICE_ID"),
 		OpenAIAPIKey:         os.Getenv("OPENAI_API_KEY"),
-		CreditsPerCycle: func() int {
-			n, _ := strconv.Atoi(os.Getenv("CREDITS_PER_CYCLE"))
+		CreditsPerPurchase: func() int {
+			n, _ := strconv.Atoi(os.Getenv("CREDITS_PER_PURCHASE"))
 			if n == 0 {
-				return 1000
+				return 1
 			}
 			return n
 		}(),
@@ -73,5 +75,23 @@ func FromEnv() Config {
 				return true
 			}
 		}(),
+		AdminEmails: loadAdminEmails(),
 	}
+}
+
+func loadAdminEmails() []string {
+	// Read comma-separated emails from ADMIN_EMAILS env var
+	raw := os.Getenv("ADMIN_EMAILS")
+	if raw == "" {
+		return []string{}
+	}
+	parts := strings.Split(raw, ",")
+	emails := make([]string, 0, len(parts))
+	for _, part := range parts {
+		email := strings.TrimSpace(part)
+		if email != "" {
+			emails = append(emails, email)
+		}
+	}
+	return emails
 }

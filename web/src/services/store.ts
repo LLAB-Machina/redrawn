@@ -1,6 +1,6 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { emptySplitApi } from './emptyApi';
-import { toast } from 'sonner';
+import { configureStore } from "@reduxjs/toolkit";
+import { emptySplitApi } from "./emptyApi";
+import { toast } from "sonner";
 
 export const store = configureStore({
   reducer: { [emptySplitApi.reducerPath]: emptySplitApi.reducer },
@@ -10,15 +10,21 @@ export const store = configureStore({
       // User-friendly toast middleware for rejected API calls
       () => (next) => (action: any) => {
         // RTK Query rejected action shape: type ends with '/rejected'
-        if (typeof action?.type === 'string' && action.type.endsWith('/rejected') && typeof window !== 'undefined') {
-          const payload = (action as any).payload as { data?: any; error?: any } | undefined;
+        if (
+          typeof action?.type === "string" &&
+          action.type.endsWith("/rejected") &&
+          typeof window !== "undefined"
+        ) {
+          const payload = (action as any).payload as
+            | { data?: any; error?: any }
+            | undefined;
           const data = payload?.data ?? payload;
           const msg =
             data?.message ||
             data?.detail ||
             data?.error ||
-            (typeof data === 'string' ? data : '') ||
-            'Something went wrong';
+            (typeof data === "string" ? data : "") ||
+            "Something went wrong";
           toast.error(msg);
         }
         return next(action);
@@ -28,4 +34,3 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-

@@ -159,4 +159,5 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 	handlers.RegisterThemes(s, a)
 	handlers.RegisterPublic(s, a)
 	handlers.RegisterBilling(s, a)
+	handlers.RegisterAdmin(s, a)
 }

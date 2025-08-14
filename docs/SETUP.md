@@ -33,7 +33,7 @@ OpenAI (optional; used for image generation)
 - `OPENAI_API_KEY`: If omitted, generation runs in a no-op/dev mode.
 
 Credits
-- `CREDITS_PER_CYCLE`: Default credits added on subscription (default 1000).
+- `CREDITS_PER_PURCHASE`: Credits added per one-off purchase (default 1).
 
 Environment mode
 - `ENV` or `APP_ENV`: `development` (default) or `production`. Controls `Dev` flag.

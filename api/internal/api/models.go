@@ -85,6 +85,53 @@ type PublicAlbum struct {
 }
 
 // Requests
+type CreateCheckoutSessionRequest struct {
+	PriceID string `json:"price_id" validate:"required"`
+}
+
+// Billing
+type Price struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	StripePriceID string `json:"stripe_price_id"`
+	Credits       int    `json:"credits"`
+	Active        bool   `json:"active"`
+}
+
+// Admin
+type CreatePriceRequest struct {
+	Name          string `json:"name" validate:"required"`
+	StripePriceID string `json:"stripe_price_id" validate:"required"`
+	Credits       int    `json:"credits" validate:"required,min=1"`
+	Active        bool   `json:"active"`
+}
+
+type UpdatePriceRequest struct {
+	Name          *string `json:"name"`
+	StripePriceID *string `json:"stripe_price_id"`
+	Credits       *int    `json:"credits"`
+	Active        *bool   `json:"active"`
+}
+
+type AdminUser struct {
+	ID               string `json:"id"`
+	Email            string `json:"email"`
+	Name             string `json:"name,omitempty"`
+	Handle           string `json:"handle"`
+	Plan             string `json:"plan"`
+	Credits          int64  `json:"credits"`
+	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
+	CreatedAt        string `json:"created_at"`
+}
+
+type AdminAlbum struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Slug       string `json:"slug"`
+	Visibility string `json:"visibility"`
+	OwnerEmail string `json:"owner_email"`
+	CreatedAt  string `json:"created_at"`
+}
 type PatchMeRequest struct {
 	Name   *string `json:"name"`
 	Handle *string `json:"handle"`

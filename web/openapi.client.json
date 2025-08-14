@@ -33,10 +33,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "slug"
-        ],
+        "required": ["name", "slug"],
         "type": "object"
       },
       "AlbumUpdateRequest": {
@@ -193,9 +190,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "type": "object"
       },
       "OkResponse": {
@@ -398,9 +393,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "token"
-        ],
+        "required": ["token"],
         "type": "object"
       },
       "unknown-interface": {

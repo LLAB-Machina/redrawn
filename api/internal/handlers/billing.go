@@ -13,12 +13,21 @@ import (
 func RegisterBilling(s *fuego.Server, a *app.App) {
 	svc := services.NewBillingService(a)
 
-	fuego.Post(s, "/v1/billing/create-checkout-session", func(c fuego.ContextNoBody) (api.URLResponse, error) {
-		url, err := svc.CreateCheckoutSession(c.Context())
+	fuego.Post(s, "/v1/billing/create-checkout-session", func(c fuego.ContextWithBody[api.CreateCheckoutSessionRequest]) (api.URLResponse, error) {
+		body, err := c.Body()
+		if err != nil {
+			return api.URLResponse{}, err
+		}
+		url, err := svc.CreateCheckoutSession(c.Context(), body.PriceID)
 		if err != nil {
 			return api.URLResponse{}, err
 		}
 		return api.URLResponse{URL: url}, nil
+	})
+
+	// List active prices for display on pricing page
+	fuego.Get(s, "/v1/billing/prices", func(c fuego.ContextNoBody) ([]api.Price, error) {
+		return svc.ListActivePrices(c.Context())
 	})
 
 	fuego.Post(s, "/v1/stripe/webhook", func(c fuego.ContextNoBody) (api.OkResponse, error) {

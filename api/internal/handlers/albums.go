@@ -26,12 +26,13 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Get(s, "/v1/users/{handle}/albums", func(c fuego.ContextNoBody) ([]api.Album, error) {
-		// NOTE: In real code, extract handle from path if needed by framework
-		return svc.ListByUser(c.Context(), "{handle}")
+		handle := c.PathParam("handle")
+		return svc.ListByUser(c.Context(), handle)
 	})
 
 	fuego.Get(s, "/v1/albums/{id}", func(c fuego.ContextNoBody) (api.Album, error) {
-		return svc.Get(c.Context(), "{id}")
+		id := c.PathParam("id")
+		return svc.Get(c.Context(), id)
 	})
 
 	fuego.Patch(s, "/v1/albums/{id}", func(c fuego.ContextWithBody[api.AlbumUpdateRequest]) (api.OkResponse, error) {
@@ -39,6 +40,7 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.OkResponse{}, err
 		}
+		id := c.PathParam("id")
 		payload := map[string]any{}
 		if body.Name != nil {
 			payload["name"] = *body.Name
@@ -49,14 +51,15 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 		if body.Visibility != nil {
 			payload["visibility"] = *body.Visibility
 		}
-		if err := svc.Update(c.Context(), "{id}", payload); err != nil {
+		if err := svc.Update(c.Context(), id, payload); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
 	})
 
 	fuego.Delete(s, "/v1/albums/{id}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
-		if err := svc.Delete(c.Context(), "{id}"); err != nil {
+		id := c.PathParam("id")
+		if err := svc.Delete(c.Context(), id); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil

@@ -12,7 +12,7 @@ endif
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api
+.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits
 
 dev: ## Run API and Web locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
@@ -143,4 +143,56 @@ format: ## Format Go and Web code
 
 build-api: ## Build Go API binary
 	cd api && mkdir -p bin && go build -o bin/api ./cmd/api
+
+seed-db:
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	cd api && go run ./cmd/seed -seed-default-themes
+
+grant-credits: ## Select a user via fzf and grant 10 credits
+	@if ! command -v fzf >/dev/null 2>&1; then \
+		echo "fzf not found. Install it (e.g., brew install fzf)"; exit 1; \
+	fi
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	@echo "Fetching users..." >&2
+	@USER_LINE=$$(cd api && go run ./cmd/seed -list-users | fzf --with-nth=2,3 --delimiter='\t' --ansi --header='Select user to grant 10 credits' --preview-window=down:3:wrap --preview='echo ID: {1}\\nEmail: {2}\\nName: {3}\\nCredits: {4}'); \
+	if [ -z "$$USER_LINE" ]; then echo "No user selected"; exit 1; fi; \
+	USER_ID=$$(echo "$$USER_LINE" | awk -F'\t' '{print $$1}'); \
+	cd api && go run ./cmd/seed -give-credits -user-id "$$USER_ID" -amount 10
+
+# --- Stripe local helper targets ---
+
+# Usage:
+# 1) make local-stripe       -> writes STRIPE_WEBHOOK to .env and starts forwarding to our API
+# 2) make local-stripe-trigger  -> triggers a simple test event
+
+local-stripe: ## Login (once), capture webhook secret into .env, and start forwarding webhooks to the API
+	@if ! command -v stripe >/dev/null 2>&1; then \
+		echo "Stripe CLI not found. Install from https://stripe.com/docs/stripe-cli and rerun."; \
+		exit 1; \
+	fi
+	@echo "Ensuring you're logged in (a browser may open)..." && stripe login || true
+	@echo "Fetching webhook secret..."; \
+	SECRET=$$(stripe listen --print-secret 2>/dev/null); \
+	if [ -z "$$SECRET" ]; then \
+		echo "Could not fetch webhook secret. Is Stripe CLI logged in?"; exit 1; \
+	fi; \
+	if [ -f .env ]; then \
+		if grep -q '^STRIPE_WEBHOOK=' .env; then \
+			sed -i'' -e "s|^STRIPE_WEBHOOK=.*|STRIPE_WEBHOOK=$$SECRET|" .env; \
+		else \
+			echo "STRIPE_WEBHOOK=$$SECRET" >> .env; \
+		fi; \
+	else \
+		echo "STRIPE_WEBHOOK=$$SECRET" > .env; \
+	fi; \
+	echo "Saved STRIPE_WEBHOOK to .env"; \
+	echo "Starting stripe listen → http://localhost:8080/v1/stripe/webhook"; \
+	stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.payment_succeeded,invoice.payment_failed --forward-to http://localhost:8080/v1/stripe/webhook
+
+local-stripe-trigger: ## Trigger a simple payment event to verify webhook plumbing
+	@if ! command -v stripe >/dev/null 2>&1; then \
+		echo "Stripe CLI not found. Install from https://stripe.com/docs/stripe-cli"; \
+		exit 1; \
+	fi
+	stripe trigger payment_intent.succeeded
 

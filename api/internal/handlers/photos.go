@@ -20,7 +20,8 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.UploadInitResponse{}, err
 		}
-		return svc.InitUpload(c.Context(), "{id}", body.Name, body.Mime, body.Size)
+		id := c.PathParam("id")
+		return svc.InitUpload(c.Context(), id, body.Name, body.Mime, body.Size)
 	})
 
 	fuego.Post(s, "/v1/albums/{id}/originals", func(c fuego.ContextWithBody[createOriginalReq]) (api.IDResponse, error) {
@@ -28,11 +29,13 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.IDResponse{}, err
 		}
-		return svc.CreateOriginal(c.Context(), "{id}", body.FileID)
+		id := c.PathParam("id")
+		return svc.CreateOriginal(c.Context(), id, body.FileID)
 	})
 
 	fuego.Get(s, "/v1/albums/{id}/originals", func(c fuego.ContextNoBody) ([]api.OriginalPhoto, error) {
-		return svc.ListOriginals(c.Context(), "{id}")
+		id := c.PathParam("id")
+		return svc.ListOriginals(c.Context(), id)
 	})
 
 	fuego.Post(s, "/v1/originals/{id}/generate", func(c fuego.ContextWithBody[genReq]) (api.TaskResponse, error) {
@@ -40,15 +43,18 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.TaskResponse{}, err
 		}
-		return svc.Generate(c.Context(), "{id}", body.ThemeID)
+		id := c.PathParam("id")
+		return svc.Generate(c.Context(), id, body.ThemeID)
 	})
 
 	fuego.Get(s, "/v1/originals/{id}/generated", func(c fuego.ContextNoBody) ([]api.GeneratedPhoto, error) {
-		return svc.ListGenerated(c.Context(), "{id}")
+		id := c.PathParam("id")
+		return svc.ListGenerated(c.Context(), id)
 	})
 
 	fuego.Get(s, "/v1/files/{id}/url", func(c fuego.ContextNoBody) (api.URLResponse, error) {
-		url, err := svc.FileURL(c.Context(), "{id}")
+		id := c.PathParam("id")
+		url, err := svc.FileURL(c.Context(), id)
 		if err != nil {
 			return api.URLResponse{}, err
 		}
@@ -61,7 +67,8 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		}
 		// Note: fuego path params are not directly provided here; using the template key
 		// The framework replaces "{id}" before invoking handler
-		if t, ok := a.Queue.Get("{id}"); ok {
+		id := c.PathParam("id")
+		if t, ok := a.Queue.Get(id); ok {
 			if s, ok := t["status"].(string); ok {
 				return api.TaskStatusResponse{Status: s}, nil
 			}

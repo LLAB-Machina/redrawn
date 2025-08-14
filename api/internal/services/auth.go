@@ -43,9 +43,14 @@ func (s *AuthService) ensureUser(ctx context.Context, email string) (string, err
 	if err == nil {
 		return u.ID.String(), nil
 	}
-	// create
+	// create with initial credits and defaults
 	handle := email
-	nu, err := s.app.Ent.User.Create().SetID(uuid.New()).SetEmail(email).SetHandle(handle).Save(ctx)
+	nu, err := s.app.Ent.User.Create().
+		SetID(uuid.New()).
+		SetEmail(email).
+		SetHandle(handle).
+		SetCredits(10).
+		Save(ctx)
 	if err != nil {
 		return "", err
 	}

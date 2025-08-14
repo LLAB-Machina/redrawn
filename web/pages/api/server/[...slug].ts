@@ -19,11 +19,12 @@ export default async function handler(
 
   let targetUrl: string;
   if (path === "health") {
-    targetUrl = `${API_BASE_URL}/health`;
-  } else if (path.startsWith("api/")) {
-    targetUrl = `${API_BASE_URL}/${path}`;
+    // Align with backend health route
+    targetUrl = `${API_BASE_URL}/v1/health`;
   } else {
-    targetUrl = `${API_BASE_URL}/api/${path}`;
+    // Forward directly without injecting an extra "/api" prefix.
+    // Backend routes like "/v1/..." should map to "${API_BASE_URL}/v1/...".
+    targetUrl = `${API_BASE_URL}/${path}`;
   }
 
   try {
@@ -31,6 +32,9 @@ export default async function handler(
       method: req.method as Method,
       url: targetUrl,
       data: req.body,
+      // Do NOT follow backend redirects; the browser must receive the 302
+      // so it can keep the original origin and set cookies correctly.
+      maxRedirects: 0,
       headers: {
         "content-type": req.headers["content-type"] as string,
         authorization: req.headers["authorization"] as string,
@@ -58,7 +62,7 @@ export default async function handler(
     if (upstreamResponse.status >= 400) {
       // Read the upstream stream fully
       const chunks: any[] = [];
-      for await (const chunk of (upstreamResponse.data as any)) {
+      for await (const chunk of upstreamResponse.data as any) {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       }
       const bodyText = Buffer.concat(chunks as any).toString("utf8");
@@ -97,7 +101,10 @@ export default async function handler(
           success: false,
           proxy_error: true,
           message:
-            parsed?.detail || parsed?.title || parsed?.error || "Request failed",
+            parsed?.detail ||
+            parsed?.title ||
+            parsed?.error ||
+            "Request failed",
           backend: parsed,
           stack: stackFromBackend,
           status: upstreamResponse.status,
@@ -125,6 +132,7 @@ export default async function handler(
       "last-modified",
       "expires",
       "set-cookie",
+      "location",
     ];
     for (const headerName of headersToForward) {
       const value = upstreamResponse.headers[headerName];
@@ -143,4 +151,3 @@ export default async function handler(
     });
   }
 }
-

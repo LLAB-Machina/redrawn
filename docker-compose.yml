@@ -32,7 +32,6 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_test_xxx}
       - STRIPE_PRICE_ID=${STRIPE_PRICE_ID:-price_test_xxx}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-openai-test}
-      - CREDITS_PER_CYCLE=${CREDITS_PER_CYCLE:-1000}
     depends_on:
       - postgres
     ports:

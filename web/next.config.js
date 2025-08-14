@@ -1,23 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: "standalone",
   async rewrites() {
-    const apiTarget = process.env.API_PROXY_TARGET || 'http://localhost:8080';
+    const apiTarget = process.env.API_PROXY_TARGET || "http://localhost:8080";
     return [
       // Keep Next.js API route under /api/server/*
       {
-        source: '/api/server/:path*',
-        destination: '/api/server/:path*',
+        source: "/api/server/:path*",
+        destination: "/api/server/:path*",
       },
       // Proxy all other /api/* to Go API
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         destination: `${apiTarget}/:path*`,
       },
     ];
   },
-}
+};
 
-module.exports = nextConfig
-
+module.exports = nextConfig;

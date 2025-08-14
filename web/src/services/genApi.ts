@@ -6,6 +6,77 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
+      getV1AdminAlbums: build.query<
+        GetV1AdminAlbumsApiResponse,
+        GetV1AdminAlbumsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/albums`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
+      getV1AdminPrices: build.query<
+        GetV1AdminPricesApiResponse,
+        GetV1AdminPricesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/prices`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
+      postV1AdminPrices: build.mutation<
+        PostV1AdminPricesApiResponse,
+        PostV1AdminPricesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/prices`,
+          method: "POST",
+          body: queryArg.createPriceRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      deleteV1AdminPricesById: build.mutation<
+        DeleteV1AdminPricesByIdApiResponse,
+        DeleteV1AdminPricesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/prices/${queryArg.id}`,
+          method: "DELETE",
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      putV1AdminPricesById: build.mutation<
+        PutV1AdminPricesByIdApiResponse,
+        PutV1AdminPricesByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/prices/${queryArg.id}`,
+          method: "PUT",
+          body: queryArg.updatePriceRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      getV1AdminUsers: build.query<
+        GetV1AdminUsersApiResponse,
+        GetV1AdminUsersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/admin/users`,
+          headers: {
+            Accept: queryArg,
+          },
+        }),
+      }),
       getV1Albums: build.query<GetV1AlbumsApiResponse, GetV1AlbumsApiArg>({
         query: (queryArg) => ({
           url: `/v1/albums`,
@@ -204,6 +275,18 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/billing/create-checkout-session`,
           method: "POST",
+          body: queryArg.createCheckoutSessionRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      getV1BillingPrices: build.query<
+        GetV1BillingPricesApiResponse,
+        GetV1BillingPricesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/billing/prices`,
           headers: {
             Accept: queryArg,
           },
@@ -339,6 +422,31 @@ const injectedRtkApi = api
     overrideExisting: false,
   });
 export { injectedRtkApi as api };
+export type GetV1AdminAlbumsApiResponse = /** status 200 OK */ AdminAlbum[];
+export type GetV1AdminAlbumsApiArg = string | undefined;
+export type GetV1AdminPricesApiResponse = /** status 200 OK */ Price[];
+export type GetV1AdminPricesApiArg = string | undefined;
+export type PostV1AdminPricesApiResponse = /** status 200 OK */ Price;
+export type PostV1AdminPricesApiArg = {
+  accept?: string;
+  /** Request body for api.CreatePriceRequest */
+  createPriceRequest: CreatePriceRequest;
+};
+export type DeleteV1AdminPricesByIdApiResponse =
+  /** status 200 OK */ OkResponse;
+export type DeleteV1AdminPricesByIdApiArg = {
+  accept?: string;
+  id: string;
+};
+export type PutV1AdminPricesByIdApiResponse = /** status 200 OK */ Price;
+export type PutV1AdminPricesByIdApiArg = {
+  accept?: string;
+  id: string;
+  /** Request body for api.UpdatePriceRequest */
+  updatePriceRequest: UpdatePriceRequest;
+};
+export type GetV1AdminUsersApiResponse = /** status 200 OK */ AdminUser[];
+export type GetV1AdminUsersApiArg = string | undefined;
 export type GetV1AlbumsApiResponse = /** status 200 OK */ Album[];
 export type GetV1AlbumsApiArg = string | undefined;
 export type PostV1AlbumsApiResponse = /** status 200 OK */ Album;
@@ -432,7 +540,13 @@ export type PostV1AuthVerifyApiArg = {
 };
 export type PostV1BillingCreateCheckoutSessionApiResponse =
   /** status 200 OK */ UrlResponse;
-export type PostV1BillingCreateCheckoutSessionApiArg = string | undefined;
+export type PostV1BillingCreateCheckoutSessionApiArg = {
+  accept?: string;
+  /** Request body for api.CreateCheckoutSessionRequest */
+  createCheckoutSessionRequest: CreateCheckoutSessionRequest;
+};
+export type GetV1BillingPricesApiResponse = /** status 200 OK */ Price[];
+export type GetV1BillingPricesApiArg = string | undefined;
 export type GetV1FilesByIdUrlApiResponse = /** status 200 OK */ UrlResponse;
 export type GetV1FilesByIdUrlApiArg = {
   accept?: string;
@@ -488,11 +602,13 @@ export type GetV1UsersByHandleAlbumsApiArg = {
   accept?: string;
   handle: string;
 };
-export type Album = {
+export type AdminAlbum = {
+  created_at?: string;
   id?: string;
   name?: string;
+  owner_email?: string;
   slug?: string;
-  visibility?: string | null;
+  visibility?: string;
 };
 export type HttpError = {
   /** Human readable error message */
@@ -517,13 +633,48 @@ export type HttpError = {
   /** URL of the error type. Can be used to lookup the error in a documentation */
   type?: string | null;
 };
+export type Price = {
+  active?: boolean;
+  credits?: number;
+  id?: string;
+  name?: string;
+  stripe_price_id?: string;
+};
+export type CreatePriceRequest = {
+  active?: boolean;
+  credits: number;
+  name: string;
+  stripe_price_id: string;
+};
+export type OkResponse = {
+  ok?: string;
+};
+export type UpdatePriceRequest = {
+  active?: boolean | null;
+  credits?: number | null;
+  name?: string | null;
+  stripe_price_id?: string | null;
+};
+export type AdminUser = {
+  created_at?: string;
+  credits?: number;
+  email?: string;
+  handle?: string;
+  id?: string;
+  name?: string | null;
+  plan?: string;
+  stripe_customer_id?: string | null;
+};
+export type Album = {
+  id?: string;
+  name?: string;
+  slug?: string;
+  visibility?: string | null;
+};
 export type AlbumCreateRequest = {
   name: string;
   slug: string;
   visibility?: string;
-};
-export type OkResponse = {
-  ok?: string;
 };
 export type AlbumUpdateRequest = {
   name?: string | null;
@@ -569,6 +720,9 @@ export type MagicLinkRequest = {
 };
 export type VerifyRequest = {
   token: string;
+};
+export type CreateCheckoutSessionRequest = {
+  price_id: string;
 };
 export type User = {
   credits?: number;
@@ -624,6 +778,15 @@ export type CreateThemeRequest = {
   prompt?: string;
 };
 export const {
+  useGetV1AdminAlbumsQuery,
+  useLazyGetV1AdminAlbumsQuery,
+  useGetV1AdminPricesQuery,
+  useLazyGetV1AdminPricesQuery,
+  usePostV1AdminPricesMutation,
+  useDeleteV1AdminPricesByIdMutation,
+  usePutV1AdminPricesByIdMutation,
+  useGetV1AdminUsersQuery,
+  useLazyGetV1AdminUsersQuery,
   useGetV1AlbumsQuery,
   useLazyGetV1AlbumsQuery,
   usePostV1AlbumsMutation,
@@ -646,6 +809,8 @@ export const {
   usePostV1AuthRequestMagicLinkMutation,
   usePostV1AuthVerifyMutation,
   usePostV1BillingCreateCheckoutSessionMutation,
+  useGetV1BillingPricesQuery,
+  useLazyGetV1BillingPricesQuery,
   useGetV1FilesByIdUrlQuery,
   useLazyGetV1FilesByIdUrlQuery,
   useGetV1HealthQuery,
