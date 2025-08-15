@@ -14,14 +14,14 @@ type magicLinkReq = api.MagicLinkRequest
 type verifyReq = api.VerifyRequest
 
 func RegisterAuth(s *fuego.Server, a *app.App) {
-	svc := services.NewAuthService(a)
+	service := services.NewAuthService(a)
 
 	fuego.Post(s, "/v1/auth/request-magic-link", func(c fuego.ContextWithBody[magicLinkReq]) (api.StatusResponse, error) {
 		body, err := BindAndValidate(c)
 		if err != nil {
 			return api.StatusResponse{}, err
 		}
-		if err := svc.RequestMagicLink(c.Context(), body.Email); err != nil {
+		if err := service.RequestMagicLink(c.Context(), body.Email); err != nil {
 			return api.StatusResponse{}, err
 		}
 		c.Response().WriteHeader(202)
@@ -33,7 +33,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.OkResponse{}, err
 		}
-		userID, err := svc.Verify(c.Context(), body.Token)
+		userID, err := service.Verify(c.Context(), body.Token)
 		if err != nil {
 			return api.OkResponse{}, err
 		}
@@ -45,7 +45,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	})
 
 	fuego.Post(s, "/v1/auth/logout", func(c fuego.ContextNoBody) (api.OkResponse, error) {
-		if err := svc.Logout(c.Context()); err != nil {
+		if err := service.Logout(c.Context()); err != nil {
 			return api.OkResponse{}, err
 		}
 		cookie := middleware.ClearSessionCookie()
@@ -56,7 +56,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	// Google OAuth start: returns redirect URL
 	fuego.Get(s, "/v1/auth/google/start", func(c fuego.ContextNoBody) (api.URLResponse, error) {
 		next := c.Request().URL.Query().Get("next")
-		u, err := svc.GoogleStartURL(next)
+		u, err := service.GoogleStartURL(next)
 		if err != nil {
 			return api.URLResponse{}, err
 		}
@@ -67,7 +67,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 	fuego.Get(s, "/v1/auth/google/callback", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		code := c.Request().URL.Query().Get("code")
 		next := c.Request().URL.Query().Get("state")
-		uid, err := svc.GoogleVerify(c.Context(), code)
+		uid, err := service.GoogleVerify(c.Context(), code)
 		if err != nil {
 			return api.OkResponse{}, err
 		}

@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterAdmin(s *fuego.Server, a *app.App) {
-	svc := services.NewAdminService(a)
+	service := services.NewAdminService(a)
 
 	// Helper function to check admin access
 	checkAdminAuth := func(ctx context.Context) error {
@@ -33,7 +33,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return fuego.UnauthorizedError{Err: errors.New("user not found")}
 		}
 
-		if !svc.IsAdmin(user.Email) {
+		if !service.IsAdmin(user.Email) {
 			return fuego.ForbiddenError{Err: errors.New("admin access required")}
 		}
 
@@ -45,7 +45,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
-		return svc.ListAllPrices(c.Context())
+		return service.ListAllPrices(c.Context())
 	})
 
 	fuego.Post(s, "/v1/admin/prices", func(c fuego.ContextWithBody[api.CreatePriceRequest]) (*api.Price, error) {
@@ -56,7 +56,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return nil, err
 		}
-		return svc.CreatePrice(c.Context(), body)
+		return service.CreatePrice(c.Context(), body)
 	})
 
 	fuego.Put(s, "/v1/admin/prices/{id}", func(c fuego.ContextWithBody[api.UpdatePriceRequest]) (*api.Price, error) {
@@ -68,7 +68,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return nil, err
 		}
-		return svc.UpdatePrice(c.Context(), priceID, body)
+		return service.UpdatePrice(c.Context(), priceID, body)
 	})
 
 	fuego.Delete(s, "/v1/admin/prices/{id}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
@@ -76,7 +76,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return api.OkResponse{}, err
 		}
 		priceID := c.Request().PathValue("id")
-		err := svc.DeletePrice(c.Context(), priceID)
+		err := service.DeletePrice(c.Context(), priceID)
 		if err != nil {
 			return api.OkResponse{}, err
 		}
@@ -88,7 +88,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
-		return svc.ListAllUsers(c.Context())
+		return service.ListAllUsers(c.Context())
 	})
 
 	// Album management
@@ -96,7 +96,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
-		return svc.ListAllAlbums(c.Context())
+		return service.ListAllAlbums(c.Context())
 	})
 
 	// Jobs management
@@ -104,14 +104,14 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
-		return svc.ListJobs(c.Context())
+		return service.ListJobs(c.Context())
 	})
 
 	fuego.Get(s, "/v1/admin/jobs/summary", func(c fuego.ContextNoBody) (api.AdminJobSummary, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return api.AdminJobSummary{}, err
 		}
-		return svc.JobSummary(c.Context())
+		return service.JobSummary(c.Context())
 	})
 
 	// Job logs endpoint: returns text logs captured by worker for a job

@@ -139,6 +139,72 @@ func (s *PhotosService) ListOriginals(ctx context.Context, albumID string) ([]ap
 }
 
 func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string) (api.TaskResponse, error) {
+	// Deduct one credit atomically and log usage
+	uidStr, ok := app.UserIDFromContext(ctx)
+	if !ok {
+		return api.TaskResponse{}, errors.New("unauthorized")
+	}
+	uid, err := uuid.Parse(uidStr)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	// In a transaction: ensure user has credits, decrement, and create usage row
+	tx, err := s.app.Ent.Tx(ctx)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	defer func() { _ = tx.Rollback() }()
+	u, err := tx.User.Get(ctx, uid)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	if u.Credits <= 0 {
+		return api.TaskResponse{}, errors.New("insufficient_credits")
+	}
+	// prepare associations we'll fill after gp create
+	var themeUUID *uuid.UUID
+	if themeID != "" {
+		if tid, err := uuid.Parse(themeID); err == nil {
+			themeUUID = &tid
+		}
+	}
+	// Create a processing GeneratedPhoto row first (still inside tx)
+	oid, err := uuid.Parse(originalID)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	gp, err := tx.GeneratedPhoto.Create().
+		SetID(uuid.New()).
+		SetStartedAt(time.Now()).
+		SetState(generatedphoto.StateProcessing).
+		SetOriginalPhotoID(oid).
+		Save(ctx)
+	if err != nil {
+		return api.TaskResponse{}, err
+	}
+	if themeUUID != nil {
+		if _, err := tx.GeneratedPhoto.UpdateOneID(gp.ID).SetThemeID(*themeUUID).Save(ctx); err != nil {
+			return api.TaskResponse{}, err
+		}
+	}
+	// Decrement credits and log usage
+	if err := tx.User.UpdateOneID(uid).AddCredits(-1).Exec(ctx); err != nil {
+		return api.TaskResponse{}, err
+	}
+	if _, err := tx.CreditUsage.Create().
+		SetID(uuid.New()).
+		SetUserID(uid).
+		SetAmount(1).
+		SetReason("generate").
+		SetGeneratedPhotoID(gp.ID).
+		SetOriginalPhotoID(oid).
+		Save(ctx); err != nil {
+		return api.TaskResponse{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return api.TaskResponse{}, err
+	}
+
 	if s.app.Queue == nil {
 		// Fallback: synchronous generation
 		if s.app.Config.OpenAIAPIKey == "" {
@@ -182,7 +248,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 	}
 
 	// Async path with queue: prevent duplicate pending jobs for same (original, theme).
-	oid, err := uuid.Parse(originalID)
+	oid, err = uuid.Parse(originalID)
 	if err != nil {
 		return api.TaskResponse{}, err
 	}
@@ -212,17 +278,17 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 	if tidPtr != nil {
 		create = create.SetThemeID(*tidPtr)
 	}
-	gp, err := create.Save(ctx)
+	gp2, err := create.Save(ctx)
 	if err != nil {
 		return api.TaskResponse{}, err
 	}
 
 	// Enqueue background job with typed payload (River-backed queue)
-	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp.ID.String()}
+	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp2.ID.String()}
 	jid, err := s.app.Queue.EnqueueGenerate(ctx, payload)
 	if err != nil {
 		// Keep DB and queue in sync: if enqueue fails, mark the pre-created row as failed
-		_ = s.app.Ent.GeneratedPhoto.UpdateOneID(gp.ID).
+		_ = s.app.Ent.GeneratedPhoto.UpdateOneID(gp2.ID).
 			SetState(generatedphoto.StateFailed).
 			SetErrorMsg(err.Error()).
 			SetFinishedAt(time.Now()).

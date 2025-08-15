@@ -110,7 +110,7 @@ func (s *BillingService) HandleStripeWebhook(ctx context.Context, payload []byte
 		payload,
 		signatureHeader,
 		secret,
-		webhook.ConstructEventOptions{Tolerance: 5 * time.Minute},
+		webhook.ConstructEventOptions{Tolerance: 5 * time.Minute, IgnoreAPIVersionMismatch: true},
 	)
 	if err != nil {
 		return fmt.Errorf("invalid webhook signature: %w", err)
@@ -173,6 +173,39 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 	if err := upd.Exec(ctx); err != nil {
 		return err
 	}
+	// Save purchase record
+	var priceUUID *uuid.UUID
+	if cs.Metadata != nil {
+		if v, ok := cs.Metadata["price_id"]; ok {
+			if pid, err := uuid.Parse(v); err == nil {
+				priceUUID = &pid
+			}
+		}
+	}
+	pc := s.app.Ent.Purchase.Create().
+		SetID(uuid.New()).
+		SetUserID(userToUpdate.ID).
+		SetStripeCheckoutSessionID(cs.ID).
+		SetCreditsGranted(addCredits)
+	if priceUUID != nil {
+		pc = pc.SetPriceID(*priceUUID)
+	}
+	if cs.Customer != nil && cs.Customer.ID != "" {
+		pc = pc.SetStripeCustomerID(cs.Customer.ID)
+	}
+	if cs.PaymentIntent != nil && cs.PaymentIntent.ID != "" {
+		pc = pc.SetStripePaymentIntentID(cs.PaymentIntent.ID)
+	}
+	if cs.AmountTotal > 0 {
+		pc = pc.SetAmountTotal(cs.AmountTotal)
+	}
+	if cs.Currency != "" {
+		pc = pc.SetCurrency(string(cs.Currency))
+	}
+	if _, err := pc.Save(ctx); err != nil {
+		slog.Error("purchase save failed", slog.String("err", err.Error()))
+	}
+
 	slog.Info("checkout completed applied", slog.String("user", userToUpdate.ID.String()))
 	return nil
 }

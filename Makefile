@@ -12,9 +12,9 @@ endif
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list
+.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list
 
-dev: ## Run API and Web locally (requires Postgres running via docker compose)
+api: ## Run API locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
 	if [ -x "$$AIR_BIN" ]; then \
 		( cd api && "$$AIR_BIN" ); \
@@ -22,9 +22,6 @@ dev: ## Run API and Web locally (requires Postgres running via docker compose)
 		echo "cosmtrek/air not found; falling back to go run"; \
 		( cd api && go run ./cmd/api ); \
 	fi
-
-api: ## Run API only (requires env like DATABASE_URL)
-	cd api && go run ./cmd/api
 
 web: ## Run Next.js dev server
 	cd web && npm run dev
@@ -126,7 +123,6 @@ revision: ## Generate Atlas migration from Ent schemas
 uphead: ## Apply Atlas migrations
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
-	$(MAKE) river-up
 
 reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
@@ -143,7 +139,21 @@ river-up: ## Apply River migrations (idempotent)
 		echo "river CLI not found. Run 'make install' to install it."; exit 1; \
 	fi
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
-	river migrate-up --line main --database-url '$(DATABASE_URL)'
+	@# Skip if validate shows no unapplied migrations
+	@if river validate --line main --database-url '$(DATABASE_URL)' -v 2>&1 | grep -Fq 'Unapplied migrations: []'; then \
+		echo "River migrations already up-to-date; skipping."; \
+	else \
+		echo "Applying River migrations..."; \
+		OUTPUT=$$(river migrate-up --line main --database-url '$(DATABASE_URL)' 2>&1); \
+		STATUS=$$?; \
+		echo "$$OUTPUT"; \
+		if [ $$STATUS -ne 0 ] && echo "$$OUTPUT" | grep -Fq 'relation "river_migration" already exists'; then \
+			echo "River control table already exists. Assuming migrations are initialized; skipping."; \
+			exit 0; \
+		else \
+			exit $$STATUS; \
+		fi; \
+	fi
 
 river-down: ## Downgrade River migrations (destructive; removes River tables)
 	@if ! command -v river >/dev/null 2>&1; then \
@@ -196,7 +206,7 @@ grant-credits: ## Select a user via fzf and grant 10 credits
 # --- Stripe local helper targets ---
 
 # Usage:
-# 1) make local-stripe       -> writes STRIPE_WEBHOOK to .env and starts forwarding to our API
+# 1) make local-stripe       -> writes STRIPE_WEBHOOK_SECRET to .env and starts forwarding to our API
 # 2) make local-stripe-trigger  -> triggers a simple test event
 
 local-stripe: ## Login (once), capture webhook secret into .env, and start forwarding webhooks to the API
@@ -211,15 +221,15 @@ local-stripe: ## Login (once), capture webhook secret into .env, and start forwa
 		echo "Could not fetch webhook secret. Is Stripe CLI logged in?"; exit 1; \
 	fi; \
 	if [ -f .env ]; then \
-		if grep -q '^STRIPE_WEBHOOK=' .env; then \
-			sed -i'' -e "s|^STRIPE_WEBHOOK=.*|STRIPE_WEBHOOK=$$SECRET|" .env; \
+		if grep -q '^STRIPE_WEBHOOK_SECRET=' .env; then \
+			sed -i'' -e "s|^STRIPE_WEBHOOK_SECRET=.*|STRIPE_WEBHOOK_SECRET=$$SECRET|" .env; \
 		else \
-			echo "STRIPE_WEBHOOK=$$SECRET" >> .env; \
+			echo "STRIPE_WEBHOOK_SECRET=$$SECRET" >> .env; \
 		fi; \
 	else \
-		echo "STRIPE_WEBHOOK=$$SECRET" > .env; \
+		echo "STRIPE_WEBHOOK_SECRET=$$SECRET" > .env; \
 	fi; \
-	echo "Saved STRIPE_WEBHOOK to .env"; \
+	echo "Saved STRIPE_WEBHOOK_SECRET to .env"; \
 	echo "Starting stripe listen → http://localhost:8080/v1/stripe/webhook"; \
 	stripe listen --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.payment_succeeded,invoice.payment_failed --forward-to http://localhost:8080/v1/stripe/webhook
 

@@ -13,7 +13,7 @@ type createOriginalReq = api.CreateOriginalRequest
 type genReq = api.GenerateRequest
 
 func RegisterPhotos(s *fuego.Server, a *app.App) {
-	svc := services.NewPhotosService(a)
+	service := services.NewPhotosService(a)
 
 	fuego.Post(s, "/v1/albums/{id}/uploads", func(c fuego.ContextWithBody[uploadInitReq]) (api.UploadInitResponse, error) {
 		body, err := BindAndValidate(c)
@@ -21,7 +21,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 			return api.UploadInitResponse{}, err
 		}
 		id := c.PathParam("id")
-		return svc.InitUpload(c.Context(), id, body.Name, body.Mime, body.Size)
+		return service.InitUpload(c.Context(), id, body.Name, body.Mime, body.Size)
 	})
 
 	fuego.Post(s, "/v1/albums/{id}/originals", func(c fuego.ContextWithBody[createOriginalReq]) (api.IDResponse, error) {
@@ -30,12 +30,12 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 			return api.IDResponse{}, err
 		}
 		id := c.PathParam("id")
-		return svc.CreateOriginal(c.Context(), id, body.FileID)
+		return service.CreateOriginal(c.Context(), id, body.FileID)
 	})
 
 	fuego.Get(s, "/v1/albums/{id}/originals", func(c fuego.ContextNoBody) ([]api.OriginalPhoto, error) {
 		id := c.PathParam("id")
-		return svc.ListOriginals(c.Context(), id)
+		return service.ListOriginals(c.Context(), id)
 	})
 
 	fuego.Post(s, "/v1/originals/{id}/generate", func(c fuego.ContextWithBody[genReq]) (api.TaskResponse, error) {
@@ -44,17 +44,17 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 			return api.TaskResponse{}, err
 		}
 		id := c.PathParam("id")
-		return svc.Generate(c.Context(), id, body.ThemeID)
+		return service.Generate(c.Context(), id, body.ThemeID)
 	})
 
 	fuego.Get(s, "/v1/originals/{id}/generated", func(c fuego.ContextNoBody) ([]api.GeneratedPhoto, error) {
 		id := c.PathParam("id")
-		return svc.ListGenerated(c.Context(), id)
+		return service.ListGenerated(c.Context(), id)
 	})
 
 	fuego.Get(s, "/v1/files/{id}/url", func(c fuego.ContextNoBody) (api.URLResponse, error) {
 		id := c.PathParam("id")
-		url, err := svc.FileURL(c.Context(), id)
+		url, err := service.FileURL(c.Context(), id)
 		if err != nil {
 			return api.URLResponse{}, err
 		}

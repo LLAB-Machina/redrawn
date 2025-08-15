@@ -9,9 +9,9 @@ import (
 )
 
 func RegisterPublic(s *fuego.Server, a *app.App) {
-	svc := services.NewPublicService(a)
+	service := services.NewPublicService(a)
 	fuego.Get(s, "/v1/public/albums/{slug}", func(c fuego.ContextNoBody) (api.PublicAlbum, error) {
 		slug := c.PathParam("slug")
-		return svc.AlbumBySlug(c.Context(), slug)
+		return service.AlbumBySlug(c.Context(), slug)
 	})
 }

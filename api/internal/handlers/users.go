@@ -11,10 +11,10 @@ import (
 type patchMeReq = api.PatchMeRequest
 
 func RegisterUsers(s *fuego.Server, a *app.App) {
-	svc := services.NewUsersService(a)
+	service := services.NewUsersService(a)
 
 	fuego.Get(s, "/v1/me", func(c fuego.ContextNoBody) (api.User, error) {
-		return svc.GetMe(c.Context())
+		return service.GetMe(c.Context())
 	})
 
 	fuego.Patch(s, "/v1/me", func(c fuego.ContextWithBody[patchMeReq]) (api.OkResponse, error) {
@@ -22,7 +22,7 @@ func RegisterUsers(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.OkResponse{}, err
 		}
-		if err := svc.PatchMe(c.Context(), body.Name, body.Handle); err != nil {
+		if err := service.PatchMe(c.Context(), body.Name, body.Handle); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil

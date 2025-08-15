@@ -13,7 +13,7 @@ type inviteReq = api.InviteRequest
 type roleReq = api.RoleRequest
 
 func RegisterMembership(s *fuego.Server, a *appctx.App) {
-	svc := services.NewMembershipService(a)
+	service := services.NewMembershipService(a)
 
 	fuego.Post(s, "/v1/albums/{id}/invites", func(c fuego.ContextWithBody[inviteReq]) (api.StatusResponse, error) {
 		body, err := BindAndValidate(c)
@@ -25,7 +25,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		if !ok || uid == "" {
 			return api.StatusResponse{}, errUnauthorized
 		}
-		if err := svc.Invite(c.Context(), albumID, body.Email, body.Role, uid); err != nil {
+		if err := service.Invite(c.Context(), albumID, body.Email, body.Role, uid); err != nil {
 			return api.StatusResponse{}, err
 		}
 		return api.StatusResponse{Status: "invited"}, nil
@@ -38,7 +38,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		}
 		albumID := c.PathParam("id")
 		userID := c.PathParam("userId")
-		if err := svc.SetRole(c.Context(), albumID, userID, body.Role); err != nil {
+		if err := service.SetRole(c.Context(), albumID, userID, body.Role); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
@@ -47,7 +47,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 	fuego.Delete(s, "/v1/albums/{id}/members/{userId}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		albumID := c.PathParam("id")
 		userID := c.PathParam("userId")
-		if err := svc.Remove(c.Context(), albumID, userID); err != nil {
+		if err := service.Remove(c.Context(), albumID, userID); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
@@ -56,7 +56,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 	// List current members, pending invites, and invite links
 	fuego.Get(s, "/v1/albums/{id}/memberships", func(c fuego.ContextNoBody) (api.MembershipsResponse, error) {
 		albumID := c.PathParam("id")
-		return svc.List(c.Context(), albumID)
+		return service.List(c.Context(), albumID)
 	})
 
 	// Create an invite link
@@ -67,14 +67,14 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		}
 		albumID := c.PathParam("id")
 		uid, _ := appctx.UserIDFromContext(c.Context())
-		return svc.CreateLink(c.Context(), albumID, body, uid)
+		return service.CreateLink(c.Context(), albumID, body, uid)
 	})
 
 	// Revoke an invite link
 	fuego.Delete(s, "/v1/albums/{id}/invite_links/{linkId}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		albumID := c.PathParam("id")
 		linkID := c.PathParam("linkId")
-		if err := svc.RevokeLink(c.Context(), albumID, linkID); err != nil {
+		if err := service.RevokeLink(c.Context(), albumID, linkID); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
@@ -88,7 +88,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		if !ok || uid == "" {
 			return api.OkResponse{}, errUnauthorized
 		}
-		if err := svc.AcceptLink(c.Context(), albumID, token, uid); err != nil {
+		if err := service.AcceptLink(c.Context(), albumID, token, uid); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
@@ -98,7 +98,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 	fuego.Delete(s, "/v1/albums/{id}/invites/{inviteId}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		albumID := c.PathParam("id")
 		inviteID := c.PathParam("inviteId")
-		if err := svc.RevokeInvite(c.Context(), albumID, inviteID); err != nil {
+		if err := service.RevokeInvite(c.Context(), albumID, inviteID); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
@@ -111,7 +111,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		}
 		albumID := c.PathParam("id")
 		inviteID := c.PathParam("inviteId")
-		if err := svc.UpdateInviteRole(c.Context(), albumID, inviteID, body.Role); err != nil {
+		if err := service.UpdateInviteRole(c.Context(), albumID, inviteID, body.Role); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
