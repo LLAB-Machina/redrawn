@@ -211,6 +211,9 @@ type GenerateJobPayload struct {
 	JobID       string `json:"job_id,omitempty"`
 }
 
+// Kind implements River's JobArgs interface.
+func (GenerateJobPayload) Kind() string { return "generate" }
+
 type InviteRequest struct {
 	Email string `json:"email"`
 	Role  string `json:"role"`

@@ -217,7 +217,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		return api.TaskResponse{}, err
 	}
 
-	// Enqueue background job with typed payload
+	// Enqueue background job with typed payload (River-backed queue)
 	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp.ID.String()}
 	jid, err := s.app.Queue.EnqueueGenerate(ctx, payload)
 	if err != nil {

@@ -5,13 +5,16 @@ import (
 	"redrawn/api/ent"
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/config"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // App holds long-lived dependencies for handlers/services.
 type App struct {
-	Config config.Config
-	Ent    *ent.Client
-	Queue  TaskQueue
+	Config  config.Config
+	Ent     *ent.Client
+	Queue   TaskQueue
+	PgxPool *pgxpool.Pool
 }
 
 // TaskQueue is a minimal interface for enqueuing and querying background tasks.

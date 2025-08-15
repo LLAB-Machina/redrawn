@@ -10,9 +10,9 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"syscall"
-	"time"
 
 	// "redrawn/api/ent"
 	"redrawn/api/internal/api"
@@ -21,12 +21,16 @@ import (
 	"redrawn/api/internal/db"
 	"redrawn/api/internal/handlers"
 	"redrawn/api/internal/middleware"
-	"redrawn/api/internal/queue"
 	"redrawn/api/internal/worker"
 
 	// "github.com/google/uuid"
 
 	"github.com/go-fuego/fuego"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/riverqueue/river"
+	"github.com/riverqueue/river/riverdriver/riverpgxv5"
+	"github.com/riverqueue/river/rivertype"
 )
 
 //
@@ -169,10 +173,32 @@ func main() {
 
 	application := &app.App{Config: cfg, Ent: entClient}
 
-	// Extracted processor
+	// River client (pgx pool) for durable jobs
+	pgxPool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
+	if err != nil {
+		slog.Error("pgx pool init failed", slog.String("err", err.Error()))
+		os.Exit(1)
+	}
+
+	workers := river.NewWorkers()
 	processor := worker.NewGenerateProcessor(cfg, entClient)
-	dbq := queue.NewDB(entClient, 500*time.Millisecond, 2, processor)
-	application.Queue = dbq
+	riverWorker := worker.NewGenerateWorker(processor)
+	river.AddWorker(workers, riverWorker)
+
+	riverClient, err := river.NewClient(riverpgxv5.New(pgxPool), &river.Config{
+		Queues: map[string]river.QueueConfig{
+			river.QueueDefault: {MaxWorkers: 2},
+		},
+		Workers: workers,
+	})
+	if err != nil {
+		slog.Error("river client init failed", slog.String("err", err.Error()))
+		os.Exit(1)
+	}
+
+	// Adapter to satisfy app.TaskQueue using River
+	application.Queue = newRiverAdapter(riverClient)
+	application.PgxPool = pgxPool
 
 	// Session middleware
 	fuego.Use(s, middleware.SessionMiddleware(cfg))
@@ -190,12 +216,16 @@ func main() {
 		}
 	}()
 
-	// start background workers
-	dbq.Run(ctx)
+	// start River workers
+	go func() {
+		if err := riverClient.Start(ctx); err != nil && ctx.Err() == nil {
+			slog.Error("river start error", slog.String("err", err.Error()))
+		}
+	}()
 
 	<-ctx.Done()
 	slog.Info("shutting down workers...")
-	dbq.Shutdown(context.Background())
+	_ = riverClient.Stop(context.Background())
 }
 
 func registerRoutes(s *fuego.Server, a *app.App) {
@@ -209,4 +239,45 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 	handlers.RegisterPublic(s, a)
 	handlers.RegisterBilling(s, a)
 	handlers.RegisterAdmin(s, a)
+}
+
+// riverAdapter implements app.TaskQueue over a River client.
+type riverAdapter struct{ c *river.Client[pgx.Tx] }
+
+func newRiverAdapter(c *river.Client[pgx.Tx]) *riverAdapter { return &riverAdapter{c: c} }
+
+func (r *riverAdapter) EnqueueGenerate(ctx context.Context, payload api.GenerateJobPayload) (string, error) {
+	res, err := r.c.Insert(ctx, payload, nil)
+	if err != nil {
+		return "", err
+	}
+	return strconv.FormatInt(res.Job.ID, 10), nil
+}
+
+func (r *riverAdapter) GetStatus(taskID string) (string, bool) {
+	// River IDs are int64; allow numeric strings
+	var idInt64 int64
+	if v, err := strconv.ParseInt(taskID, 10, 64); err == nil {
+		idInt64 = v
+	} else {
+		// Not a valid River ID
+		return "", false
+	}
+	job, err := r.c.JobGet(context.Background(), idInt64)
+	if err != nil || job == nil {
+		return "", false
+	}
+	// Map River states roughly to our public statuses
+	switch job.State {
+	case rivertype.JobStateAvailable, rivertype.JobStateScheduled:
+		return "queued", true
+	case rivertype.JobStateRunning:
+		return "running", true
+	case rivertype.JobStateCompleted:
+		return "succeeded", true
+	case rivertype.JobStateCancelled:
+		return "failed", true
+	default:
+		return string(job.State), true
+	}
 }
