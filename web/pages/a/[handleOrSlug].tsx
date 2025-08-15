@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { api, useGetV1PublicAlbumsBySlugQuery } from "../src/services/genApi";
+import { api, useGetV1PublicAlbumsBySlugQuery } from "../../src/services/genApi";
 import Image from "next/image";
 
 export default function PublicAlbum() {

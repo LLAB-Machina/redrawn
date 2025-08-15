@@ -29,7 +29,7 @@ export default function AlbumInvites() {
   const { data: album } = useGetV1AlbumsByIdQuery(id ? { id } : (undefined as any), { skip: !id });
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-  const publicUrl = album?.slug ? `${baseUrl}/${album.slug}` : `${baseUrl}/[album-slug]`;
+  const publicUrl = album?.slug ? `${baseUrl}/a/${album.slug}` : `${baseUrl}/a/[album-slug]`;
 
   return (
     <div className="space-y-6">
