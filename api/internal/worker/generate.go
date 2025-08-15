@@ -72,6 +72,14 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 			return err
 		}
 
+		// Idempotency: if generated photo is already finalized, skip
+		if gp, err := entClient.GeneratedPhoto.Get(ctx, gid); err == nil {
+			if gp.State == generatedphoto.StateFinished || gp.State == generatedphoto.StateFailed {
+				logf("generated %s already %s; skipping", gid.String(), gp.State)
+				return nil
+			}
+		}
+
 		// Load original + theme
 		o, err := entClient.OriginalPhoto.Query().Where(originalphoto.IDEQ(oid)).WithFile().Only(ctx)
 		if err != nil {
@@ -119,7 +127,13 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 		logf("calling OpenAI gpt-image-1 edits")
 		var body bytes.Buffer
 		mw := multipart.NewWriter(&body)
+
 		_ = mw.WriteField("model", "gpt-image-1")
+		_ = mw.WriteField("quality", "high")
+		_ = mw.WriteField("size", "1024x1024")
+		// how well we try to match input facial features etc, turn up later
+		_ = mw.WriteField("input_fidelity", "high")
+
 		promptToUse := themePrompt
 		if strings.TrimSpace(promptToUse) == "" {
 			promptToUse = "restyle image in current album theme"
@@ -169,10 +183,21 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 		part, _ := mw.CreatePart(h)
 		_, _ = part.Write(origBytes)
 		_ = mw.Close()
-		req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://api.openai.com/v1/images/edits", &body)
+
+		// Use a detached context with a generous timeout for the OpenAI edits request
+		// to avoid premature cancellation from upstream worker contexts.
+		oaiBaseCtx := context.WithoutCancel(ctx)
+		oaiCtx, oaiCancel := context.WithTimeout(oaiBaseCtx, 5*time.Minute)
+		defer oaiCancel()
+
+		req, _ := http.NewRequestWithContext(oaiCtx, http.MethodPost, "https://api.openai.com/v1/images/edits", &body)
 		req.Header.Set("Authorization", "Bearer "+cfg.OpenAIAPIKey)
 		req.Header.Set("Content-Type", mw.FormDataContentType())
-		resp, err := http.DefaultClient.Do(req)
+
+		httpClient := &http.Client{
+			Timeout: 5 * time.Minute,
+		}
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			logf("openai request failed: %v", err)
 			_ = markGeneratedFailed(ctx, gid, err.Error())
@@ -218,9 +243,11 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 			return err
 		}
 
-		// File row
+		// File row (use detached, short DB timeout to avoid being impacted by upstream context deadline)
 		newFileID := uuid.New()
 		genKey := newFileID.String()
+		dbCtx1, cancelDB1 := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+		defer cancelDB1()
 		if _, err := entClient.File.Create().
 			SetID(newFileID).
 			SetProvider("r2").
@@ -228,26 +255,30 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 			SetOriginalName("generated.png").
 			SetMime("image/png").
 			SetSizeBytes(int64(len(imgBytes))).
-			Save(ctx); err != nil {
+			Save(dbCtx1); err != nil {
 			logf("create file row failed: %v", err)
 			_ = markGeneratedFailed(ctx, gid, err.Error())
 			return err
 		}
 
-		// Upload
+		// Upload (use detached context with a reasonable timeout)
 		logf("uploading generated to R2 key=%s", genKey)
-		if _, err := s3c.PutObject(ctx, &s3.PutObjectInput{Bucket: aws.String(cfg.R2Bucket), Key: aws.String(genKey), Body: bytes.NewReader(imgBytes), ContentType: aws.String("image/png")}); err != nil {
+		s3PutCtx, cancelPut := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Minute)
+		defer cancelPut()
+		if _, err := s3c.PutObject(s3PutCtx, &s3.PutObjectInput{Bucket: aws.String(cfg.R2Bucket), Key: aws.String(genKey), Body: bytes.NewReader(imgBytes), ContentType: aws.String("image/png")}); err != nil {
 			logf("s3 put failed: %v", err)
 			_ = markGeneratedFailed(ctx, gid, err.Error())
 			return err
 		}
 
-		// Update generated
+		// Update generated (detached DB context)
+		dbCtx2, cancelDB2 := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+		defer cancelDB2()
 		_, err = entClient.GeneratedPhoto.UpdateOneID(gid).
 			SetState(generatedphoto.StateFinished).
 			SetFinishedAt(time.Now()).
 			SetFileID(newFileID).
-			Save(ctx)
+			Save(dbCtx2)
 		if err != nil {
 			logf("update generated failed: %v", err)
 			return err

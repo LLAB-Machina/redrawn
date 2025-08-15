@@ -7,6 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	errUnauthorized = fuego.UnauthorizedError{Err: nil}
+)
+
 // BindAndValidate reads the JSON body into T and validates it with api.ValidateStruct.
 // Returns the parsed body or an error (which the global serializer will format).
 func BindAndValidate[T any](c fuego.ContextWithBody[T]) (T, error) {

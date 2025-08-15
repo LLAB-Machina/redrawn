@@ -12,7 +12,7 @@ endif
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits
+.PHONY: dev api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list
 
 dev: ## Run API and Web locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
@@ -65,6 +65,8 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
 	echo "Using Homebrew at: $$BREW_CMD"; \
 	$$BREW_CMD update; \
 	$$BREW_CMD install go node golangci-lint jq ariga/tap/atlas || true
+	@echo "Installing river CLI..."; \
+	GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/riverqueue/river/cmd/river@latest || true
 	@echo "Installing air (Go live reload)..."; \
 	cd api && GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/air-verse/air@latest || true
 	@echo "Installing Go module dependencies..."
@@ -124,6 +126,7 @@ revision: ## Generate Atlas migration from Ent schemas
 uphead: ## Apply Atlas migrations
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
+	$(MAKE) river-up
 
 reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
@@ -131,6 +134,30 @@ reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
 	# Force to an empty state (no tables) using an empty HCL, then re-apply migrations
 	atlas schema apply --url '$(DATABASE_URL)' --to file://migrations/empty.hcl --auto-approve
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
+	$(MAKE) river-up
+
+# --- River migrations ---
+
+river-up: ## Apply River migrations (idempotent)
+	@if ! command -v river >/dev/null 2>&1; then \
+		echo "river CLI not found. Run 'make install' to install it."; exit 1; \
+	fi
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	river migrate-up --line main --database-url '$(DATABASE_URL)'
+
+river-down: ## Downgrade River migrations (destructive; removes River tables)
+	@if ! command -v river >/dev/null 2>&1; then \
+		echo "river CLI not found. Run 'make install' to install it."; exit 1; \
+	fi
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	river migrate-down --line main --database-url '$(DATABASE_URL)' --max-steps 100
+
+river-list: ## List River migrations and applied state
+	@if ! command -v river >/dev/null 2>&1; then \
+		echo "river CLI not found. Run 'make install' to install it."; exit 1; \
+	fi
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	river migrate-list --line main --database-url '$(DATABASE_URL)'
 
 openapi: ## Generate OpenAPI JSON into api/openapi.json without running server (stable key order)
 	cd api && go run ./cmd/api --openapi-only | (command -v jq >/dev/null 2>&1 && jq -S . || cat) > openapi.json

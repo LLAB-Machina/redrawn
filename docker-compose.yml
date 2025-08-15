@@ -66,6 +66,20 @@ services:
       - web
       - api
 
+  riverui:
+    image: ghcr.io/riverqueue/riverui:latest
+    environment:
+      - DATABASE_URL=postgres://redrawn:redrawn@postgres:5432/redrawn?sslmode=disable
+      # Optional auth and config:
+      # - RIVER_BASIC_AUTH_USER=admin
+      # - RIVER_BASIC_AUTH_PASS=devpass
+      # - RIVER_LOG_LEVEL=info
+      # - RIVER_LOG_FORMAT=text
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8080"
+
 volumes:
   caddy_data:
   caddy_config:

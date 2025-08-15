@@ -166,6 +166,43 @@ const injectedRtkApi = api
           },
         }),
       }),
+      postV1AlbumsByIdInviteLinks: build.mutation<
+        PostV1AlbumsByIdInviteLinksApiResponse,
+        PostV1AlbumsByIdInviteLinksApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/invite_links`,
+          method: "POST",
+          body: queryArg.createInviteLinkRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      postV1AlbumsByIdInviteLinksAcceptAndToken: build.mutation<
+        PostV1AlbumsByIdInviteLinksAcceptAndTokenApiResponse,
+        PostV1AlbumsByIdInviteLinksAcceptAndTokenApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/invite_links/accept/${queryArg.token}`,
+          method: "POST",
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      deleteV1AlbumsByIdInviteLinksAndLinkId: build.mutation<
+        DeleteV1AlbumsByIdInviteLinksAndLinkIdApiResponse,
+        DeleteV1AlbumsByIdInviteLinksAndLinkIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/invite_links/${queryArg.linkId}`,
+          method: "DELETE",
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
       postV1AlbumsByIdInvites: build.mutation<
         PostV1AlbumsByIdInvitesApiResponse,
         PostV1AlbumsByIdInvitesApiArg
@@ -174,6 +211,31 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/invites`,
           method: "POST",
           body: queryArg.inviteRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      deleteV1AlbumsByIdInvitesAndInviteId: build.mutation<
+        DeleteV1AlbumsByIdInvitesAndInviteIdApiResponse,
+        DeleteV1AlbumsByIdInvitesAndInviteIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/invites/${queryArg.inviteId}`,
+          method: "DELETE",
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      postV1AlbumsByIdInvitesAndInviteId: build.mutation<
+        PostV1AlbumsByIdInvitesAndInviteIdApiResponse,
+        PostV1AlbumsByIdInvitesAndInviteIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/invites/${queryArg.inviteId}`,
+          method: "POST",
+          body: queryArg.roleRequest,
           headers: {
             Accept: queryArg.accept,
           },
@@ -199,6 +261,17 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/members/${queryArg.userId}`,
           method: "POST",
           body: queryArg.roleRequest,
+          headers: {
+            Accept: queryArg.accept,
+          },
+        }),
+      }),
+      getV1AlbumsByIdMemberships: build.query<
+        GetV1AlbumsByIdMembershipsApiResponse,
+        GetV1AlbumsByIdMembershipsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/${queryArg.id}/memberships`,
           headers: {
             Accept: queryArg.accept,
           },
@@ -516,6 +589,28 @@ export type PatchV1AlbumsByIdApiArg = {
   /** Request body for api.AlbumUpdateRequest */
   albumUpdateRequest: AlbumUpdateRequest;
 };
+export type PostV1AlbumsByIdInviteLinksApiResponse =
+  /** status 200 OK */ InviteLink;
+export type PostV1AlbumsByIdInviteLinksApiArg = {
+  accept?: string;
+  id: string;
+  /** Request body for api.CreateInviteLinkRequest */
+  createInviteLinkRequest: CreateInviteLinkRequest;
+};
+export type PostV1AlbumsByIdInviteLinksAcceptAndTokenApiResponse =
+  /** status 200 OK */ OkResponse;
+export type PostV1AlbumsByIdInviteLinksAcceptAndTokenApiArg = {
+  accept?: string;
+  id: string;
+  token: string;
+};
+export type DeleteV1AlbumsByIdInviteLinksAndLinkIdApiResponse =
+  /** status 200 OK */ OkResponse;
+export type DeleteV1AlbumsByIdInviteLinksAndLinkIdApiArg = {
+  accept?: string;
+  id: string;
+  linkId: string;
+};
 export type PostV1AlbumsByIdInvitesApiResponse =
   /** status 200 OK */ StatusResponse;
 export type PostV1AlbumsByIdInvitesApiArg = {
@@ -523,6 +618,22 @@ export type PostV1AlbumsByIdInvitesApiArg = {
   id: string;
   /** Request body for api.InviteRequest */
   inviteRequest: InviteRequest;
+};
+export type DeleteV1AlbumsByIdInvitesAndInviteIdApiResponse =
+  /** status 200 OK */ OkResponse;
+export type DeleteV1AlbumsByIdInvitesAndInviteIdApiArg = {
+  accept?: string;
+  id: string;
+  inviteId: string;
+};
+export type PostV1AlbumsByIdInvitesAndInviteIdApiResponse =
+  /** status 200 OK */ OkResponse;
+export type PostV1AlbumsByIdInvitesAndInviteIdApiArg = {
+  accept?: string;
+  id: string;
+  inviteId: string;
+  /** Request body for api.RoleRequest */
+  roleRequest: RoleRequest;
 };
 export type DeleteV1AlbumsByIdMembersAndUserIdApiResponse =
   /** status 200 OK */ OkResponse;
@@ -539,6 +650,12 @@ export type PostV1AlbumsByIdMembersAndUserIdApiArg = {
   userId: string;
   /** Request body for api.RoleRequest */
   roleRequest: RoleRequest;
+};
+export type GetV1AlbumsByIdMembershipsApiResponse =
+  /** status 200 OK */ MembershipsResponse;
+export type GetV1AlbumsByIdMembershipsApiArg = {
+  accept?: string;
+  id: string;
 };
 export type GetV1AlbumsByIdOriginalsApiResponse =
   /** status 200 OK */ OriginalPhoto[];
@@ -750,6 +867,20 @@ export type AlbumUpdateRequest = {
   slug?: string | null;
   visibility?: string | null;
 };
+export type InviteLink = {
+  expires_at?: string | null;
+  id?: string;
+  max_uses?: number | null;
+  revoked_at?: string | null;
+  role?: string;
+  token?: string;
+  uses?: number;
+};
+export type CreateInviteLinkRequest = {
+  expires_at?: string | null;
+  max_uses?: number | null;
+  role: string;
+};
 export type StatusResponse = {
   status?: string;
 };
@@ -759,6 +890,29 @@ export type InviteRequest = {
 };
 export type RoleRequest = {
   role?: string;
+};
+export type MembershipsResponse = {
+  invites?: {
+    email?: string;
+    expires_at?: string | null;
+    id?: string;
+    role?: string;
+    status?: string;
+  }[];
+  links?: {
+    expires_at?: string | null;
+    id?: string;
+    max_uses?: number | null;
+    revoked_at?: string | null;
+    role?: string;
+    token?: string;
+    uses?: number;
+  }[];
+  members?: {
+    email?: string;
+    role?: string;
+    user_id?: string;
+  }[];
 };
 export type OriginalPhoto = {
   created_at?: string;
@@ -863,9 +1017,16 @@ export const {
   useGetV1AlbumsByIdQuery,
   useLazyGetV1AlbumsByIdQuery,
   usePatchV1AlbumsByIdMutation,
+  usePostV1AlbumsByIdInviteLinksMutation,
+  usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation,
+  useDeleteV1AlbumsByIdInviteLinksAndLinkIdMutation,
   usePostV1AlbumsByIdInvitesMutation,
+  useDeleteV1AlbumsByIdInvitesAndInviteIdMutation,
+  usePostV1AlbumsByIdInvitesAndInviteIdMutation,
   useDeleteV1AlbumsByIdMembersAndUserIdMutation,
   usePostV1AlbumsByIdMembersAndUserIdMutation,
+  useGetV1AlbumsByIdMembershipsQuery,
+  useLazyGetV1AlbumsByIdMembershipsQuery,
   useGetV1AlbumsByIdOriginalsQuery,
   useLazyGetV1AlbumsByIdOriginalsQuery,
   usePostV1AlbumsByIdOriginalsMutation,

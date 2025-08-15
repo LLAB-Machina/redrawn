@@ -221,6 +221,12 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp.ID.String()}
 	jid, err := s.app.Queue.EnqueueGenerate(ctx, payload)
 	if err != nil {
+		// Keep DB and queue in sync: if enqueue fails, mark the pre-created row as failed
+		_ = s.app.Ent.GeneratedPhoto.UpdateOneID(gp.ID).
+			SetState(generatedphoto.StateFailed).
+			SetErrorMsg(err.Error()).
+			SetFinishedAt(time.Now()).
+			Exec(ctx)
 		return api.TaskResponse{}, err
 	}
 	return api.TaskResponse{TaskID: jid}, nil

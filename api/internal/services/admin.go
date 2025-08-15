@@ -2,10 +2,7 @@ package services
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"strconv"
-	"time"
 
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
@@ -163,95 +160,11 @@ func (s *AdminService) ListAllAlbums(ctx context.Context) ([]api.AdminAlbum, err
 
 // Jobs
 func (s *AdminService) ListJobs(ctx context.Context) ([]api.AdminJob, error) {
-	if s.app.PgxPool == nil {
-		return []api.AdminJob{}, nil
-	}
-	const q = `
-		SELECT id, kind, state, created_at, attempted_at, finalized_at,
-		       CASE WHEN errors IS NULL OR array_length(errors,1) IS NULL THEN ''
-		            ELSE (errors[array_length(errors,1)] ->> 'message')
-		       END AS err
-		FROM river_job
-		ORDER BY created_at DESC
-		LIMIT 200`
-	rows, err := s.app.PgxPool.Query(ctx, q)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	out := make([]api.AdminJob, 0, 200)
-	for rows.Next() {
-		var (
-			id          int64
-			kind        string
-			state       string
-			createdAt   time.Time
-			attemptedAt sql.NullTime
-			finalizedAt sql.NullTime
-			errMsg      string
-		)
-		if scanErr := rows.Scan(&id, &kind, &state, &createdAt, &attemptedAt, &finalizedAt, &errMsg); scanErr != nil {
-			return nil, scanErr
-		}
-		status := mapRiverStateToStatus(state)
-		var startedStr *string
-		var completedStr *string
-		if attemptedAt.Valid {
-			s := attemptedAt.Time.Format("2006-01-02 15:04:05")
-			startedStr = &s
-		}
-		if finalizedAt.Valid {
-			s := finalizedAt.Time.Format("2006-01-02 15:04:05")
-			completedStr = &s
-		}
-		out = append(out, api.AdminJob{
-			ID:          strconv.FormatInt(id, 10),
-			Type:        kind,
-			Status:      status,
-			Error:       errMsg,
-			EnqueuedAt:  createdAt.Format("2006-01-02 15:04:05"),
-			StartedAt:   startedStr,
-			CompletedAt: completedStr,
-		})
-	}
-	return out, nil
+	qs := NewQueueService(s.app)
+	return qs.ListJobs(ctx)
 }
 
 func (s *AdminService) JobSummary(ctx context.Context) (api.AdminJobSummary, error) {
-	if s.app.PgxPool == nil {
-		return api.AdminJobSummary{}, nil
-	}
-	const qQueued = `SELECT count(*) FROM river_job WHERE state IN ('available','scheduled','pending','retryable')`
-	const qRunning = `SELECT count(*) FROM river_job WHERE state = 'running'`
-	const qSucceeded = `SELECT count(*) FROM river_job WHERE state = 'completed'`
-	const qFailed = `SELECT count(*) FROM river_job WHERE state IN ('cancelled','discarded')`
-	var out api.AdminJobSummary
-	if err := s.app.PgxPool.QueryRow(ctx, qQueued).Scan(&out.Queued); err != nil {
-		return api.AdminJobSummary{}, err
-	}
-	if err := s.app.PgxPool.QueryRow(ctx, qRunning).Scan(&out.Running); err != nil {
-		return api.AdminJobSummary{}, err
-	}
-	if err := s.app.PgxPool.QueryRow(ctx, qSucceeded).Scan(&out.Succeeded); err != nil {
-		return api.AdminJobSummary{}, err
-	}
-	if err := s.app.PgxPool.QueryRow(ctx, qFailed).Scan(&out.Failed); err != nil {
-		return api.AdminJobSummary{}, err
-	}
-	return out, nil
-}
-
-func mapRiverStateToStatus(state string) string {
-	switch state {
-	case "available", "scheduled", "pending", "retryable":
-		return "queued"
-	case "running":
-		return "running"
-	case "completed":
-		return "succeeded"
-	case "cancelled", "discarded":
-		return "failed"
-	default:
-		return state
-	}
+	qs := NewQueueService(s.app)
+	return qs.JobSummary(ctx)
 }

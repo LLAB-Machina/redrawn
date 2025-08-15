@@ -230,3 +230,46 @@ type MagicLinkRequest struct {
 type VerifyRequest struct {
 	Token string `json:"token" validate:"required"`
 }
+
+// Memberships & Invites
+type AlbumMember struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
+}
+
+type PendingInvite struct {
+	ID        string  `json:"id"`
+	Email     string  `json:"email"`
+	Role      string  `json:"role"`
+	Status    string  `json:"status"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+}
+
+type InviteLink struct {
+	ID        string  `json:"id"`
+	Token     string  `json:"token"`
+	Role      string  `json:"role"`
+	Uses      int     `json:"uses"`
+	MaxUses   *int    `json:"max_uses,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	RevokedAt *string `json:"revoked_at,omitempty"`
+}
+
+type CreateInviteLinkRequest struct {
+	Role      string  `json:"role" validate:"required,oneof=owner editor viewer"`
+	MaxUses   *int    `json:"max_uses"`
+	ExpiresAt *string `json:"expires_at"`
+}
+
+type UpdateInviteLinkRequest struct {
+	Role      *string `json:"role"`
+	MaxUses   *int    `json:"max_uses"`
+	ExpiresAt *string `json:"expires_at"`
+}
+
+type MembershipsResponse struct {
+	Members []AlbumMember   `json:"members"`
+	Invites []PendingInvite `json:"invites"`
+	Links   []InviteLink    `json:"links"`
+}
