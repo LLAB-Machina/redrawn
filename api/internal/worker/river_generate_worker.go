@@ -15,7 +15,9 @@ type GenerateWorker struct {
 	processor func(context.Context, api.GenerateJobPayload) error
 }
 
-func NewGenerateWorker(processor func(context.Context, api.GenerateJobPayload) error) *GenerateWorker {
+func NewGenerateWorker(
+	processor func(context.Context, api.GenerateJobPayload) error,
+) *GenerateWorker {
 	return &GenerateWorker{processor: processor}
 }
 

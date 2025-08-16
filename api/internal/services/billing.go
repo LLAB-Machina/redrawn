@@ -6,31 +6,35 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"os"
 	"strconv"
 	"time"
 
-	"redrawn/api/ent"
-	pricepred "redrawn/api/ent/price"
-	"redrawn/api/ent/user"
+	stripe "github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/webhook"
+
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
-
-	stripe "github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/checkout/session"
-	"github.com/stripe/stripe-go/v76/webhook"
+	"redrawn/api/internal/generated"
+	pricepred "redrawn/api/internal/generated/price"
+	"redrawn/api/internal/generated/user"
 )
 
 type BillingService struct{ app *app.App }
 
 func NewBillingService(a *app.App) *BillingService { return &BillingService{app: a} }
 
-func (s *BillingService) CreateCheckoutSession(ctx context.Context, appPriceID string) (string, error) {
+func (s *BillingService) CreateCheckoutSession(
+	ctx context.Context,
+	appPriceID string,
+) (string, error) {
+	if s.app.Stripe == nil {
+		return "", errors.New("stripe client not configured")
+	}
 	var stripePriceID string
 	var credits int
 	var priceID *string
 	if appPriceID != "" {
-		p, err := s.app.Ent.Price.Get(ctx, appPriceID)
+		p, err := s.app.Db.Price.Get(ctx, appPriceID)
 		if err != nil {
 			return "", fmt.Errorf("price not found: %w", err)
 		}
@@ -46,23 +50,15 @@ func (s *BillingService) CreateCheckoutSession(ctx context.Context, appPriceID s
 		}
 		credits = s.app.Config.CreditsPerPurchase
 	}
-	key := s.app.Config.StripeSecretKey
-	if key == "" {
-		key = os.Getenv("STRIPE_SECRET_KEY")
-	}
-	if key == "" {
-		return "", errors.New("stripe secret missing")
-	}
-	stripe.Key = key
-	params := &stripe.CheckoutSessionParams{
+
+	params := &stripe.CheckoutSessionCreateParams{
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),
 		SuccessURL: stripe.String(s.app.Config.PublicBaseURL + "/billing?success=1"),
 		CancelURL:  stripe.String(s.app.Config.PublicBaseURL + "/billing?canceled=1"),
-		LineItems: []*stripe.CheckoutSessionLineItemParams{
+		LineItems: []*stripe.CheckoutSessionCreateLineItemParams{
 			{Price: stripe.String(stripePriceID), Quantity: stripe.Int64(1)},
 		},
 	}
-	// include credits and our price id in metadata for webhook logic
 	if params.Metadata == nil {
 		params.Metadata = map[string]string{}
 	}
@@ -75,30 +71,31 @@ func (s *BillingService) CreateCheckoutSession(ctx context.Context, appPriceID s
 	if uid, ok := app.UserIDFromContext(ctx); ok {
 		params.ClientReferenceID = stripe.String(uid)
 		// Set customer if we already have one
-		if u, err := s.app.Ent.User.Get(ctx, uid); err == nil {
+		if u, err := s.app.Db.User.Get(ctx, uid); err == nil {
 			if u.StripeCustomerID != "" {
 				params.Customer = stripe.String(u.StripeCustomerID)
-			} else {
-				// Provide email to let Stripe prefill customer
-				if u.Email != "" {
-					params.CustomerEmail = stripe.String(u.Email)
-				}
+			} else if u.Email != "" {
+				params.CustomerEmail = stripe.String(u.Email)
 			}
 		}
 	}
-	cs, err := session.New(params)
+
+	cs, err := s.app.Stripe.V1CheckoutSessions.Create(ctx, params)
 	if err != nil {
 		return "", err
 	}
 	return cs.URL, nil
 }
 
-func (s *BillingService) HandleStripeWebhook(ctx context.Context, payload []byte, signatureHeader string) error {
+func (s *BillingService) HandleStripeWebhook(
+	ctx context.Context,
+	payload []byte,
+	signatureHeader string,
+) error {
 	secret := s.app.Config.StripeWebhook
 	if secret == "" {
 		return errors.New("stripe webhook secret missing")
 	}
-
 	event, err := webhook.ConstructEventWithOptions(
 		payload,
 		signatureHeader,
@@ -119,24 +116,30 @@ func (s *BillingService) HandleStripeWebhook(ctx context.Context, payload []byte
 			return err
 		}
 	default:
-		slog.Info("stripe webhook ignored", slog.String("type", string(event.Type)), slog.String("id", event.ID))
+		slog.Info(
+			"stripe webhook ignored",
+			slog.String("type", string(event.Type)),
+			slog.String("id", event.ID),
+		)
 	}
-
 	return nil
 }
 
-func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe.CheckoutSession) error {
+func (s *BillingService) handleCheckoutCompleted(
+	ctx context.Context,
+	cs *stripe.CheckoutSession,
+) error {
 	// Prefer client_reference_id to locate user
-	var userToUpdate *ent.User
+	var userToUpdate *generated.User
 	if cs.ClientReferenceID != "" {
-		u, err := s.app.Ent.User.Get(ctx, cs.ClientReferenceID)
+		u, err := s.app.Db.User.Get(ctx, cs.ClientReferenceID)
 		if err == nil {
 			userToUpdate = u
 		}
 	}
 	// Fallback by customer email
 	if userToUpdate == nil && cs.CustomerEmail != "" {
-		u, err := s.app.Ent.User.Query().Where(user.EmailEQ(cs.CustomerEmail)).Only(ctx)
+		u, err := s.app.Db.User.Query().Where(user.EmailEQ(cs.CustomerEmail)).Only(ctx)
 		if err == nil {
 			userToUpdate = u
 		}
@@ -145,7 +148,7 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 		return errors.New("could not find user for checkout session")
 	}
 
-	upd := s.app.Ent.User.UpdateOneID(userToUpdate.ID)
+	upd := s.app.Db.User.UpdateOneID(userToUpdate.ID)
 	if cs.Customer != nil && cs.Customer.ID != "" {
 		upd.SetStripeCustomerID(cs.Customer.ID)
 	}
@@ -171,7 +174,7 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 			priceID = &pid
 		}
 	}
-	pc := s.app.Ent.Purchase.Create().
+	pc := s.app.Db.Purchase.Create().
 		SetUserID(userToUpdate.ID).
 		SetStripeCheckoutSessionID(cs.ID).
 		SetCreditsGranted(addCredits)
@@ -200,7 +203,7 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 
 // ListActivePrices returns active prices mapped to API model
 func (s *BillingService) ListActivePrices(ctx context.Context) ([]api.Price, error) {
-	rows, err := s.app.Ent.Price.Query().Where(pricepred.ActiveEQ(true)).All(ctx)
+	rows, err := s.app.Db.Price.Query().Where(pricepred.ActiveEQ(true)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -216,6 +219,3 @@ func (s *BillingService) ListActivePrices(ctx context.Context) ([]api.Price, err
 	}
 	return out, nil
 }
-
-// uuidFromString wraps uuid.Parse without importing here in header to avoid collisions
-// uuidFromString removed; IDs are NanoID strings now

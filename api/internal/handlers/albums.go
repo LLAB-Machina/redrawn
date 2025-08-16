@@ -35,17 +35,21 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 		return service.Get(c.Context(), id)
 	})
 
-	fuego.Patch(s, "/v1/albums/{id}", func(c fuego.ContextWithBody[api.AlbumUpdateRequest]) (api.OkResponse, error) {
-		body, err := BindAndValidate(c)
-		if err != nil {
-			return api.OkResponse{}, err
-		}
-		id := c.PathParam("id")
-		if err := service.Update(c.Context(), id, body); err != nil {
-			return api.OkResponse{}, err
-		}
-		return api.OkResponse{Ok: "true"}, nil
-	})
+	fuego.Patch(
+		s,
+		"/v1/albums/{id}",
+		func(c fuego.ContextWithBody[api.AlbumUpdateRequest]) (api.OkResponse, error) {
+			body, err := BindAndValidate(c)
+			if err != nil {
+				return api.OkResponse{}, err
+			}
+			id := c.PathParam("id")
+			if err := service.Update(c.Context(), id, body); err != nil {
+				return api.OkResponse{}, err
+			}
+			return api.OkResponse{Ok: "true"}, nil
+		},
+	)
 
 	fuego.Delete(s, "/v1/albums/{id}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		id := c.PathParam("id")

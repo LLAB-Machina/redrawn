@@ -12,13 +12,17 @@ import (
 
 	// "redrawn/api/ent"
 	"redrawn/api/internal/app"
+	openaiclient "redrawn/api/internal/clients/openai"
+	storageclient "redrawn/api/internal/clients/storage"
 	"redrawn/api/internal/config"
 	"redrawn/api/internal/db"
 	"redrawn/api/internal/middleware"
+	queue_river "redrawn/api/internal/queue/river"
 
 	// "github.com/google/uuid"
 
 	"github.com/go-fuego/fuego"
+	stripe "github.com/stripe/stripe-go/v82"
 )
 
 //
@@ -35,6 +39,10 @@ func main() {
 	// OpenAPI UI/Spec can be served via handlers if desired; omitted here for CLI generation
 
 	cfg := config.FromEnv()
+	if err := cfg.Validate(); err != nil {
+		slog.Error("invalid config", slog.String("err", err.Error()))
+		os.Exit(1)
+	}
 
 	// Initialize global slog default logger based on config
 	setupDefaultLogger(cfg, *openapiOnly)
@@ -43,7 +51,7 @@ func main() {
 	configureErrorHandling(server, cfg)
 	if *openapiOnly {
 		// Minimal app with nil DB to allow route registration for OpenAPI
-		application := &app.App{Config: cfg, Ent: nil}
+		application := &app.App{Config: cfg}
 		registerRoutes(server, application)
 		// Print OpenAPI spec JSON
 		spec := server.OutputOpenAPISpec()
@@ -67,27 +75,36 @@ func main() {
 	}
 
 	// Initialize DB connection (migrations handled via Atlas CLI)
-	entClient, err := db.Open(context.Background())
+	dbClient, err := db.Open(context.Background())
 	if err != nil {
 		slog.Error("db open failed", slog.String("err", err.Error()))
 		os.Exit(1)
 	}
 
-	application := &app.App{Config: cfg, Ent: entClient}
+	application := &app.App{Config: cfg}
+	application.Db = dbClient
+
+	// External clients
+	application.OpenAI = openaiclient.NewFromConfig(cfg)
+	application.Storage = storageclient.NewR2FromConfig(cfg)
+	if cfg.StripeSecretKey != "" {
+		application.Stripe = stripe.NewClient(cfg.StripeSecretKey)
+	}
 
 	// River client (pgx pool) for durable jobs
-	riverClient, err := setupRiver(cfg, entClient)
+	riverClient, err := queue_river.Setup(application)
 	if err != nil {
 		slog.Error("river client init failed", slog.String("err", err.Error()))
 		os.Exit(1)
 	}
 
 	// Adapter to satisfy app.TaskQueue using River
-	application.Queue = newRiverAdapter(riverClient)
+	application.Queue = queue_river.NewAdapter(riverClient)
 	application.River = riverClient
 
 	// Session middleware
 	fuego.Use(server, middleware.SessionMiddleware(cfg))
+	fuego.Use(server, middleware.RequestLogger)
 	registerRoutes(server, application)
 
 	// Graceful shutdown to stop worker
@@ -114,5 +131,4 @@ func main() {
 	<-ctx.Done()
 	slog.Info("shutting down workers...")
 	_ = riverClient.Stop(context.Background())
-
 }

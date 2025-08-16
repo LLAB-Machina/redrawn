@@ -750,7 +750,7 @@
   "paths": {
     "/v1/admin/albums": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/albums",
         "parameters": [
           {
@@ -822,7 +822,7 @@
     },
     "/v1/admin/jobs": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs",
         "parameters": [
           {
@@ -894,7 +894,7 @@
     },
     "/v1/admin/jobs/summary": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs/summary",
         "parameters": [
           {
@@ -960,7 +960,7 @@
     },
     "/v1/admin/jobs/{id}/logs": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func10`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func10`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs/:id/logs",
         "parameters": [
           {
@@ -1034,7 +1034,7 @@
     },
     "/v1/admin/prices": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/prices",
         "parameters": [
           {
@@ -1104,7 +1104,7 @@
         "summary": "func2"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "POST_/v1/admin/prices",
         "parameters": [
           {
@@ -1181,7 +1181,7 @@
     },
     "/v1/admin/prices/{id}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "DELETE_/v1/admin/prices/:id",
         "parameters": [
           {
@@ -1253,7 +1253,7 @@
         "summary": "func5"
       },
       "put": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "PUT_/v1/admin/prices/:id",
         "parameters": [
           {
@@ -1338,7 +1338,7 @@
     },
     "/v1/admin/users": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
         "operationId": "GET_/v1/admin/users",
         "parameters": [
           {
@@ -1410,7 +1410,7 @@
     },
     "/v1/albums": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/albums",
         "parameters": [
           {
@@ -1480,7 +1480,7 @@
         "summary": "func2"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums",
         "parameters": [
           {
@@ -1557,7 +1557,7 @@
     },
     "/v1/albums/{id}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "DELETE_/v1/albums/:id",
         "parameters": [
           {
@@ -1629,7 +1629,7 @@
         "summary": "func6"
       },
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/albums/:id",
         "parameters": [
           {
@@ -1701,7 +1701,7 @@
         "summary": "func4"
       },
       "patch": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "PATCH_/v1/albums/:id",
         "parameters": [
           {
@@ -1786,7 +1786,7 @@
     },
     "/v1/albums/{id}/invite_links": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/invite_links",
         "parameters": [
           {
@@ -1871,7 +1871,7 @@
     },
     "/v1/albums/{id}/invite_links/accept/{token}": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/invite_links/accept/:token",
         "parameters": [
           {
@@ -1953,7 +1953,7 @@
     },
     "/v1/albums/{id}/invite_links/{linkId}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "DELETE_/v1/albums/:id/invite_links/:linkId",
         "parameters": [
           {
@@ -2035,7 +2035,7 @@
     },
     "/v1/albums/{id}/invites": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/invites",
         "parameters": [
           {
@@ -2120,7 +2120,7 @@
     },
     "/v1/albums/{id}/invites/{inviteId}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "DELETE_/v1/albums/:id/invites/:inviteId",
         "parameters": [
           {
@@ -2200,7 +2200,7 @@
         "summary": "func8"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/invites/:inviteId",
         "parameters": [
           {
@@ -2293,7 +2293,7 @@
     },
     "/v1/albums/{id}/members/{userId}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "DELETE_/v1/albums/:id/members/:userId",
         "parameters": [
           {
@@ -2373,7 +2373,7 @@
         "summary": "func3"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/members/:userId",
         "parameters": [
           {
@@ -2466,7 +2466,7 @@
     },
     "/v1/albums/{id}/memberships": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterMembership.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/albums/:id/memberships",
         "parameters": [
           {
@@ -2540,7 +2540,7 @@
     },
     "/v1/albums/{id}/originals": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/albums/:id/originals",
         "parameters": [
           {
@@ -2618,7 +2618,7 @@
         "summary": "func3"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/originals",
         "parameters": [
           {
@@ -2703,7 +2703,7 @@
     },
     "/v1/albums/{id}/uploads": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/albums/:id/uploads",
         "parameters": [
           {
@@ -3140,7 +3140,7 @@
     },
     "/v1/billing/create-checkout-session": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/billing/create-checkout-session",
         "parameters": [
           {
@@ -3217,7 +3217,7 @@
     },
     "/v1/billing/prices": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/billing/prices",
         "parameters": [
           {
@@ -3289,7 +3289,7 @@
     },
     "/v1/files/{id}/url": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/files/:id/url",
         "parameters": [
           {
@@ -3429,7 +3429,7 @@
     },
     "/v1/me": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterUsers.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterUsers.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/me",
         "parameters": [
           {
@@ -3493,7 +3493,7 @@
         "summary": "func1"
       },
       "patch": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterUsers.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterUsers.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "PATCH_/v1/me",
         "parameters": [
           {
@@ -3570,7 +3570,7 @@
     },
     "/v1/originals/{id}/generate": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/originals/:id/generate",
         "parameters": [
           {
@@ -3655,7 +3655,7 @@
     },
     "/v1/originals/{id}/generated": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/originals/:id/generated",
         "parameters": [
           {
@@ -3809,7 +3809,7 @@
     },
     "/v1/stripe/webhook": {
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterBilling.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/stripe/webhook",
         "parameters": [
           {
@@ -3875,7 +3875,7 @@
     },
     "/v1/tasks/{id}": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPhotos.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/tasks/:id",
         "parameters": [
           {
@@ -3949,7 +3949,7 @@
     },
     "/v1/themes": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterThemes.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterThemes.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/themes",
         "parameters": [
           {
@@ -4019,7 +4019,7 @@
         "summary": "func1"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterThemes.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterThemes.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "POST_/v1/themes",
         "parameters": [
           {
@@ -4096,7 +4096,7 @@
     },
     "/v1/users/{email}/albums": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/users/:email/albums",
         "parameters": [
           {

@@ -302,11 +302,6 @@
       "Theme": {
         "description": "Theme schema",
         "properties": {
-          "css_tokens": {
-            "additionalProperties": {},
-            "nullable": true,
-            "type": "object"
-          },
           "id": {
             "type": "string"
           },

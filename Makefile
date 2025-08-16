@@ -61,11 +61,13 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
 	fi; \
 	echo "Using Homebrew at: $$BREW_CMD"; \
 	$$BREW_CMD update; \
-	$$BREW_CMD install go node golangci-lint jq ariga/tap/atlas || true
+	$$BREW_CMD install go node golangci-lint golines gofumpt jq ariga/tap/atlas || true
 	@echo "Installing river CLI..."; \
 	GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/riverqueue/river/cmd/river@latest || true
 	@echo "Installing air (Go live reload)..."; \
 	cd api && GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/air-verse/air@latest || true
+	@echo "Ensuring golines is available (install via Homebrew if missing)..."; \
+	command -v golines >/dev/null 2>&1 || ( echo "golines not found in PATH; please install via Homebrew: brew install golines" )
 	@echo "Installing Go module dependencies..."
 	cd api && go mod download
 	@echo "Installing web dependencies (npm i)..."
@@ -118,7 +120,7 @@ db-down: ## Stop only Postgres via docker compose (dev)
 	docker compose stop postgres
 
 revision: ## Generate Atlas migration from Ent schemas
-	cd api && atlas migrate diff -c file://../atlas.hcl --env local --to ent://ent/schema --dir file://../migrations --format '{{ sql . "  " }}'
+	cd api && atlas migrate diff -c file://../atlas.hcl --env local --to ent://internal/schema --dir file://../migrations --format '{{ sql . "  " }}'
 
 uphead: ## Apply Atlas migrations
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
@@ -197,13 +199,15 @@ generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 	cd web && npx --yes @rtk-query/codegen-openapi rtk.codegen.cjs
 
 ent-gen: ## Generate Ent ORM code from schema
-	cd api && go generate ./ent
+	cd api && go generate ./internal/generated
 
 code-gen: ent-gen openapi generate-clients ## Generate Ent, OpenAPI JSON, and web client
 	@true
 
 format: ## Format Go and Web code
 	cd api && go fmt ./...
+	cd api && find . -type f -name "*.go" -not -path "./internal/generated/*" -print0 | xargs -0 gofumpt -l -w
+	cd api && golines -m 100 --ignore-generated -w .
 	cd web && npm run format --silent || npx --yes prettier --write .
 
 build-api: ## Build Go API binary

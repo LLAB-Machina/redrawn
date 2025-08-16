@@ -22,8 +22,11 @@ func (s *AdminService) IsAdmin(email string) bool {
 }
 
 // Price management
-func (s *AdminService) CreatePrice(ctx context.Context, req api.CreatePriceRequest) (*api.Price, error) {
-	price, err := s.app.Ent.Price.Create().
+func (s *AdminService) CreatePrice(
+	ctx context.Context,
+	req api.CreatePriceRequest,
+) (*api.Price, error) {
+	price, err := s.app.Db.Price.Create().
 		SetName(req.Name).
 		SetStripePriceID(req.StripePriceID).
 		SetCredits(req.Credits).
@@ -42,8 +45,12 @@ func (s *AdminService) CreatePrice(ctx context.Context, req api.CreatePriceReque
 	}, nil
 }
 
-func (s *AdminService) UpdatePrice(ctx context.Context, priceID string, req api.UpdatePriceRequest) (*api.Price, error) {
-	update := s.app.Ent.Price.UpdateOneID(priceID)
+func (s *AdminService) UpdatePrice(
+	ctx context.Context,
+	priceID string,
+	req api.UpdatePriceRequest,
+) (*api.Price, error) {
+	update := s.app.Db.Price.UpdateOneID(priceID)
 	if req.Name != nil {
 		update.SetName(*req.Name)
 	}
@@ -72,11 +79,11 @@ func (s *AdminService) UpdatePrice(ctx context.Context, priceID string, req api.
 }
 
 func (s *AdminService) DeletePrice(ctx context.Context, priceID string) error {
-	return s.app.Ent.Price.DeleteOneID(priceID).Exec(ctx)
+	return s.app.Db.Price.DeleteOneID(priceID).Exec(ctx)
 }
 
 func (s *AdminService) ListAllPrices(ctx context.Context) ([]api.Price, error) {
-	prices, err := s.app.Ent.Price.Query().All(ctx)
+	prices, err := s.app.Db.Price.Query().All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +103,7 @@ func (s *AdminService) ListAllPrices(ctx context.Context) ([]api.Price, error) {
 
 // User management
 func (s *AdminService) ListAllUsers(ctx context.Context) ([]api.AdminUser, error) {
-	users, err := s.app.Ent.User.Query().All(ctx)
+	users, err := s.app.Db.User.Query().All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +125,8 @@ func (s *AdminService) ListAllUsers(ctx context.Context) ([]api.AdminUser, error
 
 // Album management
 func (s *AdminService) ListAllAlbums(ctx context.Context) ([]api.AdminAlbum, error) {
-	albums, err := s.app.Ent.Album.Query().
-		WithOwner().
+	albums, err := s.app.Db.Album.Query().
+		WithCreatedBy().
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -128,8 +135,8 @@ func (s *AdminService) ListAllAlbums(ctx context.Context) ([]api.AdminAlbum, err
 	result := make([]api.AdminAlbum, 0, len(albums))
 	for _, a := range albums {
 		ownerEmail := ""
-		if a.Edges.Owner != nil {
-			ownerEmail = a.Edges.Owner.Email
+		if a.Edges.CreatedBy != nil {
+			ownerEmail = a.Edges.CreatedBy.Email
 		}
 
 		result = append(result, api.AdminAlbum{

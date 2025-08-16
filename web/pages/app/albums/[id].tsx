@@ -1,6 +1,6 @@
-import { useRouter } from "next/router";
-import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   api,
   useGetV1AlbumsByIdQuery,
@@ -11,25 +11,25 @@ import {
   useGetV1AlbumsByIdOriginalsQuery,
   useGetV1ThemesQuery,
   usePostV1OriginalsByIdGenerateMutation,
-} from "../../../src/services/genApi";
-import { Select, SelectOption } from "../../../components/Select";
-import { toast } from "sonner";
+} from '../../../src/services/genApi';
+import { Select, SelectOption } from '../../../components/Select';
+import { toast } from 'sonner';
 
 const VISIBILITY_OPTIONS: SelectOption[] = [
   {
-    value: "public",
-    label: "Public",
-    description: "Anyone can view this album",
+    value: 'public',
+    label: 'Public',
+    description: 'Anyone can view this album',
   },
   {
-    value: "unlisted",
-    label: "Unlisted",
-    description: "Only people with the link can view",
+    value: 'unlisted',
+    label: 'Unlisted',
+    description: 'Only people with the link can view',
   },
   {
-    value: "private",
-    label: "Private",
-    description: "Only you and invited collaborators can view",
+    value: 'invite-only',
+    label: 'Invite-only',
+    description: 'Only you and invited collaborators can view',
   },
 ];
 
@@ -38,8 +38,10 @@ export default function AlbumDetail() {
   const id = query.id as string;
 
   const { data: album } = useGetV1AlbumsByIdQuery({ id }, { skip: !id });
-  const { data: originals, refetch: refetchOriginals } =
-    useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id });
+  const { data: originals, refetch: refetchOriginals } = useGetV1AlbumsByIdOriginalsQuery(
+    { id },
+    { skip: !id },
+  );
   const { data: themes } = useGetV1ThemesQuery(undefined as any);
   const [patchAlbumMutation] = usePatchV1AlbumsByIdMutation();
   const [deleteAlbumMutation] = useDeleteV1AlbumsByIdMutation();
@@ -50,9 +52,7 @@ export default function AlbumDetail() {
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
   const [triggerTask] = api.useLazyGetV1TasksByIdQuery();
 
-  const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedThemeId, setSelectedThemeId] = useState<string | undefined>(undefined);
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
   const [loadingAll, setLoadingAll] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -68,18 +68,15 @@ export default function AlbumDetail() {
       }
     }
 
-    if (!selectedThemeId && themes && themes.length > 0)
-      setSelectedThemeId(themes[0].id);
+    if (!selectedThemeId && themes && themes.length > 0) setSelectedThemeId(themes[0].id);
   }, [themes, selectedThemeId, query.theme]);
 
   async function onPatchAlbum(e: any) {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
-    const name =
-      (form.elements.namedItem("name") as HTMLInputElement).value || undefined;
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value || undefined;
     const visibility =
-      (form.elements.namedItem("visibility") as HTMLInputElement).value ||
-      undefined;
+      (form.elements.namedItem('visibility') as HTMLInputElement).value || undefined;
     try {
       await patchAlbumMutation({
         id,
@@ -94,7 +91,7 @@ export default function AlbumDetail() {
   async function onDeleteAlbum() {
     try {
       await deleteAlbumMutation({ id }).unwrap();
-      window.location.href = "/app";
+      window.location.href = '/app';
     } catch (e) {}
   }
 
@@ -129,23 +126,23 @@ export default function AlbumDetail() {
           }).unwrap();
           if (!init.upload_url || !init.file_id) continue;
           await fetch(init.upload_url, {
-            method: "PUT",
+            method: 'PUT',
             body: file,
-            headers: { "content-type": file.type },
+            headers: { 'content-type': file.type },
           });
           await createOriginalMutation({
             id,
             createOriginalRequest: { file_id: init.file_id },
           }).unwrap();
         } catch (err) {
-          console.error("Upload failed", err);
+          console.error('Upload failed', err);
           toast.error(`Failed to upload ${file.name}`);
         }
       }
       await refetchOriginals();
     } finally {
       setLoadingAll(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }
 
@@ -163,7 +160,7 @@ export default function AlbumDetail() {
       while (attempts < max) {
         try {
           const ts = await triggerTask({ id: resp.task_id }).unwrap();
-          if (ts.status === "succeeded" || ts.status === "failed") break;
+          if (ts.status === 'succeeded' || ts.status === 'failed') break;
         } catch {}
         attempts++;
         await delay(500);
@@ -194,8 +191,7 @@ export default function AlbumDetail() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold tracking-tight">
-          {album?.name || "Album"}{" "}
-          <span className="text-neutral-500">({id})</span>
+          {album?.name || 'Album'} <span className="text-neutral-500">({id})</span>
         </h2>
         <button
           className="inline-flex h-9 items-center rounded-md bg-red-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-500"
@@ -208,35 +204,29 @@ export default function AlbumDetail() {
       <form onSubmit={onPatchAlbum} className="card max-w-md">
         <div className="space-y-4">
           <div>
-            <div className="text-sm font-semibold tracking-tight">
-              Album settings
-            </div>
-            <p className="text-xs text-neutral-600 mt-1">
+            <div className="text-sm font-semibold tracking-tight">Album settings</div>
+            <p className="mt-1 text-xs text-neutral-600">
               Update your album name and privacy settings
             </p>
           </div>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-neutral-700 mb-1">
-                Album Name
-              </label>
+              <label className="mb-1 block text-xs font-medium text-neutral-700">Album Name</label>
               <input
                 className="input w-full"
                 name="name"
                 placeholder="Rename (optional)"
-                defaultValue={album?.name || ""}
+                defaultValue={album?.name || ''}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-neutral-700 mb-1">
-                Privacy
-              </label>
+              <label className="mb-1 block text-xs font-medium text-neutral-700">Privacy</label>
               <Select
                 name="visibility"
                 options={VISIBILITY_OPTIONS}
-                defaultValue={album?.visibility || "public"}
+                defaultValue={album?.visibility || 'public'}
                 className="input w-full"
               />
             </div>
@@ -266,8 +256,8 @@ export default function AlbumDetail() {
         <div className="card">
           <div className="text-sm font-semibold">Select theme</div>
           <select
-            className="mt-2 w-full select"
-            value={selectedThemeId || ""}
+            className="select mt-2 w-full"
+            value={selectedThemeId || ''}
             onChange={(e) => setSelectedThemeId(e.target.value)}
           >
             {themeOptions.map((t) => (
@@ -277,13 +267,8 @@ export default function AlbumDetail() {
             ))}
           </select>
           <button
-            className="mt-3 btn btn-primary h-9 disabled:opacity-50"
-            disabled={
-              !originals ||
-              originals.length === 0 ||
-              !selectedThemeId ||
-              loadingAll
-            }
+            className="btn btn-primary mt-3 h-9 disabled:opacity-50"
+            disabled={!originals || originals.length === 0 || !selectedThemeId || loadingAll}
             onClick={generateForAll}
           >
             Generate all (1 credit each)
@@ -293,7 +278,7 @@ export default function AlbumDetail() {
           </div>
           {totalProcessing > 0 && (
             <div className="mt-2 text-xs text-blue-700">
-              {totalProcessing} image{totalProcessing === 1 ? "" : "s"} processing…
+              {totalProcessing} image{totalProcessing === 1 ? '' : 's'} processing…
             </div>
           )}
           <a
@@ -310,15 +295,9 @@ export default function AlbumDetail() {
         {originals && originals.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {originals.map((o: any) => (
-              <div
-                key={o.id}
-                className="group rounded-lg border border-neutral-200 bg-white p-2"
-              >
+              <div key={o.id} className="group rounded-lg border border-neutral-200 bg-white p-2">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-neutral-100">
-                  <AlbumImage
-                    fileId={o.file_id || undefined}
-                    ensureUrl={ensureFileUrl}
-                  />
+                  <AlbumImage fileId={o.file_id || undefined} ensureUrl={ensureFileUrl} />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm">
                   <button
@@ -330,7 +309,7 @@ export default function AlbumDetail() {
                   </button>
                   <div className="flex items-center gap-2">
                     {o.processing > 0 && (
-                      <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-blue-800">
+                      <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-[10px] font-medium tracking-wide text-blue-800 uppercase">
                         processing ×{o.processing}
                       </span>
                     )}
@@ -385,13 +364,13 @@ function LoadGenerated({
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
   const [items, setItems] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
-  const [filterThemeId, setFilterThemeId] = useState<string | "all">("all");
+  const [filterThemeId, setFilterThemeId] = useState<string | 'all'>('all');
 
   async function load() {
     const data = await triggerGenerated({ id: originalId }).unwrap();
     const out: any[] = [];
     for (const g of data) {
-      if (filterThemeId !== "all" && g.theme_id !== filterThemeId) continue;
+      if (filterThemeId !== 'all' && g.theme_id !== filterThemeId) continue;
       const url = await ensureUrl(g.file_id || undefined);
       out.push({ id: g.id, state: g.state, url, error: g.error || null });
     }
@@ -408,7 +387,7 @@ function LoadGenerated({
             if (!open) await load();
           }}
         >
-          {open ? "Hide generated" : "Show generated"}
+          {open ? 'Hide generated' : 'Show generated'}
         </button>
         {open && (
           <select
@@ -438,7 +417,7 @@ function LoadGenerated({
                   className="rounded object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center rounded bg-neutral-100 text-[10px] uppercase tracking-wide text-neutral-500">
+                <div className="flex h-full w-full items-center justify-center rounded bg-neutral-100 text-[10px] tracking-wide text-neutral-500 uppercase">
                   {it.state}
                 </div>
               )}

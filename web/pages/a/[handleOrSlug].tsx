@@ -1,7 +1,7 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { api, useGetV1PublicAlbumsBySlugQuery } from "../../src/services/genApi";
-import Image from "next/image";
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { api, useGetV1PublicAlbumsBySlugQuery } from '../../src/services/genApi';
+import Image from 'next/image';
 
 export default function PublicAlbum() {
   const { query } = useRouter();
@@ -29,9 +29,7 @@ export default function PublicAlbum() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {album?.name || key}
-        </h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{album?.name || key}</h1>
         <p className="text-neutral-600">Shareable album page.</p>
       </div>
       {album?.photos && album.photos.length > 0 ? (
@@ -65,7 +63,7 @@ function PublicAlbumImage({
     ensureUrl(fileId).then(setSrc);
   }, [fileId, ensureUrl]);
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-neutral-200 ring-1 ring-inset ring-neutral-300">
+    <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-neutral-200 ring-1 ring-neutral-300 ring-inset">
       {src ? (
         <Image
           src={src}

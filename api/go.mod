@@ -13,7 +13,6 @@ require (
 	github.com/go-fuego/fuego v0.18.8
 	github.com/go-openapi/inflect v0.21.3
 	github.com/go-playground/validator/v10 v10.27.0
-	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/lib/pq v1.10.9
 	github.com/matoous/go-nanoid/v2 v2.1.0
@@ -22,7 +21,7 @@ require (
 	github.com/riverqueue/river/riverdriver/riverpgxv5 v0.23.1
 	github.com/riverqueue/river/rivertype v0.23.1
 	github.com/spf13/cobra v1.7.0
-	github.com/stripe/stripe-go/v76 v76.25.0
+	github.com/stripe/stripe-go/v82 v82.4.1
 	golang.org/x/tools v0.36.0
 )
 
@@ -48,6 +47,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

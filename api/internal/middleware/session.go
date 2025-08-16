@@ -29,7 +29,13 @@ func MakeSessionCookie(cfg config.Config, userID string) *http.Cookie {
 }
 
 func ClearSessionCookie() *http.Cookie {
-	return &http.Cookie{Name: sessionCookieName, Value: "", Path: "/", Expires: time.Unix(0, 0), MaxAge: -1}
+	return &http.Cookie{
+		Name:    sessionCookieName,
+		Value:   "",
+		Path:    "/",
+		Expires: time.Unix(0, 0),
+		MaxAge:  -1,
+	}
 }
 
 func SessionMiddleware(cfg config.Config) func(next http.Handler) http.Handler {

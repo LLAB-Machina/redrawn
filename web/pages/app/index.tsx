@@ -1,12 +1,12 @@
-import Link from "next/link";
-import { useState } from "react";
+import Link from 'next/link';
+import { useState } from 'react';
 import {
   useGetV1AlbumsQuery,
   useGetV1MeQuery,
   usePatchV1MeMutation,
   type Album,
-} from "../../src/services/genApi";
-import { AlbumWizard } from "../../components/AlbumWizard";
+} from '../../src/services/genApi';
+import { AlbumWizard } from '../../components/AlbumWizard';
 
 export default function AppHome() {
   const { data: meQ, error: meError } = useGetV1MeQuery(undefined);
@@ -37,7 +37,7 @@ export default function AppHome() {
         </div>
       </div>
 
-      {isAuthed && me && (!me.name || me.name.trim() === "") ? (
+      {isAuthed && me && (!me.name || me.name.trim() === '') ? (
         <CompleteProfileCard />
       ) : showWizard ? (
         <AlbumWizard
@@ -51,17 +51,12 @@ export default function AppHome() {
         <div className="card max-w-md">
           <div className="space-y-4">
             <div>
-              <div className="text-sm font-semibold tracking-tight">
-                Create album
-              </div>
-              <p className="text-xs text-neutral-600 mt-1">
+              <div className="text-sm font-semibold tracking-tight">Create album</div>
+              <p className="mt-1 text-xs text-neutral-600">
                 Set up a new photo album with custom themes and privacy settings
               </p>
             </div>
-            <button
-              onClick={() => setShowWizard(true)}
-              className="btn btn-primary w-full h-10"
-            >
+            <button onClick={() => setShowWizard(true)} className="btn btn-primary h-10 w-full">
               Create New Album
             </button>
           </div>
@@ -76,9 +71,9 @@ export default function AppHome() {
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           {albums.map((a) => (
             <Link key={a.id} href={`/app/albums/${a.id}`} className="group">
-              <div className="aspect-[4/3] overflow-hidden rounded-xl bg-white shadow-card ring-1 ring-inset ring-neutral-200 transition-shadow duration-200 group-hover:shadow-lg"></div>
+              <div className="shadow-card aspect-[4/3] overflow-hidden rounded-xl bg-white ring-1 ring-neutral-200 transition-shadow duration-200 ring-inset group-hover:shadow-lg"></div>
               <div className="mt-2 text-sm">
-                <div className="font-medium">{a.name || "Untitled album"}</div>
+                <div className="font-medium">{a.name || 'Untitled album'}</div>
                 <div className="text-neutral-600">/{a.slug}</div>
               </div>
             </Link>
@@ -90,14 +85,14 @@ export default function AppHome() {
 }
 
 function CompleteProfileCard() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [save, { isLoading }] = usePatchV1MeMutation();
   return (
     <div className="card max-w-md">
       <div className="space-y-4">
         <div>
           <div className="text-sm font-semibold tracking-tight">Complete your profile</div>
-          <p className="text-xs text-neutral-600 mt-1">
+          <p className="mt-1 text-xs text-neutral-600">
             We couldn’t get your name from Google. Please enter your name.
           </p>
         </div>
@@ -118,7 +113,7 @@ function CompleteProfileCard() {
               window.location.reload();
             } catch {}
           }}
-          className="btn btn-primary w-full h-10 disabled:opacity-50"
+          className="btn btn-primary h-10 w-full disabled:opacity-50"
         >
           Save
         </button>

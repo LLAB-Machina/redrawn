@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -114,4 +115,15 @@ func loadAdminEmails() []string {
 		}
 	}
 	return emails
+}
+
+// Validate ensures required configuration is present and well-formed.
+func (c Config) Validate() error {
+	if strings.TrimSpace(c.DatabaseURL) == "" {
+		return errors.New("DATABASE_URL is required")
+	}
+	if !c.Dev && strings.TrimSpace(c.SessionSecret) == "" {
+		return errors.New("SESSION_SECRET is required in production")
+	}
+	return nil
 }

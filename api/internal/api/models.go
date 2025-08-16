@@ -114,9 +114,9 @@ type Price struct {
 
 // Admin
 type CreatePriceRequest struct {
-	Name          string `json:"name" validate:"required"`
+	Name          string `json:"name"            validate:"required"`
 	StripePriceID string `json:"stripe_price_id" validate:"required"`
-	Credits       int    `json:"credits" validate:"required,min=1"`
+	Credits       int    `json:"credits"         validate:"required,min=1"`
 	Active        bool   `json:"active"`
 }
 
@@ -165,12 +165,12 @@ type AdminJobSummary struct {
 	Failed    int `json:"failed"`
 }
 type PatchMeRequest struct {
-	Name   *string `json:"name"`
+	Name *string `json:"name"`
 }
 
 type AlbumCreateRequest struct {
-	Name       string `json:"name" validate:"required"`
-	Slug       string `json:"slug" validate:"required"`
+	Name       string `json:"name"       validate:"required"`
+	Slug       string `json:"slug"       validate:"required"`
 	Visibility string `json:"visibility"`
 }
 
@@ -254,7 +254,7 @@ type InviteLink struct {
 }
 
 type CreateInviteLinkRequest struct {
-	Role      string  `json:"role" validate:"required,oneof=owner editor viewer"`
+	Role      string  `json:"role"       validate:"required,oneof=viewer contributor editor"`
 	MaxUses   *int    `json:"max_uses"`
 	ExpiresAt *string `json:"expires_at"`
 }

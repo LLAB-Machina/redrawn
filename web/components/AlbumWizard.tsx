@@ -1,10 +1,7 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import {
-  usePostV1AlbumsMutation,
-  useGetV1ThemesQuery,
-} from "../src/services/genApi";
-import { Select, SelectCards, SelectOption } from "./Select";
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { usePostV1AlbumsMutation, useGetV1ThemesQuery } from '../src/services/genApi';
+import { Select, SelectCards, SelectOption } from './Select';
 
 interface AlbumFormData {
   name: string;
@@ -21,33 +18,32 @@ interface AlbumWizardProps {
 
 const VISIBILITY_OPTIONS: SelectOption[] = [
   {
-    value: "public",
-    label: "Public",
-    description: "Anyone can view this album with the link",
+    value: 'public',
+    label: 'Public',
+    description: 'Anyone can view this album with the link',
   },
   {
-    value: "unlisted",
-    label: "Unlisted",
-    description: "Only people with the link can view this album",
+    value: 'unlisted',
+    label: 'Unlisted',
+    description: 'Only people with the link can view this album',
   },
   {
-    value: "private",
-    label: "Private",
-    description: "Only you and invited collaborators can view",
+    value: 'invite-only',
+    label: 'Invite-only',
+    description: 'Only you and invited collaborators can view',
   },
 ];
 
 export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
   const router = useRouter();
-  const [createAlbumMutation, { isLoading: isCreating }] =
-    usePostV1AlbumsMutation();
+  const [createAlbumMutation, { isLoading: isCreating }] = usePostV1AlbumsMutation();
   const { data: themes } = useGetV1ThemesQuery(undefined as any);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<AlbumFormData>({
-    name: "",
-    slug: "",
-    visibility: "public",
+    name: '',
+    slug: '',
+    visibility: 'public',
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -57,10 +53,10 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
   };
 
   const updateFormData = (updates: Partial<AlbumFormData>) => {
@@ -100,10 +96,10 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
       onSuccess?.();
     } catch (e: any) {
       if (e && e.status === 401) {
-        router.push("/signup?next=/app");
+        router.push('/signup?next=/app');
         return;
       }
-      setError(typeof e === "string" ? e : "Failed to create album");
+      setError(typeof e === 'string' ? e : 'Failed to create album');
     }
   };
 
@@ -124,29 +120,26 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
 
   const themeOptions: SelectOption[] =
     themes?.map((theme) => ({
-      value: theme.id || "",
-      label: theme.name || "Untitled Theme",
+      value: theme.id || '',
+      label: theme.name || 'Untitled Theme',
       description: theme.prompt || undefined,
     })) || [];
 
   return (
-    <div className="card max-w-lg mx-auto">
+    <div className="card mx-auto max-w-lg">
       {/* Progress bar */}
       <div className="mb-6">
-        <div className="flex items-center justify-between text-sm text-neutral-600 mb-2">
+        <div className="mb-2 flex items-center justify-between text-sm text-neutral-600">
           <span>
             Step {currentStep} of {totalSteps}
           </span>
-          <button
-            onClick={onCancel}
-            className="text-neutral-500 hover:text-neutral-700"
-          >
+          <button onClick={onCancel} className="text-neutral-500 hover:text-neutral-700">
             Cancel
           </button>
         </div>
-        <div className="w-full bg-neutral-200 rounded-full h-2">
+        <div className="h-2 w-full rounded-full bg-neutral-200">
           <div
-            className="bg-black h-2 rounded-full transition-all duration-300"
+            className="h-2 rounded-full bg-black transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
@@ -158,16 +151,12 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold">Album Details</h2>
-              <p className="text-sm text-neutral-600">
-                What&apos;s this album about?
-              </p>
+              <p className="text-sm text-neutral-600">What&apos;s this album about?</p>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Album Name
-                </label>
+                <label className="mb-1 block text-sm font-medium">Album Name</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -177,29 +166,24 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
                       name,
                       // Auto-generate slug if it hasn't been manually edited
                       slug:
-                        formData.slug === generateSlug(formData.name) ||
-                        formData.slug === ""
+                        formData.slug === generateSlug(formData.name) || formData.slug === ''
                           ? generateSlug(name)
                           : formData.slug,
                     });
                   }}
                   placeholder="My Summer Vacation"
-                  className="w-full h-10 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                  className="h-10 w-full rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Description (optional)
-                </label>
+                <label className="mb-1 block text-sm font-medium">Description (optional)</label>
                 <textarea
-                  value={formData.description || ""}
-                  onChange={(e) =>
-                    updateFormData({ description: e.target.value })
-                  }
+                  value={formData.description || ''}
+                  onChange={(e) => updateFormData({ description: e.target.value })}
                   placeholder="A collection of photos from our amazing trip..."
-                  className="w-full h-20 rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/10 resize-none"
+                  className="h-20 w-full resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black/10"
                 />
               </div>
             </div>
@@ -210,31 +194,25 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold">Album URL</h2>
-              <p className="text-sm text-neutral-600">
-                Choose how people will find your album
-              </p>
+              <p className="text-sm text-neutral-600">Choose how people will find your album</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Album Slug
-              </label>
+              <label className="mb-1 block text-sm font-medium">Album Slug</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-neutral-500 text-sm">redrawn.app/a/</span>
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <span className="text-sm text-neutral-500">redrawn.app/a/</span>
                 </div>
                 <input
                   type="text"
                   value={formData.slug}
-                  onChange={(e) =>
-                    updateFormData({ slug: generateSlug(e.target.value) })
-                  }
+                  onChange={(e) => updateFormData({ slug: generateSlug(e.target.value) })}
                   placeholder="my-summer-vacation"
-                  className="w-full h-10 rounded-md border border-neutral-300 pl-27 pr-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                  className="h-10 w-full rounded-md border border-neutral-300 pr-3 pl-27 text-sm outline-none focus:ring-2 focus:ring-black/10"
                   required
                 />
               </div>
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="mt-1 text-xs text-neutral-500">
                 Only lowercase letters, numbers, and hyphens are allowed
               </p>
             </div>
@@ -245,9 +223,7 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold">Privacy Settings</h2>
-              <p className="text-sm text-neutral-600">
-                Who can view this album?
-              </p>
+              <p className="text-sm text-neutral-600">Who can view this album?</p>
             </div>
 
             <SelectCards
@@ -263,35 +239,29 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold">Choose Theme (Optional)</h2>
-              <p className="text-sm text-neutral-600">
-                Pick a style for your photos
-              </p>
+              <p className="text-sm text-neutral-600">Pick a style for your photos</p>
             </div>
 
             {themeOptions.length > 0 ? (
               <div className="space-y-3">
                 <SelectCards
-                  value={formData.themeId || ""}
+                  value={formData.themeId || ''}
                   options={[
                     {
-                      value: "",
-                      label: "No theme (choose later)",
-                      description:
-                        "You can always add a theme after creating the album",
+                      value: '',
+                      label: 'No theme (choose later)',
+                      description: 'You can always add a theme after creating the album',
                     },
                     ...themeOptions,
                   ]}
-                  onChange={(value) =>
-                    updateFormData({ themeId: value || undefined })
-                  }
+                  onChange={(value) => updateFormData({ themeId: value || undefined })}
                   className="grid-cols-1"
                 />
               </div>
             ) : (
-              <div className="card p-4 bg-neutral-50">
+              <div className="card bg-neutral-50 p-4">
                 <p className="text-sm text-neutral-600">
-                  No themes available yet. You can add themes after creating
-                  your album.
+                  No themes available yet. You can add themes after creating your album.
                 </p>
               </div>
             )}
@@ -303,17 +273,17 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
 
       {/* Error display */}
       {error && (
-        <div className="mt-4 p-3 rounded-md border border-red-200 bg-red-50 text-sm text-red-800">
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {error}
         </div>
       )}
 
       {/* Navigation buttons */}
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-neutral-200">
+      <div className="mt-6 flex items-center justify-between border-t border-neutral-200 pt-4">
         <button
           onClick={prevStep}
           disabled={currentStep === 1}
-          className="btn btn-neutral disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-neutral disabled:cursor-not-allowed disabled:opacity-50"
         >
           Back
         </button>
@@ -322,7 +292,7 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <button
             onClick={nextStep}
             disabled={!isStepValid()}
-            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
           </button>
@@ -330,9 +300,9 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
           <button
             onClick={handleSubmit}
             disabled={!isStepValid() || isCreating}
-            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isCreating ? "Creating..." : "Create Album"}
+            {isCreating ? 'Creating...' : 'Create Album'}
           </button>
         )}
       </div>

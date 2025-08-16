@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"redrawn/api/ent/user"
 	"redrawn/api/internal/app"
+	"redrawn/api/internal/generated/user"
 )
 
 type AuthService struct {
@@ -37,12 +37,12 @@ func (s *AuthService) ensureUser(ctx context.Context, email string) (string, err
 	if email == "" {
 		return "", errors.New("email required")
 	}
-	u, err := s.app.Ent.User.Query().Where(user.EmailEQ(email)).Only(ctx)
+	u, err := s.app.Db.User.Query().Where(user.EmailEQ(email)).Only(ctx)
 	if err == nil {
 		return u.ID, nil
 	}
 	// create with initial credits and defaults (no handle)
-	nu, err := s.app.Ent.User.Create().
+	nu, err := s.app.Db.User.Create().
 		SetEmail(email).
 		SetCredits(10).
 		Save(ctx)
@@ -82,7 +82,12 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	form.Set("client_secret", cfg.GoogleClientSecret)
 	form.Set("redirect_uri", callback)
 	form.Set("grant_type", "authorization_code")
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://oauth2.googleapis.com/token", strings.NewReader(form.Encode()))
+	req, _ := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		"https://oauth2.googleapis.com/token",
+		strings.NewReader(form.Encode()),
+	)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -102,7 +107,12 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 		return "", errors.New("token exchange failed")
 	}
 	// Fetch userinfo
-	ureq, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://openidconnect.googleapis.com/v1/userinfo", nil)
+	ureq, _ := http.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		"https://openidconnect.googleapis.com/v1/userinfo",
+		nil,
+	)
 	ureq.Header.Set("Authorization", "Bearer "+tok.AccessToken)
 	ures, err := http.DefaultClient.Do(ureq)
 	if err != nil {
@@ -127,7 +137,7 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 		return "", err
 	}
 	// Try to set a display name from Google if missing
-	u, err := s.app.Ent.User.Get(ctx, uid)
+	u, err := s.app.Db.User.Get(ctx, uid)
 	if err == nil && strings.TrimSpace(u.Name) == "" {
 		display := strings.TrimSpace(ui.Name)
 		if display == "" {
@@ -142,7 +152,7 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 			}
 		}
 		if display != "" {
-			_ = s.app.Ent.User.UpdateOneID(uid).SetName(display).Exec(ctx)
+			_ = s.app.Db.User.UpdateOneID(uid).SetName(display).Exec(ctx)
 		}
 	}
 	return uid, nil

@@ -1,13 +1,13 @@
 -- Create "users" table
 CREATE TABLE "public"."users" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "email" character varying NOT NULL,
   "name" character varying NULL,
   "stripe_customer_id" character varying NULL,
-  "stripe_sub_id" character varying NULL,
   "plan" character varying NOT NULL DEFAULT 'free',
   "credits" bigint NOT NULL DEFAULT 0,
-  "created_at" timestamptz NOT NULL,
   PRIMARY KEY ("id")
 );
 -- Create index "users_email_key" to table: "users"
@@ -15,11 +15,11 @@ CREATE UNIQUE INDEX "users_email_key" ON "public"."users" ("email");
 -- Create "themes" table
 CREATE TABLE "public"."themes" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "name" character varying NOT NULL,
   "slug" character varying NOT NULL,
   "prompt" character varying NOT NULL,
-  "css_tokens" jsonb NULL,
-  "created_at" timestamptz NOT NULL,
   "user_themes" character varying NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "themes_users_themes" FOREIGN KEY ("user_themes") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
@@ -29,18 +29,18 @@ CREATE UNIQUE INDEX "themes_slug_key" ON "public"."themes" ("slug");
 -- Create "albums" table
 CREATE TABLE "public"."albums" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "deleted_at" timestamptz NULL,
   "name" character varying NOT NULL,
   "slug" character varying NOT NULL,
   "description" character varying NULL,
   "visibility" character varying NOT NULL DEFAULT 'unlisted',
-  "original_image_visibility" character varying NOT NULL DEFAULT 'hide',
-  "password_hash" character varying NULL,
-  "created_at" timestamptz NOT NULL,
-  "updated_at" timestamptz NOT NULL,
-  "album_default_theme" character varying NULL,
+  "originals_visible_to" character varying NOT NULL DEFAULT 'viewers',
+  "theme_albums" character varying NULL,
   "user_albums" character varying NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "albums_themes_default_theme" FOREIGN KEY ("album_default_theme") REFERENCES "public"."themes" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
+  CONSTRAINT "albums_themes_albums" FOREIGN KEY ("theme_albums") REFERENCES "public"."themes" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
   CONSTRAINT "albums_users_albums" FOREIGN KEY ("user_albums") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 -- Create index "albums_slug_key" to table: "albums"
@@ -48,31 +48,38 @@ CREATE UNIQUE INDEX "albums_slug_key" ON "public"."albums" ("slug");
 -- Create "album_invite_links" table
 CREATE TABLE "public"."album_invite_links" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "token" character varying NOT NULL,
   "role" character varying NOT NULL DEFAULT 'viewer',
   "max_uses" bigint NULL,
   "uses" bigint NOT NULL DEFAULT 0,
   "expires_at" timestamptz NULL,
   "revoked_at" timestamptz NULL,
-  "created_at" timestamptz NOT NULL,
   "album_invite_links" character varying NOT NULL,
   "user_created_invite_links" character varying NOT NULL,
+  "user_revoked_invite_links" character varying NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "album_invite_links_albums_invite_links" FOREIGN KEY ("album_invite_links") REFERENCES "public"."albums" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT "album_invite_links_users_created_invite_links" FOREIGN KEY ("user_created_invite_links") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+  CONSTRAINT "album_invite_links_users_created_invite_links" FOREIGN KEY ("user_created_invite_links") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "album_invite_links_users_revoked_invite_links" FOREIGN KEY ("user_revoked_invite_links") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE SET NULL
 );
 -- Create index "album_invite_links_token_key" to table: "album_invite_links"
 CREATE UNIQUE INDEX "album_invite_links_token_key" ON "public"."album_invite_links" ("token");
+-- Create index "albuminvitelink_album_invite_links" to table: "album_invite_links"
+CREATE INDEX "albuminvitelink_album_invite_links" ON "public"."album_invite_links" ("album_invite_links");
+-- Create index "albuminvitelink_user_created_invite_links" to table: "album_invite_links"
+CREATE INDEX "albuminvitelink_user_created_invite_links" ON "public"."album_invite_links" ("user_created_invite_links");
 -- Create "album_invites" table
 CREATE TABLE "public"."album_invites" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "email" character varying NOT NULL,
   "role" character varying NOT NULL DEFAULT 'viewer',
   "status" character varying NOT NULL DEFAULT 'pending',
   "token" character varying NOT NULL,
   "expires_at" timestamptz NULL,
-  "created_at" timestamptz NOT NULL,
-  "updated_at" timestamptz NOT NULL,
   "revoked_at" timestamptz NULL,
   "accepted_at" timestamptz NULL,
   "album_email_invites" character varying NOT NULL,
@@ -85,35 +92,56 @@ CREATE TABLE "public"."album_invites" (
 );
 -- Create index "album_invites_token_key" to table: "album_invites"
 CREATE UNIQUE INDEX "album_invites_token_key" ON "public"."album_invites" ("token");
+-- Create index "albuminvite_status_album_email_invites" to table: "album_invites"
+CREATE INDEX "albuminvite_status_album_email_invites" ON "public"."album_invites" ("status", "album_email_invites");
+-- Create "album_passwords" table
+CREATE TABLE "public"."album_passwords" (
+  "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "role" character varying NOT NULL DEFAULT 'viewer',
+  "password_hash" character varying NOT NULL,
+  "revoked_at" timestamptz NULL,
+  "album_passwords" character varying NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "album_passwords_albums_passwords" FOREIGN KEY ("album_passwords") REFERENCES "public"."albums" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+-- Create index "albumpassword_role_album_passwords" to table: "album_passwords"
+CREATE UNIQUE INDEX "albumpassword_role_album_passwords" ON "public"."album_passwords" ("role", "album_passwords");
 -- Create "album_users" table
 CREATE TABLE "public"."album_users" (
   "id" bigint NOT NULL GENERATED BY DEFAULT AS IDENTITY,
-  "role" character varying NOT NULL DEFAULT 'viewer',
   "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "role" character varying NOT NULL DEFAULT 'viewer',
   "album_members" character varying NOT NULL,
   "user_memberships" character varying NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "album_users_albums_members" FOREIGN KEY ("album_members") REFERENCES "public"."albums" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "album_users_users_memberships" FOREIGN KEY ("user_memberships") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+-- Create index "albumuser_user_memberships" to table: "album_users"
+CREATE UNIQUE INDEX "albumuser_user_memberships" ON "public"."album_users" ("user_memberships");
 -- Create "files" table
 CREATE TABLE "public"."files" (
   "id" character varying NOT NULL,
-  "provider" character varying NOT NULL DEFAULT 'cloudflare_images',
-  "cloudflare_id" character varying NOT NULL,
-  "original_name" character varying NOT NULL,
-  "mime" character varying NOT NULL,
-  "size_bytes" bigint NOT NULL,
-  "width" bigint NULL,
-  "height" bigint NULL,
-  "checksum_sha256" character varying NULL,
   "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "provider" character varying NOT NULL DEFAULT 'r2',
+  "provider_key" character varying NULL,
+  "original_name" character varying NULL,
+  "mime_type" character varying NULL,
+  "size_bytes" bigint NOT NULL DEFAULT 0,
   PRIMARY KEY ("id")
 );
+-- Create index "file_provider_provider_key" to table: "files"
+CREATE UNIQUE INDEX "file_provider_provider_key" ON "public"."files" ("provider", "provider_key");
 -- Create "original_photos" table
 CREATE TABLE "public"."original_photos" (
   "id" character varying NOT NULL,
   "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "deleted_at" timestamptz NULL,
   "album_original_photos" character varying NOT NULL,
   "file_original_of" character varying NOT NULL,
   "user_uploaded_photos" character varying NOT NULL,
@@ -125,11 +153,13 @@ CREATE TABLE "public"."original_photos" (
 -- Create "generated_photos" table
 CREATE TABLE "public"."generated_photos" (
   "id" character varying NOT NULL,
-  "state" character varying NOT NULL DEFAULT 'processing',
-  "error_msg" character varying NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
+  "deleted_at" timestamptz NULL,
+  "status" character varying NOT NULL DEFAULT 'queued',
   "started_at" timestamptz NOT NULL,
   "finished_at" timestamptz NULL,
-  "retries" bigint NOT NULL DEFAULT 0,
+  "error_message" character varying NULL,
   "file_generated_of" character varying NULL,
   "original_photo_generated" character varying NOT NULL,
   "theme_generated" character varying NOT NULL,
@@ -141,15 +171,16 @@ CREATE TABLE "public"."generated_photos" (
 -- Create "credit_usages" table
 CREATE TABLE "public"."credit_usages" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "amount" bigint NOT NULL DEFAULT 1,
   "reason" character varying NOT NULL DEFAULT 'generate',
-  "created_at" timestamptz NOT NULL,
-  "generated_photo_credit_usages" character varying NULL,
+  "generated_photo_credit_usages" character varying NOT NULL,
   "original_photo_credit_usages" character varying NULL,
   "theme_credit_usages" character varying NULL,
   "user_credit_usages" character varying NOT NULL,
   PRIMARY KEY ("id"),
-  CONSTRAINT "credit_usages_generated_photos_credit_usages" FOREIGN KEY ("generated_photo_credit_usages") REFERENCES "public"."generated_photos" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
+  CONSTRAINT "credit_usages_generated_photos_credit_usages" FOREIGN KEY ("generated_photo_credit_usages") REFERENCES "public"."generated_photos" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT "credit_usages_original_photos_credit_usages" FOREIGN KEY ("original_photo_credit_usages") REFERENCES "public"."original_photos" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
   CONSTRAINT "credit_usages_themes_credit_usages" FOREIGN KEY ("theme_credit_usages") REFERENCES "public"."themes" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
   CONSTRAINT "credit_usages_users_credit_usages" FOREIGN KEY ("user_credit_usages") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -157,11 +188,14 @@ CREATE TABLE "public"."credit_usages" (
 -- Create "prices" table
 CREATE TABLE "public"."prices" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "name" character varying NOT NULL,
   "stripe_price_id" character varying NOT NULL,
   "credits" bigint NOT NULL DEFAULT 1,
   "active" boolean NOT NULL DEFAULT true,
-  "created_at" timestamptz NOT NULL,
+  "unit_amount" bigint NULL,
+  "currency" character varying NULL,
   PRIMARY KEY ("id")
 );
 -- Create index "prices_stripe_price_id_key" to table: "prices"
@@ -169,16 +203,21 @@ CREATE UNIQUE INDEX "prices_stripe_price_id_key" ON "public"."prices" ("stripe_p
 -- Create "purchases" table
 CREATE TABLE "public"."purchases" (
   "id" character varying NOT NULL,
+  "created_at" timestamptz NOT NULL,
+  "updated_at" timestamptz NOT NULL,
   "stripe_checkout_session_id" character varying NOT NULL,
   "stripe_payment_intent_id" character varying NULL,
   "stripe_customer_id" character varying NULL,
   "amount_total" bigint NULL,
   "currency" character varying NULL,
   "credits_granted" bigint NOT NULL DEFAULT 0,
-  "created_at" timestamptz NOT NULL,
+  "status" character varying NOT NULL DEFAULT 'requires_payment',
+  "completed_at" timestamptz NULL,
   "price_purchases" character varying NULL,
   "user_purchases" character varying NOT NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "purchases_prices_purchases" FOREIGN KEY ("price_purchases") REFERENCES "public"."prices" ("id") ON UPDATE NO ACTION ON DELETE SET NULL,
   CONSTRAINT "purchases_users_purchases" FOREIGN KEY ("user_purchases") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+-- Create index "purchase_stripe_payment_intent_id" to table: "purchases"
+CREATE UNIQUE INDEX "purchase_stripe_payment_intent_id" ON "public"."purchases" ("stripe_payment_intent_id");

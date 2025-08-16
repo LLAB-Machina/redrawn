@@ -7,10 +7,11 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/go-fuego/fuego"
+
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/config"
-
-	"github.com/go-fuego/fuego"
+	"redrawn/api/internal/errorsx"
 )
 
 // configureErrorHandling sets global error handling and logging middleware.
@@ -18,7 +19,19 @@ func configureErrorHandling(s *fuego.Server, cfg config.Config) {
 	// Map generic errors to structured HTTP errors (and map common strings to statuses)
 	fuego.WithEngineOptions(
 		fuego.WithErrorHandler(func(e error) error {
+			// Prefer typed sentinels
+			switch {
+			case errors.Is(e, errorsx.ErrUnauthorized):
+				return fuego.UnauthorizedError{Err: e}
+			case errors.Is(e, errorsx.ErrForbidden):
+				return fuego.ForbiddenError{Err: e}
+			case errors.Is(e, errorsx.ErrNotFound):
+				return fuego.NotFoundError{Err: e}
+			case errors.Is(e, errorsx.ErrConflict):
+				return fuego.ConflictError{Err: e}
+			}
 			if e != nil {
+				// Fallback string matching for legacy errors
 				msg := strings.ToLower(e.Error())
 				switch {
 				case strings.Contains(msg, "unauthorized"):
@@ -27,6 +40,8 @@ func configureErrorHandling(s *fuego.Server, cfg config.Config) {
 					return fuego.ForbiddenError{Err: e}
 				case strings.Contains(msg, "not found"):
 					return fuego.NotFoundError{Err: e}
+				case strings.Contains(msg, "conflict"):
+					return fuego.ConflictError{Err: e}
 				}
 			}
 			return fuego.HandleHTTPError(e)

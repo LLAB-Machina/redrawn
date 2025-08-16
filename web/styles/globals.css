@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
@@ -23,8 +23,7 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
 
-  --shadow-card:
-    0 10px 30px -12px rgba(0, 0, 0, 0.12), 0 6px 18px -14px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 10px 30px -12px rgba(0, 0, 0, 0.12), 0 6px 18px -14px rgba(0, 0, 0, 0.2);
 
   --radius-lg: 14px;
   --radius-md: 10px;
@@ -116,7 +115,7 @@ body,
 
 /* Buttons */
 .btn {
-  @apply inline-flex h-10 select-none items-center justify-center rounded-md px-4 text-sm font-medium shadow-sm transition-colors;
+  @apply inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium shadow-sm transition-colors select-none;
 }
 .btn-primary {
   @apply bg-black text-white ring-1 ring-black/10 hover:bg-neutral-900;
@@ -130,7 +129,7 @@ body,
 
 /* Card utility */
 .card {
-  @apply rounded-lg border bg-white p-5 shadow-card;
+  @apply shadow-card rounded-lg border bg-white p-5;
 }
 
 /* Inputs */

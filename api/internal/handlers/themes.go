@@ -17,11 +17,15 @@ func RegisterThemes(s *fuego.Server, a *app.App) {
 		return service.List(c.Context())
 	})
 
-	fuego.Post(s, "/v1/themes", func(c fuego.ContextWithBody[createThemeReq]) (api.IDResponse, error) {
-		body, err := BindAndValidate(c)
-		if err != nil {
-			return api.IDResponse{}, err
-		}
-		return service.Create(c.Context(), body.Name, body.Prompt)
-	})
+	fuego.Post(
+		s,
+		"/v1/themes",
+		func(c fuego.ContextWithBody[createThemeReq]) (api.IDResponse, error) {
+			body, err := BindAndValidate(c)
+			if err != nil {
+				return api.IDResponse{}, err
+			}
+			return service.Create(c.Context(), body.Name, body.Prompt)
+		},
+	)
 }

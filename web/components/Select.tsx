@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export interface SelectOption {
   value: string;
@@ -24,13 +24,13 @@ export function Select({
   defaultValue,
   options,
   placeholder,
-  className = "",
+  className = '',
   onChange,
   required,
   disabled,
 }: SelectProps) {
   const baseClasses =
-    "h-10 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10 disabled:bg-neutral-50 disabled:text-neutral-400";
+    'h-10 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10 disabled:bg-neutral-50 disabled:text-neutral-400';
 
   return (
     <select
@@ -75,11 +75,9 @@ export function SelectCards({
   onChange,
   required,
   disabled,
-  className = "",
+  className = '',
 }: SelectCardProps) {
-  const [selectedValue, setSelectedValue] = React.useState(
-    value || defaultValue || "",
-  );
+  const [selectedValue, setSelectedValue] = React.useState(value || defaultValue || '');
 
   const handleSelect = (optionValue: string) => {
     if (disabled) return;
@@ -90,41 +88,32 @@ export function SelectCards({
   return (
     <div className={`grid gap-3 ${className}`}>
       {/* Hidden input for form submission */}
-      <input
-        type="hidden"
-        name={name}
-        value={selectedValue}
-        required={required}
-      />
+      <input type="hidden" name={name} value={selectedValue} required={required} />
 
       {options.map((option) => (
         <div
           key={option.value}
-          className={`card p-4 border-2 transition-all cursor-pointer ${
+          className={`card cursor-pointer border-2 p-4 transition-all ${
             selectedValue === option.value
-              ? "border-black bg-neutral-50 ring-1 ring-black/5"
-              : "border-neutral-200 hover:border-neutral-300"
-          } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              ? 'border-black bg-neutral-50 ring-1 ring-black/5'
+              : 'border-neutral-200 hover:border-neutral-300'
+          } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
           onClick={() => handleSelect(option.value)}
         >
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-medium text-sm">{option.label}</div>
+              <div className="text-sm font-medium">{option.label}</div>
               {option.description && (
-                <div className="text-xs text-neutral-600 mt-1">
-                  {option.description}
-                </div>
+                <div className="mt-1 text-xs text-neutral-600">{option.description}</div>
               )}
             </div>
             <div
-              className={`w-4 h-4 rounded-full border-2 transition-colors ${
-                selectedValue === option.value
-                  ? "border-black bg-black"
-                  : "border-neutral-300"
+              className={`h-4 w-4 rounded-full border-2 transition-colors ${
+                selectedValue === option.value ? 'border-black bg-black' : 'border-neutral-300'
               }`}
             >
               {selectedValue === option.value && (
-                <div className="w-1.5 h-1.5 bg-white rounded-full m-0.5" />
+                <div className="m-0.5 h-1.5 w-1.5 rounded-full bg-white" />
               )}
             </div>
           </div>

@@ -7,25 +7,38 @@ import (
 	"log/slog"
 	"os"
 
-	"redrawn/api/ent"
-	"redrawn/api/ent/theme"
-	"redrawn/api/internal/config"
-
 	_ "github.com/lib/pq"
+
+	"redrawn/api/internal/config"
+	"redrawn/api/internal/generated"
+	_ "redrawn/api/internal/generated/runtime"
+	"redrawn/api/internal/generated/theme"
 )
 
 func main() {
 	var (
-		name              = flag.String("name", "", "Price name (e.g., 'Basic Package')")
-		stripePriceID     = flag.String("stripe-price-id", "", "Stripe price ID (e.g., 'price_1ABC123')")
+		name          = flag.String("name", "", "Price name (e.g., 'Basic Package')")
+		stripePriceID = flag.String(
+			"stripe-price-id",
+			"",
+			"Stripe price ID (e.g., 'price_1ABC123')",
+		)
 		credits           = flag.Int("credits", 1, "Number of credits this price grants")
 		active            = flag.Bool("active", true, "Whether this price is active")
 		list              = flag.Bool("list", false, "List all prices")
 		deleteID          = flag.String("delete", "", "Delete price by ID")
-		seedDefaultThemes = flag.Bool("seed-default-themes", false, "Seed default themes (e.g., 'Ghibli')")
+		seedDefaultThemes = flag.Bool(
+			"seed-default-themes",
+			false,
+			"Seed default themes (e.g., 'Ghibli')",
+		)
 		// Admin/utility flags
-		listUsers    = flag.Bool("list-users", false, "List all users (for fzf usage)")
-		giveCredits  = flag.Bool("give-credits", false, "Give credits to a user (requires -user-id and -amount)")
+		listUsers   = flag.Bool("list-users", false, "List all users (for fzf usage)")
+		giveCredits = flag.Bool(
+			"give-credits",
+			false,
+			"Give credits to a user (requires -user-id and -amount)",
+		)
 		targetUserID = flag.String("user-id", "", "Target user ID")
 		amount       = flag.Int("amount", 0, "Amount of credits to give")
 	)
@@ -61,7 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	client, err := ent.Open("postgres", cfg.DatabaseURL)
+	client, err := generated.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		slog.Error("failed to connect to database", slog.String("err", err.Error()))
 		os.Exit(1)
@@ -104,7 +117,9 @@ func main() {
 		fmt.Println("  go run ./cmd/seed -list")
 		fmt.Println()
 		fmt.Println("  # Create a new price")
-		fmt.Println("  go run ./cmd/seed -name 'Basic Package' -stripe-price-id 'price_1ABC123' -credits 10")
+		fmt.Println(
+			"  go run ./cmd/seed -name 'Basic Package' -stripe-price-id 'price_1ABC123' -credits 10",
+		)
 		fmt.Println()
 		fmt.Println("  # Delete a price")
 		fmt.Println("  go run ./cmd/seed -delete 'price-id'")
@@ -121,7 +136,7 @@ func main() {
 	}
 }
 
-func listPrices(ctx context.Context, client *ent.Client) {
+func listPrices(ctx context.Context, client *generated.Client) {
 	prices, err := client.Price.Query().All(ctx)
 	if err != nil {
 		slog.Error("failed to list prices", slog.String("err", err.Error()))
@@ -133,15 +148,30 @@ func listPrices(ctx context.Context, client *ent.Client) {
 		return
 	}
 
-	fmt.Printf("%-12s %-20s %-20s %-8s %-8s\n", "ID", "Name", "Stripe Price ID", "Credits", "Active")
-	fmt.Println("--------------------------------------------------------------------------------------------------------")
+	fmt.Printf(
+		"%-12s %-20s %-20s %-8s %-8s\n",
+		"ID",
+		"Name",
+		"Stripe Price ID",
+		"Credits",
+		"Active",
+	)
+	fmt.Println(
+		"--------------------------------------------------------------------------------------------------------",
+	)
 	for _, p := range prices {
 		fmt.Printf("%-12s %-20s %-20s %-8d %-8t\n",
 			p.ID, p.Name, p.StripePriceID, p.Credits, p.Active)
 	}
 }
 
-func createPrice(ctx context.Context, client *ent.Client, name, stripePriceID string, credits int, active bool) {
+func createPrice(
+	ctx context.Context,
+	client *generated.Client,
+	name, stripePriceID string,
+	credits int,
+	active bool,
+) {
 	price, err := client.Price.Create().
 		SetName(name).
 		SetStripePriceID(stripePriceID).
@@ -156,10 +186,14 @@ func createPrice(ctx context.Context, client *ent.Client, name, stripePriceID st
 	fmt.Printf("Created price: %s (ID: %s)\n", price.Name, price.ID)
 }
 
-func deletePriceByID(ctx context.Context, client *ent.Client, idStr string) {
+func deletePriceByID(ctx context.Context, client *generated.Client, idStr string) {
 	price, err := client.Price.Get(ctx, idStr)
 	if err != nil {
-		slog.Error("failed to find price", slog.String("id", idStr), slog.String("err", err.Error()))
+		slog.Error(
+			"failed to find price",
+			slog.String("id", idStr),
+			slog.String("err", err.Error()),
+		)
 		os.Exit(1)
 	}
 
@@ -171,7 +205,7 @@ func deletePriceByID(ctx context.Context, client *ent.Client, idStr string) {
 	fmt.Printf("Deleted price: %s\n", price.Name)
 }
 
-func listAllUsers(ctx context.Context, client *ent.Client) {
+func listAllUsers(ctx context.Context, client *generated.Client) {
 	users, err := client.User.Query().All(ctx)
 	if err != nil {
 		slog.Error("failed to list users", slog.String("err", err.Error()))
@@ -188,7 +222,12 @@ func listAllUsers(ctx context.Context, client *ent.Client) {
 	}
 }
 
-func addCreditsToUser(ctx context.Context, client *ent.Client, idStr string, amount int) error {
+func addCreditsToUser(
+	ctx context.Context,
+	client *generated.Client,
+	idStr string,
+	amount int,
+) error {
 	if err := client.User.UpdateOneID(idStr).AddCredits(int64(amount)).Exec(ctx); err != nil {
 		return err
 	}
@@ -202,7 +241,7 @@ func addCreditsToUser(ctx context.Context, client *ent.Client, idStr string, amo
 
 // seedThemes inserts default themes if they do not already exist.
 // Currently seeds a single "Ghibli" style theme suitable for image generation.
-func seedThemes(ctx context.Context, client *ent.Client) error {
+func seedThemes(ctx context.Context, client *generated.Client) error {
 	// Desired defaults
 	defaults := []struct {
 		Name   string

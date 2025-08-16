@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { api } from "../src/services/genApi";
-import { useGetV1MeQuery } from "../src/services/genApi";
+import { useEffect, useState } from 'react';
+import { api } from '../src/services/genApi';
+import { useGetV1MeQuery } from '../src/services/genApi';
 
 export default function Signup() {
   const [triggerGoogleStart] = api.useLazyGetV1AuthGoogleStartQuery();
@@ -12,8 +12,8 @@ export default function Signup() {
     if (isAuthed) {
       // If already signed in, send to app
       const url = new URL(window.location.href);
-      const next = url.searchParams.get("next");
-      const dest = next && next.startsWith("/") ? next : "/app";
+      const next = url.searchParams.get('next');
+      const dest = next && next.startsWith('/') ? next : '/app';
       window.location.replace(dest);
     }
   }, [me, meError]);
@@ -23,7 +23,7 @@ export default function Signup() {
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
         <p className="text-sm text-neutral-600">
-          Use Google to sign in. New users get{" "}
+          Use Google to sign in. New users get{' '}
           <span className="font-medium text-neutral-900">10 free credits</span>.
         </p>
       </div>
@@ -45,11 +45,7 @@ export default function Signup() {
           }
         }}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 48 48"
-          className="h-4 w-4"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-4 w-4">
           <path
             fill="#FFC107"
             d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.156,7.961,3.039l5.657-5.657C33.327,6.053,28.884,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"

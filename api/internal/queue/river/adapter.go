@@ -1,4 +1,4 @@
-package main
+package river
 
 import (
 	"context"
@@ -12,14 +12,18 @@ import (
 	"github.com/riverqueue/river/rivertype"
 )
 
-// riverAdapter implements app.TaskQueue over a River client.
-type riverAdapter struct{ c *river.Client[pgx.Tx] }
+// adapter implements app.TaskQueue over a River client.
+type adapter struct{ c *river.Client[pgx.Tx] }
 
-var _ app.TaskQueue = (*riverAdapter)(nil)
+var _ app.TaskQueue = (*adapter)(nil)
 
-func newRiverAdapter(c *river.Client[pgx.Tx]) *riverAdapter { return &riverAdapter{c: c} }
+// NewAdapter returns an app.TaskQueue backed by the provided River client.
+func NewAdapter(c *river.Client[pgx.Tx]) app.TaskQueue { return &adapter{c: c} }
 
-func (r *riverAdapter) EnqueueGenerate(ctx context.Context, payload api.GenerateJobPayload) (string, error) {
+func (r *adapter) EnqueueGenerate(
+	ctx context.Context,
+	payload api.GenerateJobPayload,
+) (string, error) {
 	// Limit to 3 attempts for generate jobs
 	res, err := r.c.Insert(ctx, payload, &river.InsertOpts{MaxAttempts: 3})
 	if err != nil {
@@ -28,7 +32,7 @@ func (r *riverAdapter) EnqueueGenerate(ctx context.Context, payload api.Generate
 	return strconv.FormatInt(res.Job.ID, 10), nil
 }
 
-func (r *riverAdapter) GetStatus(taskID string) (string, bool) {
+func (r *adapter) GetStatus(taskID string) (string, bool) {
 	// River IDs are int64; allow numeric strings
 	var idInt64 int64
 	if v, err := strconv.ParseInt(taskID, 10, 64); err == nil {

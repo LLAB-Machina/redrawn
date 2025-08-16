@@ -2,47 +2,58 @@ package handlers
 
 import (
 	"net/http"
+
+	"github.com/go-fuego/fuego"
+
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 	"redrawn/api/internal/middleware"
 	"redrawn/api/internal/services"
-
-	"github.com/go-fuego/fuego"
 )
 
-type magicLinkReq = api.MagicLinkRequest
-type verifyReq = api.VerifyRequest
+type (
+	magicLinkReq = api.MagicLinkRequest
+	verifyReq    = api.VerifyRequest
+)
 
 func RegisterAuth(s *fuego.Server, a *app.App) {
 	service := services.NewAuthService(a)
 
-	fuego.Post(s, "/v1/auth/request-magic-link", func(c fuego.ContextWithBody[magicLinkReq]) (api.StatusResponse, error) {
-		body, err := BindAndValidate(c)
-		if err != nil {
-			return api.StatusResponse{}, err
-		}
-		if err := service.RequestMagicLink(c.Context(), body.Email); err != nil {
-			return api.StatusResponse{}, err
-		}
-		c.Response().WriteHeader(202)
-		return api.StatusResponse{Status: "sent"}, nil
-	})
+	fuego.Post(
+		s,
+		"/v1/auth/request-magic-link",
+		func(c fuego.ContextWithBody[magicLinkReq]) (api.StatusResponse, error) {
+			body, err := BindAndValidate(c)
+			if err != nil {
+				return api.StatusResponse{}, err
+			}
+			if err := service.RequestMagicLink(c.Context(), body.Email); err != nil {
+				return api.StatusResponse{}, err
+			}
+			c.Response().WriteHeader(202)
+			return api.StatusResponse{Status: "sent"}, nil
+		},
+	)
 
-	fuego.Post(s, "/v1/auth/verify", func(c fuego.ContextWithBody[verifyReq]) (api.OkResponse, error) {
-		body, err := BindAndValidate(c)
-		if err != nil {
-			return api.OkResponse{}, err
-		}
-		userID, err := service.Verify(c.Context(), body.Token)
-		if err != nil {
-			return api.OkResponse{}, err
-		}
-		// set session cookie to user ID
-		cookie := middleware.MakeSessionCookie(a.Config, userID)
-		httpRes := c.Response()
-		httpRes.Header().Add("Set-Cookie", cookie.String())
-		return api.OkResponse{Ok: "true"}, nil
-	})
+	fuego.Post(
+		s,
+		"/v1/auth/verify",
+		func(c fuego.ContextWithBody[verifyReq]) (api.OkResponse, error) {
+			body, err := BindAndValidate(c)
+			if err != nil {
+				return api.OkResponse{}, err
+			}
+			userID, err := service.Verify(c.Context(), body.Token)
+			if err != nil {
+				return api.OkResponse{}, err
+			}
+			// set session cookie to user ID
+			cookie := middleware.MakeSessionCookie(a.Config, userID)
+			httpRes := c.Response()
+			httpRes.Header().Add("Set-Cookie", cookie.String())
+			return api.OkResponse{Ok: "true"}, nil
+		},
+	)
 
 	fuego.Post(s, "/v1/auth/logout", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		if err := service.Logout(c.Context()); err != nil {

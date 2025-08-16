@@ -1,4 +1,4 @@
-import { api, usePostV1ThemesMutation } from "../../src/services/genApi";
+import { api, usePostV1ThemesMutation } from '../../src/services/genApi';
 
 export default function Themes() {
   const [triggerListThemes] = api.useLazyGetV1ThemesQuery();
@@ -15,9 +15,8 @@ export default function Themes() {
   async function createTheme(e: any) {
     e.preventDefault();
     const form = e.currentTarget as HTMLFormElement;
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-    const prompt = (form.elements.namedItem("prompt") as HTMLInputElement)
-      .value;
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+    const prompt = (form.elements.namedItem('prompt') as HTMLInputElement).value;
     try {
       const data = await createThemeMutation({
         createThemeRequest: { name, prompt },
@@ -38,9 +37,7 @@ export default function Themes() {
           </button>
         </div>
         <form onSubmit={createTheme} className="card grid max-w-sm gap-2">
-          <div className="text-sm font-semibold tracking-tight">
-            Create Theme
-          </div>
+          <div className="text-sm font-semibold tracking-tight">Create Theme</div>
           <input
             className="h-9 rounded-md border border-neutral-300 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
             name="name"
@@ -51,7 +48,6 @@ export default function Themes() {
             name="prompt"
             placeholder="prompt"
           />
-          {/* css_tokens removed */}
           <button className="btn btn-primary h-9 px-4" type="submit">
             Create
           </button>

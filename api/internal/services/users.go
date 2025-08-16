@@ -2,10 +2,11 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
+	"redrawn/api/internal/errorsx"
+	"redrawn/api/internal/generated"
 )
 
 type UsersService struct {
@@ -17,10 +18,13 @@ func NewUsersService(a *app.App) *UsersService { return &UsersService{app: a} }
 func (s *UsersService) GetMe(ctx context.Context) (api.User, error) {
 	uid, ok := app.UserIDFromContext(ctx)
 	if !ok {
-		return api.User{}, errors.New("unauthorized")
+		return api.User{}, errorsx.ErrUnauthorized
 	}
-	u, err := s.app.Ent.User.Get(ctx, uid)
+	u, err := s.app.Db.User.Get(ctx, uid)
 	if err != nil {
+		if generated.IsNotFound(err) {
+			return api.User{}, errorsx.ErrNotFound
+		}
 		return api.User{}, err
 	}
 	return api.User{ID: u.ID, Email: u.Email, Name: u.Name, Plan: u.Plan, Credits: u.Credits}, nil
@@ -29,9 +33,9 @@ func (s *UsersService) GetMe(ctx context.Context) (api.User, error) {
 func (s *UsersService) PatchMe(ctx context.Context, name *string) error {
 	uid, ok := app.UserIDFromContext(ctx)
 	if !ok {
-		return errors.New("unauthorized")
+		return errorsx.ErrUnauthorized
 	}
-	m := s.app.Ent.User.UpdateOneID(uid)
+	m := s.app.Db.User.UpdateOneID(uid)
 	if name != nil {
 		m.SetName(*name)
 	}

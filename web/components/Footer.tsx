@@ -1,5 +1,5 @@
-import Container from "./Container";
-import Link from "next/link";
+import Container from './Container';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
