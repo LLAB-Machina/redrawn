@@ -513,12 +513,12 @@ const injectedRtkApi = api
           }),
         },
       ),
-      getV1UsersByHandleAlbums: build.query<
-        GetV1UsersByHandleAlbumsApiResponse,
-        GetV1UsersByHandleAlbumsApiArg
+      getV1UsersByEmailAlbums: build.query<
+        GetV1UsersByEmailAlbumsApiResponse,
+        GetV1UsersByEmailAlbumsApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/users/${queryArg.handle}/albums`,
+          url: `/v1/users/${queryArg.email}/albums`,
           headers: {
             Accept: queryArg.accept,
           },
@@ -758,10 +758,10 @@ export type PostV1ThemesApiArg = {
   /** Request body for api.CreateThemeRequest */
   createThemeRequest: CreateThemeRequest;
 };
-export type GetV1UsersByHandleAlbumsApiResponse = /** status 200 OK */ Album[];
-export type GetV1UsersByHandleAlbumsApiArg = {
+export type GetV1UsersByEmailAlbumsApiResponse = /** status 200 OK */ Album[];
+export type GetV1UsersByEmailAlbumsApiArg = {
   accept?: string;
-  handle: string;
+  email: string;
 };
 export type AdminAlbum = {
   created_at?: string;
@@ -845,7 +845,6 @@ export type AdminUser = {
   created_at?: string;
   credits?: number;
   email?: string;
-  handle?: string;
   id?: string;
   name?: string | null;
   plan?: string;
@@ -950,13 +949,11 @@ export type CreateCheckoutSessionRequest = {
 export type User = {
   credits?: number;
   email?: string;
-  handle?: string;
   id?: string;
   name?: string | null;
   plan?: string;
 };
 export type PatchMeRequest = {
-  handle?: string | null;
   name?: string | null;
 };
 export type TaskResponse = {
@@ -1059,6 +1056,6 @@ export const {
   useGetV1ThemesQuery,
   useLazyGetV1ThemesQuery,
   usePostV1ThemesMutation,
-  useGetV1UsersByHandleAlbumsQuery,
-  useLazyGetV1UsersByHandleAlbumsQuery,
+  useGetV1UsersByEmailAlbumsQuery,
+  useLazyGetV1UsersByEmailAlbumsQuery,
 } = injectedRtkApi;

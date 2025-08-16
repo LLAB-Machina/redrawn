@@ -16,8 +16,6 @@ import (
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
 
-	"github.com/google/uuid"
-
 	stripe "github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/checkout/session"
 	"github.com/stripe/stripe-go/v76/webhook"
@@ -30,19 +28,16 @@ func NewBillingService(a *app.App) *BillingService { return &BillingService{app:
 func (s *BillingService) CreateCheckoutSession(ctx context.Context, appPriceID string) (string, error) {
 	var stripePriceID string
 	var credits int
-	var priceUUID *uuid.UUID
+	var priceID *string
 	if appPriceID != "" {
-		pid, err := uuid.Parse(appPriceID)
-		if err != nil {
-			return "", fmt.Errorf("invalid price_id: %w", err)
-		}
-		p, err := s.app.Ent.Price.Get(ctx, pid)
+		p, err := s.app.Ent.Price.Get(ctx, appPriceID)
 		if err != nil {
 			return "", fmt.Errorf("price not found: %w", err)
 		}
 		stripePriceID = p.StripePriceID
 		credits = p.Credits
-		priceUUID = &p.ID
+		pid := p.ID
+		priceID = &pid
 	} else {
 		// fallback to configured single price
 		stripePriceID = s.app.Config.StripePriceID
@@ -72,23 +67,21 @@ func (s *BillingService) CreateCheckoutSession(ctx context.Context, appPriceID s
 		params.Metadata = map[string]string{}
 	}
 	params.Metadata["credits"] = fmt.Sprintf("%d", credits)
-	if priceUUID != nil {
-		params.Metadata["price_id"] = priceUUID.String()
+	if priceID != nil {
+		params.Metadata["price_id"] = *priceID
 	}
 
 	// Attach user identity to the checkout session for mapping on webhook
 	if uid, ok := app.UserIDFromContext(ctx); ok {
 		params.ClientReferenceID = stripe.String(uid)
 		// Set customer if we already have one
-		if uUUID, err := uuidFromString(uid); err == nil {
-			if u, err := s.app.Ent.User.Get(ctx, uUUID); err == nil {
-				if u.StripeCustomerID != "" {
-					params.Customer = stripe.String(u.StripeCustomerID)
-				} else {
-					// Provide email to let Stripe prefill customer
-					if u.Email != "" {
-						params.CustomerEmail = stripe.String(u.Email)
-					}
+		if u, err := s.app.Ent.User.Get(ctx, uid); err == nil {
+			if u.StripeCustomerID != "" {
+				params.Customer = stripe.String(u.StripeCustomerID)
+			} else {
+				// Provide email to let Stripe prefill customer
+				if u.Email != "" {
+					params.CustomerEmail = stripe.String(u.Email)
 				}
 			}
 		}
@@ -136,12 +129,9 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 	// Prefer client_reference_id to locate user
 	var userToUpdate *ent.User
 	if cs.ClientReferenceID != "" {
-		uid, err := uuidFromString(cs.ClientReferenceID)
+		u, err := s.app.Ent.User.Get(ctx, cs.ClientReferenceID)
 		if err == nil {
-			u, err := s.app.Ent.User.Get(ctx, uid)
-			if err == nil {
-				userToUpdate = u
-			}
+			userToUpdate = u
 		}
 	}
 	// Fallback by customer email
@@ -174,21 +164,19 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 		return err
 	}
 	// Save purchase record
-	var priceUUID *uuid.UUID
+	var priceID *string
 	if cs.Metadata != nil {
 		if v, ok := cs.Metadata["price_id"]; ok {
-			if pid, err := uuid.Parse(v); err == nil {
-				priceUUID = &pid
-			}
+			pid := v
+			priceID = &pid
 		}
 	}
 	pc := s.app.Ent.Purchase.Create().
-		SetID(uuid.New()).
 		SetUserID(userToUpdate.ID).
 		SetStripeCheckoutSessionID(cs.ID).
 		SetCreditsGranted(addCredits)
-	if priceUUID != nil {
-		pc = pc.SetPriceID(*priceUUID)
+	if priceID != nil {
+		pc = pc.SetPriceID(*priceID)
 	}
 	if cs.Customer != nil && cs.Customer.ID != "" {
 		pc = pc.SetStripeCustomerID(cs.Customer.ID)
@@ -206,7 +194,7 @@ func (s *BillingService) handleCheckoutCompleted(ctx context.Context, cs *stripe
 		slog.Error("purchase save failed", slog.String("err", err.Error()))
 	}
 
-	slog.Info("checkout completed applied", slog.String("user", userToUpdate.ID.String()))
+	slog.Info("checkout completed applied", slog.String("user", userToUpdate.ID))
 	return nil
 }
 
@@ -219,7 +207,7 @@ func (s *BillingService) ListActivePrices(ctx context.Context) ([]api.Price, err
 	out := make([]api.Price, 0, len(rows))
 	for _, r := range rows {
 		out = append(out, api.Price{
-			ID:            r.ID.String(),
+			ID:            r.ID,
 			Name:          r.Name,
 			StripePriceID: r.StripePriceID,
 			Credits:       r.Credits,
@@ -230,4 +218,4 @@ func (s *BillingService) ListActivePrices(ctx context.Context) ([]api.Price, err
 }
 
 // uuidFromString wraps uuid.Parse without importing here in header to avoid collisions
-func uuidFromString(sid string) (uuid.UUID, error) { return uuid.Parse(sid) }
+// uuidFromString removed; IDs are NanoID strings now

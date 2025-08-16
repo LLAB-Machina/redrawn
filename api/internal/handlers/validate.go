@@ -3,8 +3,9 @@ package handlers
 import (
 	"redrawn/api/internal/api"
 
+	"regexp"
+
 	"github.com/go-fuego/fuego"
-	"github.com/google/uuid"
 )
 
 var (
@@ -37,11 +38,12 @@ func RequireUUIDParam(c interface{ PathParam(string) string }, name string) (str
 			Tag:    "required",
 		}}}
 	}
-	if _, err := uuid.Parse(v); err != nil {
+	// Validate NanoID (URL-safe) of length 14
+	if ok, _ := regexp.MatchString(`^[A-Za-z0-9_-]{14}$`, v); !ok {
 		return "", api.ErrValidation{Errors: []api.FieldError{{
 			Field:  "path." + name,
-			Reason: "must be a valid UUID",
-			Tag:    "uuid4",
+			Reason: "must be a valid id",
+			Tag:    "nanoid",
 		}}}
 	}
 	return v, nil

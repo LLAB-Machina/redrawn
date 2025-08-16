@@ -221,7 +221,7 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-neutral-500 text-sm">redrawn.app/</span>
+                  <span className="text-neutral-500 text-sm">redrawn.app/a/</span>
                 </div>
                 <input
                   type="text"
@@ -230,7 +230,7 @@ export function AlbumWizard({ onSuccess, onCancel }: AlbumWizardProps) {
                     updateFormData({ slug: generateSlug(e.target.value) })
                   }
                   placeholder="my-summer-vacation"
-                  className="w-full h-10 rounded-md border border-neutral-300 pl-24 pr-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
+                  className="w-full h-10 rounded-md border border-neutral-300 pl-27 pr-3 text-sm outline-none focus:ring-2 focus:ring-black/10"
                   required
                 />
               </div>

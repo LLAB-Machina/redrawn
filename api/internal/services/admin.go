@@ -2,12 +2,9 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
-
-	"github.com/google/uuid"
 )
 
 type AdminService struct{ app *app.App }
@@ -37,7 +34,7 @@ func (s *AdminService) CreatePrice(ctx context.Context, req api.CreatePriceReque
 	}
 
 	return &api.Price{
-		ID:            price.ID.String(),
+		ID:            price.ID,
 		Name:          price.Name,
 		StripePriceID: price.StripePriceID,
 		Credits:       price.Credits,
@@ -46,12 +43,7 @@ func (s *AdminService) CreatePrice(ctx context.Context, req api.CreatePriceReque
 }
 
 func (s *AdminService) UpdatePrice(ctx context.Context, priceID string, req api.UpdatePriceRequest) (*api.Price, error) {
-	id, err := uuid.Parse(priceID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid price ID: %w", err)
-	}
-
-	update := s.app.Ent.Price.UpdateOneID(id)
+	update := s.app.Ent.Price.UpdateOneID(priceID)
 	if req.Name != nil {
 		update.SetName(*req.Name)
 	}
@@ -71,7 +63,7 @@ func (s *AdminService) UpdatePrice(ctx context.Context, priceID string, req api.
 	}
 
 	return &api.Price{
-		ID:            price.ID.String(),
+		ID:            price.ID,
 		Name:          price.Name,
 		StripePriceID: price.StripePriceID,
 		Credits:       price.Credits,
@@ -80,12 +72,7 @@ func (s *AdminService) UpdatePrice(ctx context.Context, priceID string, req api.
 }
 
 func (s *AdminService) DeletePrice(ctx context.Context, priceID string) error {
-	id, err := uuid.Parse(priceID)
-	if err != nil {
-		return fmt.Errorf("invalid price ID: %w", err)
-	}
-
-	return s.app.Ent.Price.DeleteOneID(id).Exec(ctx)
+	return s.app.Ent.Price.DeleteOneID(priceID).Exec(ctx)
 }
 
 func (s *AdminService) ListAllPrices(ctx context.Context) ([]api.Price, error) {
@@ -97,7 +84,7 @@ func (s *AdminService) ListAllPrices(ctx context.Context) ([]api.Price, error) {
 	result := make([]api.Price, 0, len(prices))
 	for _, p := range prices {
 		result = append(result, api.Price{
-			ID:            p.ID.String(),
+			ID:            p.ID,
 			Name:          p.Name,
 			StripePriceID: p.StripePriceID,
 			Credits:       p.Credits,
@@ -117,10 +104,9 @@ func (s *AdminService) ListAllUsers(ctx context.Context) ([]api.AdminUser, error
 	result := make([]api.AdminUser, 0, len(users))
 	for _, u := range users {
 		result = append(result, api.AdminUser{
-			ID:               u.ID.String(),
+			ID:               u.ID,
 			Email:            u.Email,
 			Name:             u.Name,
-			Handle:           u.Handle,
 			Plan:             u.Plan,
 			Credits:          u.Credits,
 			StripeCustomerID: u.StripeCustomerID,
@@ -147,7 +133,7 @@ func (s *AdminService) ListAllAlbums(ctx context.Context) ([]api.AdminAlbum, err
 		}
 
 		result = append(result, api.AdminAlbum{
-			ID:         a.ID.String(),
+			ID:         a.ID,
 			Name:       a.Name,
 			Slug:       a.Slug,
 			Visibility: string(a.Visibility),

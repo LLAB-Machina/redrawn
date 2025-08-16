@@ -124,13 +124,34 @@ uphead: ## Apply Atlas migrations
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
 
-reset-db: ## Drop and recreate DB schema, then apply migrations (DANGER)
+reset-db: ## Force-reset Postgres data (dev), re-apply migrations, then River (DANGER)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
-	@echo "Resetting database..."
-	# Force to an empty state (no tables) using an empty HCL, then re-apply migrations
-	atlas schema apply --url '$(DATABASE_URL)' --to file://migrations/empty.hcl --auto-approve
+	@echo "[reset-db] Stopping postgres (if running)..."
+	- docker compose stop postgres >/dev/null 2>&1 || true
+	@echo "[reset-db] Removing data directory ./docker-data/postgres (dev volume)..."
+	- rm -rf docker-data/postgres || true
+	@echo "[reset-db] Starting fresh postgres..."
+	 docker compose up -d postgres
+	@echo "[reset-db] Waiting for postgres to accept connections..."
+	@i=0; \
+	until atlas migrate status --dir file://migrations --url '$(DATABASE_URL)' >/dev/null 2>&1; do \
+	  i=$$((i+1)); \
+	  if [ $$i -ge 20 ]; then echo "[reset-db] Postgres not ready after multiple attempts"; exit 1; fi; \
+	  sleep 1; \
+	done
+	@echo "[reset-db] Applying migrations..."
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
+	@echo "[reset-db] Applying River migrations..."
 	$(MAKE) river-up
+
+.PHONY: migrations-fresh db-fresh
+
+migrations-fresh: ## Delete all SQL migrations (keep empty.hcl) and generate fresh from Ent (DANGER)
+	@echo "[migrations-fresh] Deleting existing SQL migration files..."
+	- find migrations -name '*.sql' -mindepth 1 -maxdepth 1 -print -delete || true
+	@echo "[migrations-fresh] Generating new migration from Ent schema..."
+	atlas migrate hash
+	$(MAKE) revision
 
 # --- River migrations ---
 

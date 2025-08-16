@@ -10,8 +10,6 @@ import (
 
 	"redrawn/api/ent/user"
 	"redrawn/api/internal/app"
-
-	"github.com/google/uuid"
 )
 
 type AuthService struct {
@@ -41,20 +39,17 @@ func (s *AuthService) ensureUser(ctx context.Context, email string) (string, err
 	}
 	u, err := s.app.Ent.User.Query().Where(user.EmailEQ(email)).Only(ctx)
 	if err == nil {
-		return u.ID.String(), nil
+		return u.ID, nil
 	}
-	// create with initial credits and defaults
-	handle := email
+	// create with initial credits and defaults (no handle)
 	nu, err := s.app.Ent.User.Create().
-		SetID(uuid.New()).
 		SetEmail(email).
-		SetHandle(handle).
 		SetCredits(10).
 		Save(ctx)
 	if err != nil {
 		return "", err
 	}
-	return nu.ID.String(), nil
+	return nu.ID, nil
 }
 
 // Google OAuth
@@ -117,6 +112,9 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	var ui struct {
 		Email         string `json:"email"`
 		EmailVerified bool   `json:"email_verified"`
+		GivenName     string `json:"given_name"`
+		FamilyName    string `json:"family_name"`
+		Name          string `json:"name"`
 	}
 	if err := json.NewDecoder(ures.Body).Decode(&ui); err != nil {
 		return "", err
@@ -124,5 +122,28 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	if ui.Email == "" {
 		return "", errors.New("no email in userinfo")
 	}
-	return s.ensureUser(ctx, ui.Email)
+	uid, err := s.ensureUser(ctx, ui.Email)
+	if err != nil {
+		return "", err
+	}
+	// Try to set a display name from Google if missing
+	u, err := s.app.Ent.User.Get(ctx, uid)
+	if err == nil && strings.TrimSpace(u.Name) == "" {
+		display := strings.TrimSpace(ui.Name)
+		if display == "" {
+			gn := strings.TrimSpace(ui.GivenName)
+			fn := strings.TrimSpace(ui.FamilyName)
+			if gn != "" || fn != "" {
+				if fn != "" {
+					display = strings.TrimSpace(gn + " " + fn)
+				} else {
+					display = gn
+				}
+			}
+		}
+		if display != "" {
+			_ = s.app.Ent.User.UpdateOneID(uid).SetName(display).Exec(ctx)
+		}
+	}
+	return uid, nil
 }

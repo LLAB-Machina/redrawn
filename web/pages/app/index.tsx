@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   useGetV1AlbumsQuery,
   useGetV1MeQuery,
+  usePatchV1MeMutation,
   type Album,
 } from "../../src/services/genApi";
 import { AlbumWizard } from "../../components/AlbumWizard";
@@ -36,7 +37,9 @@ export default function AppHome() {
         </div>
       </div>
 
-      {showWizard ? (
+      {isAuthed && me && (!me.name || me.name.trim() === "") ? (
+        <CompleteProfileCard />
+      ) : showWizard ? (
         <AlbumWizard
           onSuccess={() => {
             setShowWizard(false);
@@ -82,6 +85,44 @@ export default function AppHome() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function CompleteProfileCard() {
+  const [name, setName] = useState("");
+  const [save, { isLoading }] = usePatchV1MeMutation();
+  return (
+    <div className="card max-w-md">
+      <div className="space-y-4">
+        <div>
+          <div className="text-sm font-semibold tracking-tight">Complete your profile</div>
+          <p className="text-xs text-neutral-600 mt-1">
+            We couldn’t get your name from Google. Please enter your name.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <label className="block text-xs font-medium">Your name</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            placeholder="Jane Doe"
+          />
+        </div>
+        <button
+          disabled={!name.trim() || isLoading}
+          onClick={async () => {
+            try {
+              await save({ patchMeRequest: { name } } as any).unwrap();
+              window.location.reload();
+            } catch {}
+          }}
+          className="btn btn-primary w-full h-10 disabled:opacity-50"
+        >
+          Save
+        </button>
+      </div>
     </div>
   );
 }

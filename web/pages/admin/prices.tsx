@@ -443,7 +443,7 @@ function UsersTab() {
                   <tr className="border-b">
                     <th className="text-left py-2">Email</th>
                     <th className="text-left py-2">Name</th>
-                    <th className="text-left py-2">Handle</th>
+                    <th className="text-left py-2">Email</th>
                     <th className="text-left py-2">Plan</th>
                     <th className="text-left py-2">Credits</th>
                     <th className="text-left py-2">Created</th>
@@ -454,7 +454,7 @@ function UsersTab() {
                     <tr key={user.id} className="border-b">
                       <td className="py-2">{user.email}</td>
                       <td className="py-2">{user.name || "-"}</td>
-                      <td className="py-2 font-mono text-sm">{user.handle}</td>
+                      <td className="py-2 font-mono text-sm">{user.email}</td>
                       <td className="py-2">
                         <span
                           className={`px-2 py-1 rounded text-xs ${

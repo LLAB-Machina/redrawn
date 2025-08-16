@@ -9,8 +9,6 @@ import (
 	"redrawn/api/ent/user"
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
-
-	"github.com/google/uuid"
 )
 
 type AlbumsService struct {
@@ -24,11 +22,7 @@ func (s *AlbumsService) Create(ctx context.Context, name, slug, visibility strin
 	if !ok {
 		return api.Album{}, errors.New("unauthorized")
 	}
-	ownerUUID, err := uuid.Parse(uid)
-	if err != nil {
-		return api.Album{}, err
-	}
-	owner, err := s.app.Ent.User.Query().Where(user.IDEQ(ownerUUID)).Only(ctx)
+	owner, err := s.app.Ent.User.Query().Where(user.IDEQ(uid)).Only(ctx)
 	if err != nil {
 		return api.Album{}, err
 	}
@@ -42,7 +36,7 @@ func (s *AlbumsService) Create(ctx context.Context, name, slug, visibility strin
 	if err != nil {
 		return api.Album{}, err
 	}
-	return api.Album{ID: a.ID.String(), Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
+	return api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
 }
 
 func (s *AlbumsService) List(ctx context.Context) ([]api.Album, error) {
@@ -50,12 +44,8 @@ func (s *AlbumsService) List(ctx context.Context) ([]api.Album, error) {
 	if !ok {
 		return nil, errors.New("unauthorized")
 	}
-	ownerUUID, err := uuid.Parse(uid)
-	if err != nil {
-		return nil, err
-	}
 	items, err := s.app.Ent.Album.Query().
-		Where(album.HasOwnerWith(user.IDEQ(ownerUUID))).
+		Where(album.HasOwnerWith(user.IDEQ(uid))).
 		Order(ent.Asc(album.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
@@ -63,13 +53,13 @@ func (s *AlbumsService) List(ctx context.Context) ([]api.Album, error) {
 	}
 	out := make([]api.Album, 0, len(items))
 	for _, a := range items {
-		out = append(out, api.Album{ID: a.ID.String(), Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)})
+		out = append(out, api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)})
 	}
 	return out, nil
 }
 
-func (s *AlbumsService) ListByUser(ctx context.Context, handle string) ([]api.Album, error) {
-	u, err := s.app.Ent.User.Query().Where(user.HandleEQ(handle)).Only(ctx)
+func (s *AlbumsService) ListByUser(ctx context.Context, email string) ([]api.Album, error) {
+	u, err := s.app.Ent.User.Query().Where(user.EmailEQ(email)).Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -79,29 +69,21 @@ func (s *AlbumsService) ListByUser(ctx context.Context, handle string) ([]api.Al
 	}
 	out := make([]api.Album, 0, len(items))
 	for _, a := range items {
-		out = append(out, api.Album{ID: a.ID.String(), Name: a.Name, Slug: a.Slug})
+		out = append(out, api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug})
 	}
 	return out, nil
 }
 
 func (s *AlbumsService) Get(ctx context.Context, id string) (api.Album, error) {
-	aid, err := uuid.Parse(id)
+	a, err := s.app.Ent.Album.Get(ctx, id)
 	if err != nil {
 		return api.Album{}, err
 	}
-	a, err := s.app.Ent.Album.Get(ctx, aid)
-	if err != nil {
-		return api.Album{}, err
-	}
-	return api.Album{ID: a.ID.String(), Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
+	return api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
 }
 
 func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpdateRequest) error {
-	aid, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-	m := s.app.Ent.Album.UpdateOneID(aid)
+	m := s.app.Ent.Album.UpdateOneID(id)
 	if req.Name != nil && *req.Name != "" {
 		m.SetName(*req.Name)
 	}
@@ -115,9 +97,5 @@ func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpda
 }
 
 func (s *AlbumsService) Delete(ctx context.Context, id string) error {
-	aid, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-	return s.app.Ent.Album.DeleteOneID(aid).Exec(ctx)
+	return s.app.Ent.Album.DeleteOneID(id).Exec(ctx)
 }

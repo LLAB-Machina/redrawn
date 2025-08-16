@@ -25,9 +25,9 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 		return service.List(c.Context())
 	})
 
-	fuego.Get(s, "/v1/users/{handle}/albums", func(c fuego.ContextNoBody) ([]api.Album, error) {
-		handle := c.PathParam("handle")
-		return service.ListByUser(c.Context(), handle)
+	fuego.Get(s, "/v1/users/{email}/albums", func(c fuego.ContextNoBody) ([]api.Album, error) {
+		email := c.PathParam("email")
+		return service.ListByUser(c.Context(), email)
 	})
 
 	fuego.Get(s, "/v1/albums/{id}", func(c fuego.ContextNoBody) (api.Album, error) {

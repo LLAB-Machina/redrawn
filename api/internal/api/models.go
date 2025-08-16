@@ -33,7 +33,6 @@ type User struct {
 	ID      string `json:"id"`
 	Email   string `json:"email"`
 	Name    string `json:"name,omitempty"`
-	Handle  string `json:"handle"`
 	Plan    string `json:"plan"`
 	Credits int64  `json:"credits"`
 }
@@ -132,7 +131,6 @@ type AdminUser struct {
 	ID               string `json:"id"`
 	Email            string `json:"email"`
 	Name             string `json:"name,omitempty"`
-	Handle           string `json:"handle"`
 	Plan             string `json:"plan"`
 	Credits          int64  `json:"credits"`
 	StripeCustomerID string `json:"stripe_customer_id,omitempty"`
@@ -168,7 +166,6 @@ type AdminJobSummary struct {
 }
 type PatchMeRequest struct {
 	Name   *string `json:"name"`
-	Handle *string `json:"handle"`
 }
 
 type AlbumCreateRequest struct {

@@ -22,7 +22,7 @@ func RegisterUsers(s *fuego.Server, a *app.App) {
 		if err != nil {
 			return api.OkResponse{}, err
 		}
-		if err := service.PatchMe(c.Context(), body.Name, body.Handle); err != nil {
+		if err := service.PatchMe(c.Context(), body.Name); err != nil {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil

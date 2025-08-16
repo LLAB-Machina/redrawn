@@ -14,8 +14,6 @@ import (
 	"redrawn/api/ent/user"
 	"redrawn/api/internal/api"
 	"redrawn/api/internal/app"
-
-	"github.com/google/uuid"
 )
 
 type MembershipService struct{ app *app.App }
@@ -24,42 +22,25 @@ func NewMembershipService(a *app.App) *MembershipService { return &MembershipSer
 
 // Invite by email creates a pending invite; acceptance is handled later
 func (s *MembershipService) Invite(ctx context.Context, albumID, email, role, createdBy string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	cbid, err := uuid.Parse(createdBy)
-	if err != nil {
-		return err
-	}
 	// Create a pending email invite (user may or may not exist yet)
 	tok, err := generateToken()
 	if err != nil {
 		return err
 	}
 	_, err = s.app.Ent.AlbumInvite.Create().
-		SetID(uuid.New()).
 		SetEmail(email).
 		SetRole(albuminvite.Role(role)).
 		SetStatus(albuminvite.StatusPending).
 		SetToken(tok).
-		SetAlbumID(aid).
-		SetCreatedByID(cbid).
+		SetAlbumID(albumID).
+		SetCreatedByID(createdBy).
 		Save(ctx)
 	return err
 }
 
 func (s *MembershipService) SetRole(ctx context.Context, albumID, userID, role string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
 	au, err := s.app.Ent.AlbumUser.Query().
-		Where(albumuser.HasAlbumWith(album.IDEQ(aid)), albumuser.HasUserWith(user.IDEQ(uid))).
+		Where(albumuser.HasAlbumWith(album.IDEQ(albumID)), albumuser.HasUserWith(user.IDEQ(userID))).
 		Only(ctx)
 	if err != nil {
 		return err
@@ -68,32 +49,16 @@ func (s *MembershipService) SetRole(ctx context.Context, albumID, userID, role s
 }
 
 func (s *MembershipService) Remove(ctx context.Context, albumID, userID string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-	_, err = s.app.Ent.AlbumUser.Delete().
-		Where(albumuser.HasAlbumWith(album.IDEQ(aid)), albumuser.HasUserWith(user.IDEQ(uid))).
+	_, err := s.app.Ent.AlbumUser.Delete().
+		Where(albumuser.HasAlbumWith(album.IDEQ(albumID)), albumuser.HasUserWith(user.IDEQ(userID))).
 		Exec(ctx)
 	return err
 }
 
 // Revoke a pending email invite
 func (s *MembershipService) RevokeInvite(ctx context.Context, albumID, inviteID string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	iid, err := uuid.Parse(inviteID)
-	if err != nil {
-		return err
-	}
 	iv, err := s.app.Ent.AlbumInvite.Query().
-		Where(albuminvite.HasAlbumWith(album.IDEQ(aid)), albuminvite.IDEQ(iid)).
+		Where(albuminvite.HasAlbumWith(album.IDEQ(albumID)), albuminvite.IDEQ(inviteID)).
 		Only(ctx)
 	if err != nil {
 		return err
@@ -104,16 +69,8 @@ func (s *MembershipService) RevokeInvite(ctx context.Context, albumID, inviteID 
 
 // Update a pending invite's role
 func (s *MembershipService) UpdateInviteRole(ctx context.Context, albumID, inviteID, role string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	iid, err := uuid.Parse(inviteID)
-	if err != nil {
-		return err
-	}
 	iv, err := s.app.Ent.AlbumInvite.Query().
-		Where(albuminvite.HasAlbumWith(album.IDEQ(aid)), albuminvite.IDEQ(iid)).
+		Where(albuminvite.HasAlbumWith(album.IDEQ(albumID)), albuminvite.IDEQ(inviteID)).
 		Only(ctx)
 	if err != nil {
 		return err
@@ -123,14 +80,9 @@ func (s *MembershipService) UpdateInviteRole(ctx context.Context, albumID, invit
 
 // List memberships, email invites, and invite links for an album
 func (s *MembershipService) List(ctx context.Context, albumID string) (api.MembershipsResponse, error) {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return api.MembershipsResponse{}, err
-	}
-
 	// Members
 	aus, err := s.app.Ent.AlbumUser.Query().
-		Where(albumuser.HasAlbumWith(album.IDEQ(aid))).
+		Where(albumuser.HasAlbumWith(album.IDEQ(albumID))).
 		WithUser().
 		All(ctx)
 	if err != nil {
@@ -141,12 +93,12 @@ func (s *MembershipService) List(ctx context.Context, albumID string) (api.Membe
 		if au.Edges.User == nil {
 			continue
 		}
-		members = append(members, api.AlbumMember{UserID: au.Edges.User.ID.String(), Email: au.Edges.User.Email, Role: string(au.Role)})
+		members = append(members, api.AlbumMember{UserID: au.Edges.User.ID, Email: au.Edges.User.Email, Role: string(au.Role)})
 	}
 
 	// Pending email invites
 	invs, err := s.app.Ent.AlbumInvite.Query().
-		Where(albuminvite.HasAlbumWith(album.IDEQ(aid))).
+		Where(albuminvite.HasAlbumWith(album.IDEQ(albumID))).
 		All(ctx)
 	if err != nil {
 		return api.MembershipsResponse{}, err
@@ -158,12 +110,12 @@ func (s *MembershipService) List(ctx context.Context, albumID string) (api.Membe
 			s := iv.ExpiresAt.Format(time.RFC3339)
 			expStr = &s
 		}
-		pending = append(pending, api.PendingInvite{ID: iv.ID.String(), Email: iv.Email, Role: string(iv.Role), Status: string(iv.Status), ExpiresAt: expStr})
+		pending = append(pending, api.PendingInvite{ID: iv.ID, Email: iv.Email, Role: string(iv.Role), Status: string(iv.Status), ExpiresAt: expStr})
 	}
 
 	// Invite links
 	links, err := s.app.Ent.AlbumInviteLink.Query().
-		Where(albuminvitelink.HasAlbumWith(album.IDEQ(aid))).
+		Where(albuminvitelink.HasAlbumWith(album.IDEQ(albumID))).
 		All(ctx)
 	if err != nil {
 		return api.MembershipsResponse{}, err
@@ -185,7 +137,7 @@ func (s *MembershipService) List(ctx context.Context, albumID string) (api.Membe
 			s := l.RevokedAt.Format(time.RFC3339)
 			revStr = &s
 		}
-		outLinks = append(outLinks, api.InviteLink{ID: l.ID.String(), Token: l.Token, Role: string(l.Role), Uses: l.Uses, MaxUses: maxUses, ExpiresAt: expStr, RevokedAt: revStr})
+		outLinks = append(outLinks, api.InviteLink{ID: l.ID, Token: l.Token, Role: string(l.Role), Uses: l.Uses, MaxUses: maxUses, ExpiresAt: expStr, RevokedAt: revStr})
 	}
 
 	return api.MembershipsResponse{Members: members, Invites: pending, Links: outLinks}, nil
@@ -193,24 +145,15 @@ func (s *MembershipService) List(ctx context.Context, albumID string) (api.Membe
 
 // CreateLink creates a new role-based invite link
 func (s *MembershipService) CreateLink(ctx context.Context, albumID string, req api.CreateInviteLinkRequest, createdBy string) (api.InviteLink, error) {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return api.InviteLink{}, err
-	}
-	cbid, err := uuid.Parse(createdBy)
-	if err != nil {
-		return api.InviteLink{}, err
-	}
 	tok, err := generateToken()
 	if err != nil {
 		return api.InviteLink{}, err
 	}
 	builder := s.app.Ent.AlbumInviteLink.Create().
-		SetID(uuid.New()).
 		SetToken(tok).
 		SetRole(albuminvitelink.Role(req.Role)).
-		SetAlbumID(aid).
-		SetCreatedByID(cbid)
+		SetAlbumID(albumID).
+		SetCreatedByID(createdBy)
 	if req.MaxUses != nil {
 		builder = builder.SetMaxUses(*req.MaxUses)
 	}
@@ -233,20 +176,12 @@ func (s *MembershipService) CreateLink(ctx context.Context, albumID string, req 
 		s := l.ExpiresAt.Format(time.RFC3339)
 		expStr = &s
 	}
-	return api.InviteLink{ID: l.ID.String(), Token: l.Token, Role: string(l.Role), Uses: l.Uses, MaxUses: maxUses, ExpiresAt: expStr}, nil
+	return api.InviteLink{ID: l.ID, Token: l.Token, Role: string(l.Role), Uses: l.Uses, MaxUses: maxUses, ExpiresAt: expStr}, nil
 }
 
 func (s *MembershipService) RevokeLink(ctx context.Context, albumID, linkID string) error {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
-	lid, err := uuid.Parse(linkID)
-	if err != nil {
-		return err
-	}
 	l, err := s.app.Ent.AlbumInviteLink.Query().
-		Where(albuminvitelink.HasAlbumWith(album.IDEQ(aid)), albuminvitelink.IDEQ(lid)).
+		Where(albuminvitelink.HasAlbumWith(album.IDEQ(albumID)), albuminvitelink.IDEQ(linkID)).
 		Only(ctx)
 	if err != nil {
 		return err
@@ -257,16 +192,8 @@ func (s *MembershipService) RevokeLink(ctx context.Context, albumID, linkID stri
 
 // AcceptLink grants a membership via a link token for the current user
 func (s *MembershipService) AcceptLink(ctx context.Context, albumID, token, userID string) error {
-	uid, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return err
-	}
 	l, err := s.app.Ent.AlbumInviteLink.Query().
-		Where(albuminvitelink.HasAlbumWith(album.IDEQ(aid)), albuminvitelink.TokenEQ(token)).
+		Where(albuminvitelink.HasAlbumWith(album.IDEQ(albumID)), albuminvitelink.TokenEQ(token)).
 		Only(ctx)
 	if err != nil {
 		return err
@@ -281,13 +208,13 @@ func (s *MembershipService) AcceptLink(ctx context.Context, albumID, token, user
 		return errors.New("link exhausted")
 	}
 	// Upsert membership
-	au, err := s.app.Ent.AlbumUser.Query().Where(albumuser.HasAlbumWith(album.IDEQ(aid)), albumuser.HasUserWith(user.IDEQ(uid))).Only(ctx)
+	au, err := s.app.Ent.AlbumUser.Query().Where(albumuser.HasAlbumWith(album.IDEQ(albumID)), albumuser.HasUserWith(user.IDEQ(userID))).Only(ctx)
 	if err == nil {
 		if err := s.app.Ent.AlbumUser.UpdateOne(au).SetRole(albumuser.Role(l.Role)).Exec(ctx); err != nil {
 			return err
 		}
 	} else {
-		if err := s.app.Ent.AlbumUser.Create().SetAlbumID(aid).SetUserID(uid).SetRole(albumuser.Role(l.Role)).Exec(ctx); err != nil {
+		if err := s.app.Ent.AlbumUser.Create().SetAlbumID(albumID).SetUserID(userID).SetRole(albumuser.Role(l.Role)).Exec(ctx); err != nil {
 			return err
 		}
 	}

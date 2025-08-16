@@ -31,11 +31,11 @@ func (s *PublicService) AlbumBySlug(ctx context.Context, slug string) (api.Publi
 	}
 	out := []api.PublicPhoto{}
 	for _, o := range photos {
-		p := api.PublicPhoto{ID: o.ID.String()}
+		p := api.PublicPhoto{ID: o.ID}
 		if o.Edges.File != nil {
-			p.FileID = o.Edges.File.ID.String()
+			p.FileID = o.Edges.File.ID
 		}
 		out = append(out, p)
 	}
-	return api.PublicAlbum{ID: a.ID.String(), Slug: a.Slug, Name: a.Name, Photos: out}, nil
+	return api.PublicAlbum{ID: a.ID, Slug: a.Slug, Name: a.Name, Photos: out}, nil
 }

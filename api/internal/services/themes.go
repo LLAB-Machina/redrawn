@@ -21,7 +21,7 @@ func (s *ThemesService) List(ctx context.Context) ([]api.Theme, error) {
 	out := make([]api.Theme, 0, len(items))
 	for _, t := range items {
 		out = append(out, api.Theme{
-			ID:     t.ID.String(),
+			ID:     t.ID,
 			Name:   t.Name,
 			Slug:   t.Slug,
 			Prompt: t.Prompt,
@@ -35,5 +35,5 @@ func (s *ThemesService) Create(ctx context.Context, name, prompt string) (api.ID
 	if err != nil {
 		return api.IDResponse{}, err
 	}
-	return api.IDResponse{ID: t.ID.String()}, nil
+	return api.IDResponse{ID: t.ID}, nil
 }

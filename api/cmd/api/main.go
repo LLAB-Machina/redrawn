@@ -28,7 +28,7 @@ func main() {
 	addr := flag.String("addr", ":8080", "listen address")
 	flag.Parse()
 
-	s := fuego.NewServer(
+	server := fuego.NewServer(
 		fuego.WithAddr(*addr),
 	)
 
@@ -40,13 +40,13 @@ func main() {
 	setupDefaultLogger(cfg, *openapiOnly)
 
 	// Configure logging and error behavior
-	configureErrorHandling(s, cfg)
+	configureErrorHandling(server, cfg)
 	if *openapiOnly {
 		// Minimal app with nil DB to allow route registration for OpenAPI
 		application := &app.App{Config: cfg, Ent: nil}
-		registerRoutes(s, application)
+		registerRoutes(server, application)
 		// Print OpenAPI spec JSON
-		spec := s.OutputOpenAPISpec()
+		spec := server.OutputOpenAPISpec()
 		data, err := json.MarshalIndent(spec, "", "  ")
 		if err != nil {
 			slog.Error("marshal openapi", slog.String("err", err.Error()))
@@ -87,8 +87,8 @@ func main() {
 	application.River = riverClient
 
 	// Session middleware
-	fuego.Use(s, middleware.SessionMiddleware(cfg))
-	registerRoutes(s, application)
+	fuego.Use(server, middleware.SessionMiddleware(cfg))
+	registerRoutes(server, application)
 
 	// Graceful shutdown to stop worker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -96,7 +96,8 @@ func main() {
 
 	go func() {
 		slog.Info("starting api", slog.String("addr", *addr))
-		if err := s.Run(); err != nil && err != http.ErrServerClosed {
+		err := server.Run()
+		if err != nil && err != http.ErrServerClosed {
 			slog.Error("server error", slog.String("err", err.Error()))
 			os.Exit(1)
 		}
@@ -104,7 +105,8 @@ func main() {
 
 	// start River workers
 	go func() {
-		if err := riverClient.Start(ctx); err != nil && ctx.Err() == nil {
+		err := riverClient.Start(ctx)
+		if err != nil && ctx.Err() == nil {
 			slog.Error("river start error", slog.String("err", err.Error()))
 		}
 	}()

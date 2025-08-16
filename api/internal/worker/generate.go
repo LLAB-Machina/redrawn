@@ -21,12 +21,12 @@ import (
 	"redrawn/api/ent/originalphoto"
 	"redrawn/api/ent/theme"
 	"redrawn/api/internal/api"
+	"redrawn/api/internal/app"
 	"redrawn/api/internal/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/google/uuid"
 )
 
 // NewGenerateProcessor returns the background job processor for image generation.
@@ -34,7 +34,7 @@ import (
 // typed api.GenerateJobPayload values coming from the DB queue.
 func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context.Context, api.GenerateJobPayload) error {
 	// helper: mark failed
-	markGeneratedFailed := func(ctx context.Context, gid uuid.UUID, msg string) error {
+	markGeneratedFailed := func(ctx context.Context, gid string, msg string) error {
 		_, err := entClient.GeneratedPhoto.UpdateOneID(gid).SetState(generatedphoto.StateFailed).SetErrorMsg(msg).SetFinishedAt(time.Now()).Save(ctx)
 		return err
 	}
@@ -63,19 +63,13 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 			logf("missing ids in payload: %+v", payload)
 			return fmt.Errorf("bad payload")
 		}
-		gid, err := uuid.Parse(gidRaw)
-		if err != nil {
-			return err
-		}
-		oid, err := uuid.Parse(oidRaw)
-		if err != nil {
-			return err
-		}
+		gid := gidRaw
+		oid := oidRaw
 
 		// Idempotency: if generated photo is already finalized, skip
 		if gp, err := entClient.GeneratedPhoto.Get(ctx, gid); err == nil {
 			if gp.State == generatedphoto.StateFinished || gp.State == generatedphoto.StateFailed {
-				logf("generated %s already %s; skipping", gid.String(), gp.State)
+				logf("generated %s already %s; skipping", gid, gp.State)
 				return nil
 			}
 		}
@@ -89,10 +83,8 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 		}
 		var themePrompt string
 		if tidRaw != "" {
-			if tid, err := uuid.Parse(tidRaw); err == nil {
-				if th, err := entClient.Theme.Query().Where(theme.IDEQ(tid)).Only(ctx); err == nil {
-					themePrompt = th.Prompt
-				}
+			if th, err := entClient.Theme.Query().Where(theme.IDEQ(tidRaw)).Only(ctx); err == nil {
+				themePrompt = th.Prompt
 			}
 		}
 		if o.Edges.File == nil || o.Edges.File.CloudflareID == "" {
@@ -244,8 +236,8 @@ func NewGenerateProcessor(cfg config.Config, entClient *ent.Client) func(context
 		}
 
 		// File row (use detached, short DB timeout to avoid being impacted by upstream context deadline)
-		newFileID := uuid.New()
-		genKey := newFileID.String()
+		newFileID := app.NewID()
+		genKey := newFileID
 		dbCtx1, cancelDB1 := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
 		defer cancelDB1()
 		if _, err := entClient.File.Create().

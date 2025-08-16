@@ -11,7 +11,6 @@ import (
 	"redrawn/api/ent/theme"
 	"redrawn/api/internal/config"
 
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 )
 
@@ -27,7 +26,7 @@ func main() {
 		// Admin/utility flags
 		listUsers    = flag.Bool("list-users", false, "List all users (for fzf usage)")
 		giveCredits  = flag.Bool("give-credits", false, "Give credits to a user (requires -user-id and -amount)")
-		targetUserID = flag.String("user-id", "", "Target user ID (UUID)")
+		targetUserID = flag.String("user-id", "", "Target user ID")
 		amount       = flag.Int("amount", 0, "Amount of credits to give")
 	)
 	flag.Parse()
@@ -108,7 +107,7 @@ func main() {
 		fmt.Println("  go run ./cmd/seed -name 'Basic Package' -stripe-price-id 'price_1ABC123' -credits 10")
 		fmt.Println()
 		fmt.Println("  # Delete a price")
-		fmt.Println("  go run ./cmd/seed -delete 'price-uuid'")
+		fmt.Println("  go run ./cmd/seed -delete 'price-id'")
 		fmt.Println()
 		fmt.Println("  # Seed default themes (idempotent)")
 		fmt.Println("  go run ./cmd/seed -seed-default-themes")
@@ -117,7 +116,7 @@ func main() {
 		fmt.Println("  go run ./cmd/seed -list-users")
 		fmt.Println()
 		fmt.Println("  # Give a user credits")
-		fmt.Println("  go run ./cmd/seed -give-credits -user-id 'user-uuid' -amount 10")
+		fmt.Println("  go run ./cmd/seed -give-credits -user-id 'user-id' -amount 10")
 		os.Exit(1)
 	}
 }
@@ -134,11 +133,11 @@ func listPrices(ctx context.Context, client *ent.Client) {
 		return
 	}
 
-	fmt.Printf("%-36s %-20s %-20s %-8s %-8s\n", "ID", "Name", "Stripe Price ID", "Credits", "Active")
+	fmt.Printf("%-12s %-20s %-20s %-8s %-8s\n", "ID", "Name", "Stripe Price ID", "Credits", "Active")
 	fmt.Println("--------------------------------------------------------------------------------------------------------")
 	for _, p := range prices {
-		fmt.Printf("%-36s %-20s %-20s %-8d %-8t\n",
-			p.ID.String(), p.Name, p.StripePriceID, p.Credits, p.Active)
+		fmt.Printf("%-12s %-20s %-20s %-8d %-8t\n",
+			p.ID, p.Name, p.StripePriceID, p.Credits, p.Active)
 	}
 }
 
@@ -154,18 +153,11 @@ func createPrice(ctx context.Context, client *ent.Client, name, stripePriceID st
 		os.Exit(1)
 	}
 
-	fmt.Printf("Created price: %s (ID: %s)\n", price.Name, price.ID.String())
+	fmt.Printf("Created price: %s (ID: %s)\n", price.Name, price.ID)
 }
 
 func deletePriceByID(ctx context.Context, client *ent.Client, idStr string) {
-	// Parse UUID
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		slog.Error("invalid uuid", slog.String("err", err.Error()))
-		os.Exit(1)
-	}
-
-	price, err := client.Price.Get(ctx, id)
+	price, err := client.Price.Get(ctx, idStr)
 	if err != nil {
 		slog.Error("failed to find price", slog.String("id", idStr), slog.String("err", err.Error()))
 		os.Exit(1)
@@ -192,23 +184,19 @@ func listAllUsers(ctx context.Context, client *ent.Client) {
 	// Print in a simple, whitespace-delimited format suitable for `fzf | awk '{print $1}'`
 	// Columns: ID  Email  Name  Credits
 	for _, u := range users {
-		fmt.Printf("%s\t%s\t%s\t%d\n", u.ID.String(), u.Email, u.Name, u.Credits)
+		fmt.Printf("%s\t%s\t%s\t%d\n", u.ID, u.Email, u.Name, u.Credits)
 	}
 }
 
 func addCreditsToUser(ctx context.Context, client *ent.Client, idStr string, amount int) error {
-	uid, err := uuid.Parse(idStr)
-	if err != nil {
-		return fmt.Errorf("invalid user id: %w", err)
-	}
-	if err := client.User.UpdateOneID(uid).AddCredits(int64(amount)).Exec(ctx); err != nil {
+	if err := client.User.UpdateOneID(idStr).AddCredits(int64(amount)).Exec(ctx); err != nil {
 		return err
 	}
-	u, err := client.User.Get(ctx, uid)
+	u, err := client.User.Get(ctx, idStr)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Granted %d credits to %s (%s). New balance: %d\n", amount, u.Email, u.ID.String(), u.Credits)
+	fmt.Printf("Granted %d credits to %s (%s). New balance: %d\n", amount, u.Email, u.ID, u.Credits)
 	return nil
 }
 

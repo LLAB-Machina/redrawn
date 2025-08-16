@@ -18,7 +18,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/google/uuid"
 )
 
 type PhotosService struct{ app *app.App }
@@ -31,8 +30,8 @@ func (s *PhotosService) InitUpload(ctx context.Context, albumID, name, mime stri
 		return api.UploadInitResponse{}, errors.New("R2 not configured")
 	}
 
-	fid := uuid.New()
-	key := fid.String()
+	fid := app.NewID()
+	key := fid
 
 	// Create DB row with provider=r2
 	if _, err := s.app.Ent.File.Create().
@@ -69,7 +68,7 @@ func (s *PhotosService) InitUpload(ctx context.Context, albumID, name, mime stri
 	if err != nil {
 		return api.UploadInitResponse{}, err
 	}
-	return api.UploadInitResponse{UploadURL: pre.URL, FileID: fid.String()}, nil
+	return api.UploadInitResponse{UploadURL: pre.URL, FileID: fid}, nil
 }
 
 func (s *PhotosService) CreateOriginal(ctx context.Context, albumID, fileID string) (api.IDResponse, error) {
@@ -78,41 +77,25 @@ func (s *PhotosService) CreateOriginal(ctx context.Context, albumID, fileID stri
 	if !ok {
 		return api.IDResponse{}, errors.New("unauthorized")
 	}
-	uploaderID, err := uuid.Parse(uid)
-	if err != nil {
-		return api.IDResponse{}, err
-	}
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return api.IDResponse{}, err
-	}
-	fid, err := uuid.Parse(fileID)
-	if err != nil {
-		return api.IDResponse{}, err
-	}
+	// IDs are strings now; no parsing needed
 	// Ensure file exists
-	if _, err := s.app.Ent.File.Get(ctx, fid); err != nil {
+	if _, err := s.app.Ent.File.Get(ctx, fileID); err != nil {
 		return api.IDResponse{}, err
 	}
 	o, err := s.app.Ent.OriginalPhoto.Create().
-		SetID(uuid.New()).
-		SetAlbumID(aid).
-		SetFileID(fid).
-		SetUploadedByID(uploaderID).
+		SetAlbumID(albumID).
+		SetFileID(fileID).
+		SetUploadedByID(uid).
 		Save(ctx)
 	if err != nil {
 		return api.IDResponse{}, err
 	}
-	return api.IDResponse{ID: o.ID.String()}, nil
+	return api.IDResponse{ID: o.ID}, nil
 }
 
 func (s *PhotosService) ListOriginals(ctx context.Context, albumID string) ([]api.OriginalPhoto, error) {
-	aid, err := uuid.Parse(albumID)
-	if err != nil {
-		return nil, err
-	}
 	items, err := s.app.Ent.OriginalPhoto.Query().
-		Where(originalphoto.HasAlbumWith(album.IDEQ(aid))).
+		Where(originalphoto.HasAlbumWith(album.IDEQ(albumID))).
 		WithFile().
 		All(ctx)
 	if err != nil {
@@ -120,9 +103,9 @@ func (s *PhotosService) ListOriginals(ctx context.Context, albumID string) ([]ap
 	}
 	out := make([]api.OriginalPhoto, 0, len(items))
 	for _, o := range items {
-		op := api.OriginalPhoto{ID: o.ID.String(), CreatedAt: o.CreatedAt}
+		op := api.OriginalPhoto{ID: o.ID, CreatedAt: o.CreatedAt}
 		if o.Edges.File != nil {
-			op.FileID = o.Edges.File.ID.String()
+			op.FileID = o.Edges.File.ID
 		}
 		// Count how many generated photos are currently processing for this original
 		if n, err := s.app.Ent.GeneratedPhoto.Query().
@@ -144,10 +127,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 	if !ok {
 		return api.TaskResponse{}, errors.New("unauthorized")
 	}
-	uid, err := uuid.Parse(uidStr)
-	if err != nil {
-		return api.TaskResponse{}, err
-	}
+	uid := uidStr
 	// In a transaction: ensure user has credits, decrement, and create usage row
 	tx, err := s.app.Ent.Tx(ctx)
 	if err != nil {
@@ -162,28 +142,21 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		return api.TaskResponse{}, errors.New("insufficient_credits")
 	}
 	// prepare associations we'll fill after gp create
-	var themeUUID *uuid.UUID
+	var themeIDPtr *string
 	if themeID != "" {
-		if tid, err := uuid.Parse(themeID); err == nil {
-			themeUUID = &tid
-		}
+		themeIDPtr = &themeID
 	}
 	// Create a processing GeneratedPhoto row first (still inside tx)
-	oid, err := uuid.Parse(originalID)
-	if err != nil {
-		return api.TaskResponse{}, err
-	}
 	gp, err := tx.GeneratedPhoto.Create().
-		SetID(uuid.New()).
 		SetStartedAt(time.Now()).
 		SetState(generatedphoto.StateProcessing).
-		SetOriginalPhotoID(oid).
+		SetOriginalPhotoID(originalID).
 		Save(ctx)
 	if err != nil {
 		return api.TaskResponse{}, err
 	}
-	if themeUUID != nil {
-		if _, err := tx.GeneratedPhoto.UpdateOneID(gp.ID).SetThemeID(*themeUUID).Save(ctx); err != nil {
+	if themeIDPtr != nil {
+		if _, err := tx.GeneratedPhoto.UpdateOneID(gp.ID).SetThemeID(*themeIDPtr).Save(ctx); err != nil {
 			return api.TaskResponse{}, err
 		}
 	}
@@ -192,12 +165,11 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		return api.TaskResponse{}, err
 	}
 	if _, err := tx.CreditUsage.Create().
-		SetID(uuid.New()).
 		SetUserID(uid).
 		SetAmount(1).
 		SetReason("generate").
 		SetGeneratedPhotoID(gp.ID).
-		SetOriginalPhotoID(oid).
+		SetOriginalPhotoID(originalID).
 		Save(ctx); err != nil {
 		return api.TaskResponse{}, err
 	}
@@ -211,11 +183,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 			return api.TaskResponse{TaskID: ""}, nil
 		}
 		// Fetch original file metadata
-		oid, err := uuid.Parse(originalID)
-		if err != nil {
-			return api.TaskResponse{}, err
-		}
-		o, err := s.app.Ent.OriginalPhoto.Query().Where(originalphoto.IDEQ(oid)).WithFile().Only(ctx)
+		o, err := s.app.Ent.OriginalPhoto.Query().Where(originalphoto.IDEQ(originalID)).WithFile().Only(ctx)
 		if err != nil {
 			return api.TaskResponse{}, err
 		}
@@ -233,48 +201,40 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 		_, _ = io.ReadAll(resp.Body)
 		// Create generated photo record in finished state without actual upload
 		gen := s.app.Ent.GeneratedPhoto.Create().
-			SetID(uuid.New()).
 			SetStartedAt(time.Now()).
 			SetState(generatedphoto.StateFinished).
 			SetOriginalPhotoID(o.ID)
-		if tid, err := uuid.Parse(themeID); err == nil {
-			gen = gen.SetThemeID(tid)
+		if themeID != "" {
+			gen = gen.SetThemeID(themeID)
 		}
 		g, err := gen.Save(ctx)
 		if err != nil {
 			return api.TaskResponse{}, err
 		}
-		return api.TaskResponse{TaskID: g.ID.String()}, nil
+		return api.TaskResponse{TaskID: g.ID}, nil
 	}
 
 	// Async path with queue: prevent duplicate pending jobs for same (original, theme).
-	oid, err = uuid.Parse(originalID)
-	if err != nil {
-		return api.TaskResponse{}, err
-	}
-	var tidPtr *uuid.UUID
+	var tidPtr *string
 	if themeID != "" {
-		if tid, err := uuid.Parse(themeID); err == nil {
-			tidPtr = &tid
-		}
+		tidPtr = &themeID
 	}
 
 	// Check if a generation is already processing for this pair
 	q := s.app.Ent.GeneratedPhoto.Query().
-		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(oid)), generatedphoto.StateEQ(generatedphoto.StateProcessing))
+		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID)), generatedphoto.StateEQ(generatedphoto.StateProcessing))
 	if tidPtr != nil {
 		q = q.Where(generatedphoto.HasThemeWith(theme.IDEQ(*tidPtr)))
 	}
 	if existing, err := q.First(ctx); err == nil && existing != nil {
-		return api.TaskResponse{TaskID: existing.ID.String()}, nil
+		return api.TaskResponse{TaskID: existing.ID}, nil
 	}
 
 	// Create a processing GeneratedPhoto row to represent the pending work
 	create := s.app.Ent.GeneratedPhoto.Create().
-		SetID(uuid.New()).
 		SetStartedAt(time.Now()).
 		SetState(generatedphoto.StateProcessing).
-		SetOriginalPhotoID(oid)
+		SetOriginalPhotoID(originalID)
 	if tidPtr != nil {
 		create = create.SetThemeID(*tidPtr)
 	}
@@ -284,7 +244,7 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 	}
 
 	// Enqueue background job with typed payload (River-backed queue)
-	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp2.ID.String()}
+	payload := api.GenerateJobPayload{Task: "generate", OriginalID: originalID, ThemeID: themeID, GeneratedID: gp2.ID}
 	jid, err := s.app.Queue.EnqueueGenerate(ctx, payload)
 	if err != nil {
 		// Keep DB and queue in sync: if enqueue fails, mark the pre-created row as failed
@@ -299,12 +259,8 @@ func (s *PhotosService) Generate(ctx context.Context, originalID, themeID string
 }
 
 func (s *PhotosService) ListGenerated(ctx context.Context, originalID string) ([]api.GeneratedPhoto, error) {
-	oid, err := uuid.Parse(originalID)
-	if err != nil {
-		return nil, err
-	}
 	items, err := s.app.Ent.GeneratedPhoto.Query().
-		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(oid))).
+		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID))).
 		WithFile().
 		WithTheme().
 		All(ctx)
@@ -313,15 +269,15 @@ func (s *PhotosService) ListGenerated(ctx context.Context, originalID string) ([
 	}
 	out := make([]api.GeneratedPhoto, 0, len(items))
 	for _, g := range items {
-		gp := api.GeneratedPhoto{ID: g.ID.String(), State: string(g.State)}
+		gp := api.GeneratedPhoto{ID: g.ID, State: string(g.State)}
 		if g.ErrorMsg != nil {
 			gp.Error = *g.ErrorMsg
 		}
 		if g.Edges.File != nil {
-			gp.FileID = g.Edges.File.ID.String()
+			gp.FileID = g.Edges.File.ID
 		}
 		if g.Edges.Theme != nil {
-			gp.ThemeID = g.Edges.Theme.ID.String()
+			gp.ThemeID = g.Edges.Theme.ID
 		}
 		out = append(out, gp)
 	}
@@ -329,11 +285,7 @@ func (s *PhotosService) ListGenerated(ctx context.Context, originalID string) ([
 }
 
 func (s *PhotosService) FileURL(ctx context.Context, fileID string) (string, error) {
-	fid, err := uuid.Parse(fileID)
-	if err != nil {
-		return "", err
-	}
-	f, err := s.app.Ent.File.Get(ctx, fid)
+	f, err := s.app.Ent.File.Get(ctx, fileID)
 	if err != nil {
 		return "", err
 	}

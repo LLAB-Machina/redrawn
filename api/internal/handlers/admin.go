@@ -10,7 +10,6 @@ import (
 	"redrawn/api/internal/services"
 
 	"github.com/go-fuego/fuego"
-	"github.com/google/uuid"
 )
 
 func RegisterAdmin(s *fuego.Server, a *app.App) {
@@ -23,12 +22,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return fuego.UnauthorizedError{Err: errors.New("authentication required")}
 		}
 
-		userUUID, err := uuid.Parse(userID)
-		if err != nil {
-			return fuego.UnauthorizedError{Err: errors.New("invalid user ID")}
-		}
-
-		user, err := a.Ent.User.Get(ctx, userUUID)
+		user, err := a.Ent.User.Get(ctx, userID)
 		if err != nil {
 			return fuego.UnauthorizedError{Err: errors.New("user not found")}
 		}
