@@ -44,6 +44,10 @@ type Album struct {
 	Visibility string `json:"visibility,omitempty"`
 }
 
+type SlugCheckResponse struct {
+	Available bool `json:"available"`
+}
+
 type Theme struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
@@ -218,14 +222,6 @@ type InviteRequest struct {
 
 type RoleRequest struct {
 	Role string `json:"role"`
-}
-
-type MagicLinkRequest struct {
-	Email string `json:"email" validate:"required,email"`
-}
-
-type VerifyRequest struct {
-	Token string `json:"token" validate:"required"`
 }
 
 // Memberships & Invites

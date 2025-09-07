@@ -32,13 +32,13 @@ func main() {
 	addr := flag.String("addr", ":8080", "listen address")
 	flag.Parse()
 
+	cfg := config.FromEnv()
+
 	server := fuego.NewServer(
 		fuego.WithAddr(*addr),
 	)
 
 	// OpenAPI UI/Spec can be served via handlers if desired; omitted here for CLI generation
-
-	cfg := config.FromEnv()
 	if err := cfg.Validate(); err != nil {
 		slog.Error("invalid config", slog.String("err", err.Error()))
 		os.Exit(1)
@@ -101,6 +101,38 @@ func main() {
 	// Adapter to satisfy app.TaskQueue using River
 	application.Queue = queue_river.NewAdapter(riverClient)
 	application.River = riverClient
+
+	// CORS middleware - sets headers on ALL requests (not just OPTIONS)
+	fuego.Use(server, func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			origin := r.Header.Get("Origin")
+
+			// Check if origin is allowed
+			allowed := false
+			if origin != "" {
+				for _, allowedOrigin := range cfg.CORSAllowedOrigins {
+					if allowedOrigin == "*" || allowedOrigin == origin {
+						allowed = true
+						break
+					}
+				}
+			}
+
+			// Set CORS headers for ALL requests (GET, POST, etc.)
+			if allowed {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+			}
+
+			// Always set these headers for any request with an Origin
+			if origin != "" {
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	})
 
 	// Session middleware
 	fuego.Use(server, middleware.SessionMiddleware(cfg))

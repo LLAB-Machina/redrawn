@@ -405,18 +405,6 @@
         },
         "type": "object"
       },
-      "MagicLinkRequest": {
-        "description": "MagicLinkRequest schema",
-        "properties": {
-          "email": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email"
-        ],
-        "type": "object"
-      },
       "MembershipsResponse": {
         "description": "MembershipsResponse schema",
         "properties": {
@@ -596,6 +584,15 @@
         },
         "type": "object"
       },
+      "SlugCheckResponse": {
+        "description": "SlugCheckResponse schema",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "StatusResponse": {
         "description": "StatusResponse schema",
         "properties": {
@@ -724,18 +721,6 @@
         },
         "type": "object"
       },
-      "VerifyRequest": {
-        "description": "VerifyRequest schema",
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "token"
-        ],
-        "type": "object"
-      },
       "unknown-interface": {
         "description": "unknown-interface schema"
       }
@@ -750,7 +735,7 @@
   "paths": {
     "/v1/admin/albums": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/albums",
         "parameters": [
           {
@@ -822,7 +807,7 @@
     },
     "/v1/admin/jobs": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func8`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs",
         "parameters": [
           {
@@ -894,7 +879,7 @@
     },
     "/v1/admin/jobs/summary": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func9`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs/summary",
         "parameters": [
           {
@@ -960,7 +945,7 @@
     },
     "/v1/admin/jobs/{id}/logs": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func10`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func10`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/jobs/:id/logs",
         "parameters": [
           {
@@ -1034,7 +1019,7 @@
     },
     "/v1/admin/prices": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/prices",
         "parameters": [
           {
@@ -1104,7 +1089,7 @@
         "summary": "func2"
       },
       "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "POST_/v1/admin/prices",
         "parameters": [
           {
@@ -1181,7 +1166,7 @@
     },
     "/v1/admin/prices/{id}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "DELETE_/v1/admin/prices/:id",
         "parameters": [
           {
@@ -1253,7 +1238,7 @@
         "summary": "func5"
       },
       "put": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "PUT_/v1/admin/prices/:id",
         "parameters": [
           {
@@ -1338,7 +1323,7 @@
     },
     "/v1/admin/users": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func1`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAdmin.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n- `main.registerRoutes.AdminOnly.func2`\n\n---\n\n",
         "operationId": "GET_/v1/admin/users",
         "parameters": [
           {
@@ -1406,6 +1391,80 @@
           }
         },
         "summary": "func6"
+      }
+    },
+    "/v1/album_slugs/{slug}/check": {
+      "get": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
+        "operationId": "GET_/v1/album_slugs/:slug/check",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlugCheckResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlugCheckResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func3"
       }
     },
     "/v1/albums": {
@@ -1557,7 +1616,7 @@
     },
     "/v1/albums/{id}": {
       "delete": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func7`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "DELETE_/v1/albums/:id",
         "parameters": [
           {
@@ -1626,10 +1685,10 @@
             "description": ""
           }
         },
-        "summary": "func6"
+        "summary": "func7"
       },
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/albums/:id",
         "parameters": [
           {
@@ -1698,10 +1757,10 @@
             "description": ""
           }
         },
-        "summary": "func4"
+        "summary": "func5"
       },
       "patch": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func6`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "PATCH_/v1/albums/:id",
         "parameters": [
           {
@@ -1781,7 +1840,7 @@
             "description": ""
           }
         },
-        "summary": "func5"
+        "summary": "func6"
       }
     },
     "/v1/albums/{id}/invite_links": {
@@ -2788,140 +2847,8 @@
     },
     "/v1/auth/google/callback": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func5`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "GET_/v1/auth/google/callback",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OkResponse"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/OkResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "func5"
-      }
-    },
-    "/v1/auth/google/start": {
-      "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "GET_/v1/auth/google/start",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/URLResponse"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/URLResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "func4"
-      }
-    },
-    "/v1/auth/logout": {
-      "post": {
         "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "POST_/v1/auth/logout",
+        "operationId": "GET_/v1/auth/google/callback",
         "parameters": [
           {
             "in": "header",
@@ -2984,87 +2911,10 @@
         "summary": "func3"
       }
     },
-    "/v1/auth/request-magic-link": {
-      "post": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "POST_/v1/auth/request-magic-link",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "Accept",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/MagicLinkRequest"
-              }
-            }
-          },
-          "description": "Request body for api.MagicLinkRequest",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResponse"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request _(validation or deserialization error)_"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error _(panics)_"
-          },
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "func1"
-      }
-    },
-    "/v1/auth/verify": {
-      "post": {
+    "/v1/auth/google/start": {
+      "get": {
         "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
-        "operationId": "POST_/v1/auth/verify",
+        "operationId": "GET_/v1/auth/google/start",
         "parameters": [
           {
             "in": "header",
@@ -3074,28 +2924,17 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyRequest"
-              }
-            }
-          },
-          "description": "Request body for api.VerifyRequest",
-          "required": true
-        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OkResponse"
+                  "$ref": "#/components/schemas/URLResponse"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "$ref": "#/components/schemas/OkResponse"
+                  "$ref": "#/components/schemas/URLResponse"
                 }
               }
             },
@@ -3136,6 +2975,72 @@
           }
         },
         "summary": "func2"
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAuth.func1`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "operationId": "POST_/v1/auth/logout",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func1"
       }
     },
     "/v1/billing/create-checkout-session": {
@@ -4096,7 +4001,7 @@
     },
     "/v1/users/{email}/albums": {
       "get": {
-        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func3`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterAlbums.func4`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n- `redrawn/api/internal/middleware.RequireAuth`\n\n---\n\n",
         "operationId": "GET_/v1/users/:email/albums",
         "parameters": [
           {
@@ -4171,7 +4076,7 @@
             "description": ""
           }
         },
-        "summary": "func3"
+        "summary": "func4"
       }
     }
   }

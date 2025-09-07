@@ -18,17 +18,6 @@ type AuthService struct {
 
 func NewAuthService(a *app.App) *AuthService { return &AuthService{app: a} }
 
-func (s *AuthService) RequestMagicLink(ctx context.Context, email string) error {
-	// For MVP: create or get user; in real life, send magic link email
-	_, err := s.ensureUser(ctx, email)
-	return err
-}
-
-func (s *AuthService) Verify(ctx context.Context, token string) (string, error) {
-	// For MVP: accept token as email; return user ID to set session cookie
-	return s.ensureUser(ctx, token)
-}
-
 func (s *AuthService) Logout(ctx context.Context) error {
 	return nil
 }
@@ -58,7 +47,7 @@ func (s *AuthService) GoogleStartURL(next string) (string, error) {
 	if cfg.PublicBaseURL == "" || cfg.GoogleClientID == "" {
 		return "", errors.New("google oauth not configured")
 	}
-	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/api/server/v1/auth/google/callback"
+	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/v1/auth/google/callback"
 	q := url.Values{}
 	q.Set("client_id", cfg.GoogleClientID)
 	q.Set("redirect_uri", callback)
@@ -75,7 +64,7 @@ func (s *AuthService) GoogleVerify(ctx context.Context, code string) (string, er
 	if cfg.PublicBaseURL == "" || cfg.GoogleClientID == "" || cfg.GoogleClientSecret == "" {
 		return "", errors.New("google oauth not configured")
 	}
-	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/api/server/v1/auth/google/callback"
+	callback := strings.TrimRight(cfg.PublicBaseURL, "/") + "/v1/auth/google/callback"
 	form := url.Values{}
 	form.Set("code", code)
 	form.Set("client_id", cfg.GoogleClientID)

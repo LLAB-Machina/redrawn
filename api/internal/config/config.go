@@ -11,6 +11,7 @@ type Config struct {
 	DatabaseURL   string
 	SessionSecret string
 	PublicBaseURL string
+	FrontendURL   string
 	// R2 (S3-compatible) configuration
 	R2AccessKeyID      string
 	R2SecretAccessKey  string
@@ -30,6 +31,8 @@ type Config struct {
 	// Logging configuration
 	LogLevel  string
 	LogFormat string // "json" or "text"
+	// CORS configuration
+	CORSAllowedOrigins []string
 }
 
 func FromEnv() Config {
@@ -46,6 +49,7 @@ func FromEnv() Config {
 		DatabaseURL:       os.Getenv("DATABASE_URL"),
 		SessionSecret:     os.Getenv("SESSION_SECRET"),
 		PublicBaseURL:     os.Getenv("PUBLIC_BASE_URL"),
+		FrontendURL:       os.Getenv("FRONTEND_URL"),
 		R2AccessKeyID:     os.Getenv("R2_ACCESS_KEY_ID"),
 		R2SecretAccessKey: os.Getenv("R2_SECRET_ACCESS_KEY"),
 		R2Bucket:          os.Getenv("R2_BUCKET"),
@@ -73,7 +77,8 @@ func FromEnv() Config {
 				return true
 			}
 		}(),
-		AdminEmails: loadAdminEmails(),
+		AdminEmails:        loadAdminEmails(),
+		CORSAllowedOrigins: loadCORSOrigins(),
 		LogLevel: func() string {
 			lvl := strings.ToLower(strings.TrimSpace(os.Getenv("LOG_LEVEL")))
 			if lvl == "" {
@@ -115,6 +120,33 @@ func loadAdminEmails() []string {
 		}
 	}
 	return emails
+}
+
+func loadCORSOrigins() []string {
+	// Read comma-separated origins from CORS_ALLOWED_ORIGINS env var
+	raw := os.Getenv("CORS_ALLOWED_ORIGINS")
+	if raw == "" {
+		// Default to localhost for development (cover common dev origins)
+		return []string{
+			"http://localhost",
+			"https://localhost",
+			"http://localhost:3000",
+			"http://localhost:3001",
+			"http://127.0.0.1",
+			"https://127.0.0.1",
+			"http://127.0.0.1:3000",
+			"http://127.0.0.1:3001",
+		}
+	}
+	parts := strings.Split(raw, ",")
+	origins := make([]string, 0, len(parts))
+	for _, part := range parts {
+		origin := strings.TrimSpace(part)
+		if origin != "" {
+			origins = append(origins, origin)
+		}
+	}
+	return origins
 }
 
 // Validate ensures required configuration is present and well-formed.

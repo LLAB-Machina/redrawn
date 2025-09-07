@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"redrawn/api/internal/api"
@@ -122,4 +123,25 @@ func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpda
 func (s *AlbumsService) Delete(ctx context.Context, id string) error {
 	// Soft-delete
 	return s.app.Db.Album.UpdateOneID(id).SetDeletedAt(time.Now()).Exec(ctx)
+}
+
+// IsSlugAvailable returns (available, reserved, error).
+func (s *AlbumsService) IsSlugAvailable(ctx context.Context, slug string) (bool, error) {
+	normalized := strings.ToLower(strings.TrimSpace(slug))
+	if normalized == "" {
+		return false, nil
+	}
+	// Reserved words that should never be allowed as slugs
+	switch normalized {
+	case "new", "edit", "id":
+		return false, nil
+	}
+	exists, err := s.app.Db.Album.Query().
+		Where(album.SlugEQ(normalized)).
+		Where(album.DeletedAtIsNil()).
+		Exist(ctx)
+	if err != nil {
+		return false, err
+	}
+	return !exists, nil
 }
