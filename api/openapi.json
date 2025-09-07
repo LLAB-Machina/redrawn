@@ -134,6 +134,16 @@
           "name": {
             "type": "string"
           },
+          "photo_count": {
+            "type": "integer"
+          },
+          "preview_file_ids": {
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": "array"
+          },
           "slug": {
             "type": "string"
           },

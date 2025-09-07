@@ -774,6 +774,8 @@ export type SlugCheckResponse = {
 export type Album = {
   id?: string;
   name?: string;
+  photo_count?: number;
+  preview_file_ids?: string[] | null;
   slug?: string;
   visibility?: string | null;
 };

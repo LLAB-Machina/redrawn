@@ -42,6 +42,10 @@ type Album struct {
 	Name       string `json:"name"`
 	Slug       string `json:"slug"`
 	Visibility string `json:"visibility,omitempty"`
+	// PhotoCount is the number of original photos in the album
+	PhotoCount int `json:"photo_count"`
+	// PreviewFileIDs are up to a few file IDs usable to render a collage/cover
+	PreviewFileIDs []string `json:"preview_file_ids,omitempty"`
 }
 
 type SlugCheckResponse struct {

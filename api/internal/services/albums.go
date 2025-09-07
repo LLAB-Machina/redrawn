@@ -10,6 +10,7 @@ import (
 	"redrawn/api/internal/errorsx"
 	"redrawn/api/internal/generated"
 	"redrawn/api/internal/generated/album"
+	"redrawn/api/internal/generated/originalphoto"
 	"redrawn/api/internal/generated/user"
 )
 
@@ -62,10 +63,43 @@ func (s *AlbumsService) List(ctx context.Context) ([]api.Album, error) {
 	}
 	out := make([]api.Album, 0, len(items))
 	for _, a := range items {
-		out = append(
-			out,
-			api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)},
-		)
+		// Count originals in this album
+		n, err := s.app.Db.OriginalPhoto.Query().
+			Where(
+				originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+				originalphoto.DeletedAtIsNil(),
+			).
+			Count(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// Fetch up to 4 preview file IDs (newest first)
+		previews, err := s.app.Db.OriginalPhoto.Query().
+			Where(
+				originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+				originalphoto.DeletedAtIsNil(),
+			).
+			WithFile().
+			Order(generated.Desc(originalphoto.FieldCreatedAt)).
+			Limit(4).
+			All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		previewIDs := make([]string, 0, len(previews))
+		for _, p := range previews {
+			if p.Edges.File != nil {
+				previewIDs = append(previewIDs, p.Edges.File.ID)
+			}
+		}
+		out = append(out, api.Album{
+			ID:              a.ID,
+			Name:            a.Name,
+			Slug:            a.Slug,
+			Visibility:      string(a.Visibility),
+			PhotoCount:      n,
+			PreviewFileIDs:  previewIDs,
+		})
 	}
 	return out, nil
 }
@@ -86,7 +120,36 @@ func (s *AlbumsService) ListByUser(ctx context.Context, email string) ([]api.Alb
 	}
 	out := make([]api.Album, 0, len(items))
 	for _, a := range items {
-		out = append(out, api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug})
+		// Count originals in this album
+		n, err := s.app.Db.OriginalPhoto.Query().
+			Where(
+				originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+				originalphoto.DeletedAtIsNil(),
+			).
+			Count(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// Previews
+		previews, err := s.app.Db.OriginalPhoto.Query().
+			Where(
+				originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+				originalphoto.DeletedAtIsNil(),
+			).
+			WithFile().
+			Order(generated.Desc(originalphoto.FieldCreatedAt)).
+			Limit(4).
+			All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		previewIDs := make([]string, 0, len(previews))
+		for _, p := range previews {
+			if p.Edges.File != nil {
+				previewIDs = append(previewIDs, p.Edges.File.ID)
+			}
+		}
+		out = append(out, api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, PhotoCount: n, PreviewFileIDs: previewIDs})
 	}
 	return out, nil
 }
@@ -103,7 +166,35 @@ func (s *AlbumsService) Get(ctx context.Context, id string) (api.Album, error) {
 	if a.DeletedAt != nil {
 		return api.Album{}, errorsx.ErrNotFound
 	}
-	return api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility)}, nil
+	// Count and previews for single get
+	n, err := s.app.Db.OriginalPhoto.Query().
+		Where(
+			originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+			originalphoto.DeletedAtIsNil(),
+		).
+		Count(ctx)
+	if err != nil {
+		return api.Album{}, err
+	}
+	previews, err := s.app.Db.OriginalPhoto.Query().
+		Where(
+			originalphoto.HasAlbumWith(album.IDEQ(a.ID)),
+			originalphoto.DeletedAtIsNil(),
+		).
+		WithFile().
+		Order(generated.Desc(originalphoto.FieldCreatedAt)).
+		Limit(4).
+		All(ctx)
+	if err != nil {
+		return api.Album{}, err
+	}
+	previewIDs := make([]string, 0, len(previews))
+	for _, p := range previews {
+		if p.Edges.File != nil {
+			previewIDs = append(previewIDs, p.Edges.File.ID)
+		}
+	}
+	return api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility), PhotoCount: n, PreviewFileIDs: previewIDs}, nil
 }
 
 func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpdateRequest) error {
