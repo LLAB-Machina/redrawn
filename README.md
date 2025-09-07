@@ -7,7 +7,6 @@ Generate themed, on‑brand visuals from your photos and share them as collabora
 - **Originals to variants**: Upload originals, generate themed images via background tasks.
 - **Themes**: Define reusable themes with CSS tokens and prompts.
 - **Public pages**: Publish shareable album pages by slug.
-- **Authentication**: Magic links and Google Sign‑In.
 - **Billing and credits**: Stripe checkout and credit accounting.
 - **Typed API**: OpenAPI‑driven server and generated web client.
 

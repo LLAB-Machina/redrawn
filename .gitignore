@@ -26,3 +26,4 @@ web/.vercel/
 docker-data/
 
 api/logs/jobs
+web-old/.next

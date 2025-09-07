@@ -12,9 +12,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/albums`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AdminJobs: build.query<
@@ -23,9 +21,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/jobs`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AdminJobsSummary: build.query<
@@ -34,9 +30,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/jobs/summary`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AdminJobsByIdLogs: build.query<
@@ -45,9 +39,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/jobs/${queryArg.id}/logs`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AdminPrices: build.query<
@@ -56,9 +48,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/prices`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AdminPrices: build.mutation<
@@ -69,9 +59,7 @@ const injectedRtkApi = api
           url: `/v1/admin/prices`,
           method: "POST",
           body: queryArg.createPriceRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       deleteV1AdminPricesById: build.mutation<
@@ -81,9 +69,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/admin/prices/${queryArg.id}`,
           method: "DELETE",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       putV1AdminPricesById: build.mutation<
@@ -94,9 +80,7 @@ const injectedRtkApi = api
           url: `/v1/admin/prices/${queryArg.id}`,
           method: "PUT",
           body: queryArg.updatePriceRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AdminUsers: build.query<
@@ -105,17 +89,22 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/admin/users`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
+        }),
+      }),
+      getV1AlbumSlugsBySlugCheck: build.query<
+        GetV1AlbumSlugsBySlugCheckApiResponse,
+        GetV1AlbumSlugsBySlugCheckApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/album_slugs/${queryArg.slug}/check`,
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1Albums: build.query<GetV1AlbumsApiResponse, GetV1AlbumsApiArg>({
         query: (queryArg) => ({
           url: `/v1/albums`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1Albums: build.mutation<PostV1AlbumsApiResponse, PostV1AlbumsApiArg>(
@@ -124,11 +113,9 @@ const injectedRtkApi = api
             url: `/v1/albums`,
             method: "POST",
             body: queryArg.albumCreateRequest,
-            headers: {
-              Accept: queryArg.accept,
-            },
+            headers: { Accept: queryArg.accept },
           }),
-        },
+        }
       ),
       deleteV1AlbumsById: build.mutation<
         DeleteV1AlbumsByIdApiResponse,
@@ -137,9 +124,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}`,
           method: "DELETE",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AlbumsById: build.query<
@@ -148,9 +133,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       patchV1AlbumsById: build.mutation<
@@ -161,9 +144,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}`,
           method: "PATCH",
           body: queryArg.albumUpdateRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdInviteLinks: build.mutation<
@@ -174,9 +155,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/invite_links`,
           method: "POST",
           body: queryArg.createInviteLinkRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdInviteLinksAcceptAndToken: build.mutation<
@@ -186,9 +165,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/invite_links/accept/${queryArg.token}`,
           method: "POST",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       deleteV1AlbumsByIdInviteLinksAndLinkId: build.mutation<
@@ -198,9 +175,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/invite_links/${queryArg.linkId}`,
           method: "DELETE",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdInvites: build.mutation<
@@ -211,9 +186,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/invites`,
           method: "POST",
           body: queryArg.inviteRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       deleteV1AlbumsByIdInvitesAndInviteId: build.mutation<
@@ -223,9 +196,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/invites/${queryArg.inviteId}`,
           method: "DELETE",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdInvitesAndInviteId: build.mutation<
@@ -236,9 +207,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/invites/${queryArg.inviteId}`,
           method: "POST",
           body: queryArg.roleRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       deleteV1AlbumsByIdMembersAndUserId: build.mutation<
@@ -248,9 +217,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/members/${queryArg.userId}`,
           method: "DELETE",
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdMembersAndUserId: build.mutation<
@@ -261,9 +228,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/members/${queryArg.userId}`,
           method: "POST",
           body: queryArg.roleRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AlbumsByIdMemberships: build.query<
@@ -272,9 +237,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/memberships`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AlbumsByIdOriginals: build.query<
@@ -283,9 +246,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/albums/${queryArg.id}/originals`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdOriginals: build.mutation<
@@ -296,9 +257,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/originals`,
           method: "POST",
           body: queryArg.createOriginalRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AlbumsByIdUploads: build.mutation<
@@ -309,9 +268,7 @@ const injectedRtkApi = api
           url: `/v1/albums/${queryArg.id}/uploads`,
           method: "POST",
           body: queryArg.uploadInitRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AuthGoogleCallback: build.query<
@@ -320,9 +277,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/auth/google/callback`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1AuthGoogleStart: build.query<
@@ -331,9 +286,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/auth/google/start`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1AuthLogout: build.mutation<
@@ -343,35 +296,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/auth/logout`,
           method: "POST",
-          headers: {
-            Accept: queryArg,
-          },
-        }),
-      }),
-      postV1AuthRequestMagicLink: build.mutation<
-        PostV1AuthRequestMagicLinkApiResponse,
-        PostV1AuthRequestMagicLinkApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/v1/auth/request-magic-link`,
-          method: "POST",
-          body: queryArg.magicLinkRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
-        }),
-      }),
-      postV1AuthVerify: build.mutation<
-        PostV1AuthVerifyApiResponse,
-        PostV1AuthVerifyApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/v1/auth/verify`,
-          method: "POST",
-          body: queryArg.verifyRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1BillingCreateCheckoutSession: build.mutation<
@@ -382,9 +307,7 @@ const injectedRtkApi = api
           url: `/v1/billing/create-checkout-session`,
           method: "POST",
           body: queryArg.createCheckoutSessionRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1BillingPrices: build.query<
@@ -393,9 +316,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/billing/prices`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1FilesByIdUrl: build.query<
@@ -404,25 +325,19 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/files/${queryArg.id}/url`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1Health: build.query<GetV1HealthApiResponse, GetV1HealthApiArg>({
         query: (queryArg) => ({
           url: `/v1/health`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1Me: build.query<GetV1MeApiResponse, GetV1MeApiArg>({
         query: (queryArg) => ({
           url: `/v1/me`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       patchV1Me: build.mutation<PatchV1MeApiResponse, PatchV1MeApiArg>({
@@ -430,9 +345,7 @@ const injectedRtkApi = api
           url: `/v1/me`,
           method: "PATCH",
           body: queryArg.patchMeRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1OriginalsByIdGenerate: build.mutation<
@@ -443,9 +356,7 @@ const injectedRtkApi = api
           url: `/v1/originals/${queryArg.id}/generate`,
           method: "POST",
           body: queryArg.generateRequest,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1OriginalsByIdGenerated: build.query<
@@ -454,9 +365,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/originals/${queryArg.id}/generated`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1PublicAlbumsBySlug: build.query<
@@ -465,9 +374,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/public/albums/${queryArg.slug}`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1StripeWebhook: build.mutation<
@@ -477,9 +384,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/v1/stripe/webhook`,
           method: "POST",
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1TasksById: build.query<
@@ -488,17 +393,13 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/tasks/${queryArg.id}`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       getV1Themes: build.query<GetV1ThemesApiResponse, GetV1ThemesApiArg>({
         query: (queryArg) => ({
           url: `/v1/themes`,
-          headers: {
-            Accept: queryArg,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
       postV1Themes: build.mutation<PostV1ThemesApiResponse, PostV1ThemesApiArg>(
@@ -507,11 +408,9 @@ const injectedRtkApi = api
             url: `/v1/themes`,
             method: "POST",
             body: queryArg.createThemeRequest,
-            headers: {
-              Accept: queryArg.accept,
-            },
+            headers: { Accept: queryArg.accept },
           }),
-        },
+        }
       ),
       getV1UsersByEmailAlbums: build.query<
         GetV1UsersByEmailAlbumsApiResponse,
@@ -519,9 +418,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/v1/users/${queryArg.email}/albums`,
-          headers: {
-            Accept: queryArg.accept,
-          },
+          headers: { Accept: queryArg.accept },
         }),
       }),
     }),
@@ -529,12 +426,18 @@ const injectedRtkApi = api
   });
 export { injectedRtkApi as api };
 export type GetV1AdminAlbumsApiResponse = /** status 200 OK */ AdminAlbum[];
-export type GetV1AdminAlbumsApiArg = string | undefined;
+export type GetV1AdminAlbumsApiArg = {
+  accept?: string;
+};
 export type GetV1AdminJobsApiResponse = /** status 200 OK */ AdminJob[];
-export type GetV1AdminJobsApiArg = string | undefined;
+export type GetV1AdminJobsApiArg = {
+  accept?: string;
+};
 export type GetV1AdminJobsSummaryApiResponse =
   /** status 200 OK */ AdminJobSummary;
-export type GetV1AdminJobsSummaryApiArg = string | undefined;
+export type GetV1AdminJobsSummaryApiArg = {
+  accept?: string;
+};
 export type GetV1AdminJobsByIdLogsApiResponse =
   /** status 200 OK */ JobLogsResponse;
 export type GetV1AdminJobsByIdLogsApiArg = {
@@ -542,7 +445,9 @@ export type GetV1AdminJobsByIdLogsApiArg = {
   id: string;
 };
 export type GetV1AdminPricesApiResponse = /** status 200 OK */ Price[];
-export type GetV1AdminPricesApiArg = string | undefined;
+export type GetV1AdminPricesApiArg = {
+  accept?: string;
+};
 export type PostV1AdminPricesApiResponse = /** status 200 OK */ Price;
 export type PostV1AdminPricesApiArg = {
   accept?: string;
@@ -563,9 +468,19 @@ export type PutV1AdminPricesByIdApiArg = {
   updatePriceRequest: UpdatePriceRequest;
 };
 export type GetV1AdminUsersApiResponse = /** status 200 OK */ AdminUser[];
-export type GetV1AdminUsersApiArg = string | undefined;
+export type GetV1AdminUsersApiArg = {
+  accept?: string;
+};
+export type GetV1AlbumSlugsBySlugCheckApiResponse =
+  /** status 200 OK */ SlugCheckResponse;
+export type GetV1AlbumSlugsBySlugCheckApiArg = {
+  accept?: string;
+  slug: string;
+};
 export type GetV1AlbumsApiResponse = /** status 200 OK */ Album[];
-export type GetV1AlbumsApiArg = string | undefined;
+export type GetV1AlbumsApiArg = {
+  accept?: string;
+};
 export type PostV1AlbumsApiResponse = /** status 200 OK */ Album;
 export type PostV1AlbumsApiArg = {
   accept?: string;
@@ -681,23 +596,16 @@ export type PostV1AlbumsByIdUploadsApiArg = {
 };
 export type GetV1AuthGoogleCallbackApiResponse =
   /** status 200 OK */ OkResponse;
-export type GetV1AuthGoogleCallbackApiArg = string | undefined;
-export type GetV1AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
-export type GetV1AuthGoogleStartApiArg = string | undefined;
-export type PostV1AuthLogoutApiResponse = /** status 200 OK */ OkResponse;
-export type PostV1AuthLogoutApiArg = string | undefined;
-export type PostV1AuthRequestMagicLinkApiResponse =
-  /** status 200 OK */ StatusResponse;
-export type PostV1AuthRequestMagicLinkApiArg = {
+export type GetV1AuthGoogleCallbackApiArg = {
   accept?: string;
-  /** Request body for api.MagicLinkRequest */
-  magicLinkRequest: MagicLinkRequest;
 };
-export type PostV1AuthVerifyApiResponse = /** status 200 OK */ OkResponse;
-export type PostV1AuthVerifyApiArg = {
+export type GetV1AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
+export type GetV1AuthGoogleStartApiArg = {
   accept?: string;
-  /** Request body for api.VerifyRequest */
-  verifyRequest: VerifyRequest;
+};
+export type PostV1AuthLogoutApiResponse = /** status 200 OK */ OkResponse;
+export type PostV1AuthLogoutApiArg = {
+  accept?: string;
 };
 export type PostV1BillingCreateCheckoutSessionApiResponse =
   /** status 200 OK */ UrlResponse;
@@ -707,16 +615,22 @@ export type PostV1BillingCreateCheckoutSessionApiArg = {
   createCheckoutSessionRequest: CreateCheckoutSessionRequest;
 };
 export type GetV1BillingPricesApiResponse = /** status 200 OK */ Price[];
-export type GetV1BillingPricesApiArg = string | undefined;
+export type GetV1BillingPricesApiArg = {
+  accept?: string;
+};
 export type GetV1FilesByIdUrlApiResponse = /** status 200 OK */ UrlResponse;
 export type GetV1FilesByIdUrlApiArg = {
   accept?: string;
   id: string;
 };
 export type GetV1HealthApiResponse = /** status 200 OK */ StatusResponse;
-export type GetV1HealthApiArg = string | undefined;
+export type GetV1HealthApiArg = {
+  accept?: string;
+};
 export type GetV1MeApiResponse = /** status 200 OK */ User;
-export type GetV1MeApiArg = string | undefined;
+export type GetV1MeApiArg = {
+  accept?: string;
+};
 export type PatchV1MeApiResponse = /** status 200 OK */ OkResponse;
 export type PatchV1MeApiArg = {
   accept?: string;
@@ -744,14 +658,18 @@ export type GetV1PublicAlbumsBySlugApiArg = {
   slug: string;
 };
 export type PostV1StripeWebhookApiResponse = /** status 200 OK */ OkResponse;
-export type PostV1StripeWebhookApiArg = string | undefined;
+export type PostV1StripeWebhookApiArg = {
+  accept?: string;
+};
 export type GetV1TasksByIdApiResponse = /** status 200 OK */ TaskStatusResponse;
 export type GetV1TasksByIdApiArg = {
   accept?: string;
   id: string;
 };
 export type GetV1ThemesApiResponse = /** status 200 OK */ Theme[];
-export type GetV1ThemesApiArg = string | undefined;
+export type GetV1ThemesApiArg = {
+  accept?: string;
+};
 export type PostV1ThemesApiResponse = /** status 200 OK */ IdResponse;
 export type PostV1ThemesApiArg = {
   accept?: string;
@@ -850,6 +768,9 @@ export type AdminUser = {
   plan?: string;
   stripe_customer_id?: string | null;
 };
+export type SlugCheckResponse = {
+  available?: boolean;
+};
 export type Album = {
   id?: string;
   name?: string;
@@ -937,12 +858,6 @@ export type UploadInitRequest = {
 export type UrlResponse = {
   url?: string;
 };
-export type MagicLinkRequest = {
-  email: string;
-};
-export type VerifyRequest = {
-  token: string;
-};
 export type CreateCheckoutSessionRequest = {
   price_id: string;
 };
@@ -1007,6 +922,8 @@ export const {
   usePutV1AdminPricesByIdMutation,
   useGetV1AdminUsersQuery,
   useLazyGetV1AdminUsersQuery,
+  useGetV1AlbumSlugsBySlugCheckQuery,
+  useLazyGetV1AlbumSlugsBySlugCheckQuery,
   useGetV1AlbumsQuery,
   useLazyGetV1AlbumsQuery,
   usePostV1AlbumsMutation,
@@ -1033,8 +950,6 @@ export const {
   useGetV1AuthGoogleStartQuery,
   useLazyGetV1AuthGoogleStartQuery,
   usePostV1AuthLogoutMutation,
-  usePostV1AuthRequestMagicLinkMutation,
-  usePostV1AuthVerifyMutation,
   usePostV1BillingCreateCheckoutSessionMutation,
   useGetV1BillingPricesQuery,
   useLazyGetV1BillingPricesQuery,

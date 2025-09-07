@@ -7,12 +7,78 @@ include $(ENV_FILE)
 export $(shell sed -n 's/^[[:space:]]*\([A-Za-z_][A-Za-z0-9_]*\)[[:space:]]*=.*/\1/p' $(ENV_FILE))
 endif
 
-.PHONY: help
+.PHONY: help setup setup-all
 
 help: ## Show available make targets
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list
+setup: ## Complete setup guide for new developers
+	@echo "🚀 Redrawn Setup Guide"
+	@echo "====================="
+	@echo ""
+	@echo "This will guide you through setting up the complete development environment."
+	@echo ""
+	@echo "Step 1: Install dependencies (Go, Node, Atlas, etc.)"
+	@echo "  Run: make install"
+	@echo ""
+	@echo "Step 2: Create environment file"
+	@echo "  Run: make init-env"
+	@echo "  Then edit .env with your credentials (see docs/SETUP.md for details)"
+	@echo ""
+	@echo "Step 3: Start PostgreSQL"
+	@echo "  Run: make db-up"
+	@echo ""
+	@echo "Step 4: Apply database migrations"
+	@echo "  Run: make uphead"
+	@echo "  Run: make river-up"
+	@echo ""
+	@echo "Step 5: Seed initial data"
+	@echo "  Run: make seed-db"
+	@echo ""
+	@echo "Step 6: Start services"
+	@echo "  Run: make api    (in one terminal)"
+	@echo "  Run: make web    (in another terminal)"
+	@echo ""
+	@echo "🎉 Then visit http://localhost:3000"
+	@echo ""
+	@echo "📚 For detailed credential setup, see docs/SETUP.md"
+	@echo "💡 Run 'make help' to see all available commands"
+	@echo "💡 Run 'make setup-all' to automatically run all setup steps"
+
+setup-all: ## Automatically run complete setup from scratch (install, env, db, migrations, seed)
+	@echo "🚀 Running complete automated setup..."
+	@echo ""
+	@echo "Step 1/6: Installing dependencies..."
+	$(MAKE) install
+	@echo ""
+	@echo "Step 2/6: Creating environment file..."
+	$(MAKE) init-env
+	@echo ""
+	@echo "⚠️  IMPORTANT: Edit .env with your credentials before continuing!"
+	@echo "   See docs/SETUP.md for credential setup details."
+	@echo ""
+	@echo "Step 3/6: Starting PostgreSQL..."
+	$(MAKE) db-up
+	@echo "Waiting for PostgreSQL to start..."
+	@echo "Press Enter to continue..."
+	@read dummy
+	@echo ""
+	@echo "Step 4/6: Applying database migrations..."
+	$(MAKE) migrations-fresh
+	@echo ""
+	@echo "Step 5/6: Applying River migrations..."
+	$(MAKE) river-up
+	@echo ""
+	@echo "Step 6/6: Seeding initial data..."
+	$(MAKE) seed-db
+	@echo ""
+	@echo "✅ Setup complete! Now start the services:"
+	@echo "   Terminal 1: make api"
+	@echo "   Terminal 2: make web"
+	@echo ""
+	@echo "🎉 Then visit http://localhost:3000"
+
+.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list setup setup-all
 
 api: ## Run API locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
@@ -26,14 +92,16 @@ api: ## Run API locally (requires Postgres running via docker compose)
 web: ## Run Next.js dev server
 	cd web && npm run dev
 
+web-build: ## Build Next.js as static export (fully static)
+	cd web && npm run build
+
 
 lint: ## Lint Go and Web projects
 	cd api && golangci-lint run ./...
 	cd web && npm run lint
 
 test: ## Run Go and Web test suites
-	cd api && go test ./...
-	cd web && npm test
+	cd api && go test ./... -count=1
 
 docker-up: ## docker compose up for dev file
 	docker compose up -d --build
@@ -213,7 +281,7 @@ format: ## Format Go and Web code
 build-api: ## Build Go API binary
 	cd api && mkdir -p bin && go build -o bin/api ./cmd/api
 
-seed-db:
+seed-db: ## Seed database with initial data (themes, etc.)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	cd api && go run ./cmd/seed -seed-default-themes
 

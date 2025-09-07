@@ -1,0 +1,226 @@
+import { PublicLayout } from "@/components/layouts/PublicLayout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useGetV1PublicAlbumsBySlugQuery, api } from "@/services/genApi";
+import { useRouter } from "next/router";
+import { useState, useEffect, useCallback } from "react";
+import { motion } from "motion/react";
+import { Image as ImageIcon, Share2, Download, Eye } from "lucide-react";
+import Image from "next/image";
+import { toast } from "sonner";
+
+export default function PublicAlbumPage() {
+  const router = useRouter();
+  const { slug } = router.query as { slug: string };
+  
+  const { data: album, error } = useGetV1PublicAlbumsBySlugQuery({ slug }, { skip: !slug });
+  const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
+
+  const ensureFileUrl = useCallback(async (fileId?: string | null): Promise<string | null> => {
+    if (!fileId) return null;
+    if (fileUrls[fileId]) return fileUrls[fileId];
+    
+    try {
+      const data = await triggerFileUrl({ id: fileId }).unwrap();
+      const url = data.url || null;
+      if (url) {
+        setFileUrls(prev => ({ ...prev, [fileId]: url }));
+      }
+      return url;
+    } catch {
+      return null;
+    }
+  }, [fileUrls, triggerFileUrl]);
+
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: album?.name || 'Photo Album',
+        text: `Check out this photo album: ${album?.name}`,
+        url: window.location.href,
+      });
+    } catch (error) {
+      // Fallback to copying URL
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success('Album link copied to clipboard!');
+    }
+  };
+
+  if (error) {
+    return (
+      <PublicLayout>
+        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
+          <Card className="max-w-md">
+            <CardContent className="text-center py-12">
+              <Eye className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Album not found</h2>
+              <p className="text-muted-foreground mb-4">
+                This album doesn't exist or is not publicly accessible.
+              </p>
+              <Button onClick={() => router.push('/')}>
+                Back to Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  if (!album) {
+    return (
+      <PublicLayout>
+        <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading album...</p>
+          </div>
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  return (
+    <PublicLayout>
+      <div className="max-w-6xl mx-auto py-8 space-y-8">
+        {/* Album Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center space-y-4"
+        >
+          <h1 className="text-4xl font-bold tracking-tight">{album.name}</h1>
+          <div className="flex items-center justify-center gap-4">
+            <Badge variant="secondary">/{album.slug}</Badge>
+            <Badge variant="outline">{album.photos?.length || 0} photos</Badge>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleShare}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share Album
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Photos Grid */}
+        {!album.photos?.length ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No photos yet</h3>
+                <p className="text-muted-foreground text-center">
+                  This album is empty. Check back later for updates!
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
+            {album.photos.map((photo, index) => (
+              <PhotoCard
+                key={photo.id}
+                photo={photo}
+                index={index}
+                ensureFileUrl={ensureFileUrl}
+              />
+            ))}
+          </motion.div>
+        )}
+      </div>
+    </PublicLayout>
+  );
+}
+
+interface PhotoCardProps {
+  photo: any;
+  index: number;
+  ensureFileUrl: (fileId?: string | null) => Promise<string | null>;
+}
+
+function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    ensureFileUrl(photo.file_id).then((url) => {
+      setImageUrl(url);
+      setIsLoading(false);
+    });
+  }, [photo.file_id, ensureFileUrl]);
+
+  const handleDownload = async () => {
+    if (!imageUrl) return;
+    
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `photo-${photo.id}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Photo downloaded!');
+    } catch (error) {
+      toast.error('Failed to download photo');
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
+    >
+      <Card className="group overflow-hidden">
+        <div className="aspect-square bg-muted relative overflow-hidden">
+          {isLoading ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt="Photo"
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            </div>
+          )}
+          
+          {/* Overlay with download button */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={handleDownload}
+              disabled={!imageUrl}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+}

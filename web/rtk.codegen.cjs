@@ -11,5 +11,5 @@ module.exports = {
     mutations: true,
   },
   tag: true,
-  flattenArg: true,
+  flattenArg: false, // This should help with the undefined issue
 };

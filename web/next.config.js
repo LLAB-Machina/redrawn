@@ -1,36 +1,31 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  output: 'standalone',
+  // Always enable static export for fully static deployment
+  output: 'export',
+  trailingSlash: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '1b0b50bfd75bc09853d30c816c711b08.r2.cloudflarestorage.com',
-        pathname: '/redrawn-ai-albums/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'pub-fb88bbd54ba144f2afbc11b1b101ebe8.r2.dev',
-        pathname: '/**',
-      },
-    ],
+    unoptimized: true,
   },
-  async rewrites() {
-    const apiTarget = process.env.API_PROXY_TARGET || 'http://localhost:8080';
-    return [
-      // Keep Next.js API route under /api/server/*
-      {
-        source: '/api/server/:path*',
-        destination: '/api/server/:path*',
-      },
-      // Proxy all other /api/* to Go API
-      {
-        source: '/api/:path*',
-        destination: `${apiTarget}/:path*`,
-      },
-    ];
+  reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: false,
   },
-};
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  experimental: {
+    typedRoutes: true,
+  },
+  // Docker-specific configurations
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      }
+    }
+    return config
+  },
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig 

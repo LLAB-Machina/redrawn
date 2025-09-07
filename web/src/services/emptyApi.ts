@@ -1,10 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getAuthToken } from './auth';
+import { getAuthToken } from '@/services/auth';
+
+// Debug: Log the API URL being used
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+console.log('API Base URL:', apiUrl);
 
 export const emptySplitApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
+    baseUrl: apiUrl,
     credentials: 'include',
     prepareHeaders: (headers) => {
       const token = getAuthToken();
