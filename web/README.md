@@ -9,26 +9,32 @@ The frontend connects directly to the Go backend API server. No Next.js API rout
 ## Environment Variables
 
 ### Required for Development
+
 - `NEXT_PUBLIC_API_URL` - URL of the backend API server (default: `http://localhost:8080`)
 
 ### Example `.env.local`
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 ### Production Configuration
+
 For production deployments, set:
+
 - `NEXT_PUBLIC_API_URL=https://your-api-domain.com`
 
 ## How to run
 
 ### Development
+
 ```sh
 npm install
 npm run dev
 ```
 
 ### With Docker Compose
+
 ```sh
 # From project root
 make dev

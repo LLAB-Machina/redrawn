@@ -1,14 +1,44 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
-import { 
+import {
   useGetV1AlbumsByIdQuery,
   usePatchV1AlbumsByIdMutation,
   useDeleteV1AlbumsByIdMutation,
@@ -17,58 +47,62 @@ import {
   usePostV1AlbumsByIdOriginalsMutation,
   useGetV1ThemesQuery,
   usePostV1OriginalsByIdGenerateMutation,
-  api
+  api,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Upload, 
-  Settings, 
-  Trash2, 
-  Image as ImageIcon, 
-  Palette, 
-  Users, 
+import {
+  Upload,
+  Settings,
+  Trash2,
+  Image as ImageIcon,
+  Palette,
+  Users,
   Share2,
   Eye,
   Globe,
   Lock,
   UserPlus,
   Zap,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
 const VISIBILITY_OPTIONS = [
   {
-    value: 'public',
-    label: 'Public',
-    description: 'Anyone can view this album',
-    icon: Globe
+    value: "public",
+    label: "Public",
+    description: "Anyone can view this album",
+    icon: Globe,
   },
   {
-    value: 'unlisted',
-    label: 'Unlisted',
-    description: 'Only people with the link can view',
-    icon: Eye
+    value: "unlisted",
+    label: "Unlisted",
+    description: "Only people with the link can view",
+    icon: Eye,
   },
   {
-    value: 'invite-only',
-    label: 'Invite-only',
-    description: 'Only you and invited collaborators can view',
-    icon: Lock
+    value: "invite-only",
+    label: "Invite-only",
+    description: "Only you and invited collaborators can view",
+    icon: Lock,
   },
 ];
 
 export default function AlbumDetail() {
   const router = useRouter();
   const { id } = router.query as { id: string };
-  
-  const { data: album, refetch: refetchAlbum } = useGetV1AlbumsByIdQuery({ id }, { skip: !id });
-  const { data: originals, refetch: refetchOriginals } = useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id });
+
+  const { data: album, refetch: refetchAlbum } = useGetV1AlbumsByIdQuery(
+    { id },
+    { skip: !id }
+  );
+  const { data: originals, refetch: refetchOriginals } =
+    useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id });
   const { data: themes } = useGetV1ThemesQuery({});
-  
+
   const [patchAlbum] = usePatchV1AlbumsByIdMutation();
   const [deleteAlbum] = useDeleteV1AlbumsByIdMutation();
   const [initUpload] = usePostV1AlbumsByIdUploadsMutation();
@@ -76,36 +110,36 @@ export default function AlbumDetail() {
   const [generateImage] = usePostV1OriginalsByIdGenerateMutation();
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
   const [triggerSlugCheck] = api.useLazyGetV1AlbumSlugsBySlugCheckQuery();
-  
-  const [selectedThemeId, setSelectedThemeId] = useState<string>('');
+
+  const [selectedThemeId, setSelectedThemeId] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
   const [showSettings, setShowSettings] = useState(false);
-  const [albumName, setAlbumName] = useState('');
-  const [albumVisibility, setAlbumVisibility] = useState('public');
-  const [albumSlug, setAlbumSlug] = useState('');
+  const [albumName, setAlbumName] = useState("");
+  const [albumVisibility, setAlbumVisibility] = useState("public");
+  const [albumSlug, setAlbumSlug] = useState("");
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [slugChecking, setSlugChecking] = useState(false);
   const [slugMessage, setSlugMessage] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Initialize form values when album loads
   useEffect(() => {
     if (album) {
-      setAlbumName(album.name || '');
-      setAlbumVisibility(album.visibility || 'public');
-      setAlbumSlug(album.slug || '');
+      setAlbumName(album.name || "");
+      setAlbumVisibility(album.visibility || "public");
+      setAlbumSlug(album.slug || "");
       setSlugAvailable(true);
       setSlugMessage(null);
     }
   }, [album]);
-  
+
   // Set default theme
   useEffect(() => {
     if (!selectedThemeId && themes && themes.length > 0) {
-      setSelectedThemeId(themes[0].id || '');
+      setSelectedThemeId(themes[0].id || "");
     }
   }, [themes, selectedThemeId]);
 
@@ -143,7 +177,9 @@ export default function AlbumDetail() {
         const res = await triggerSlugCheck({ slug: albumSlug }).unwrap();
         if (!active) return;
         setSlugAvailable(!!res.available);
-        setSlugMessage(res.available ? "Slug available" : "Slug is taken or reserved");
+        setSlugMessage(
+          res.available ? "Slug available" : "Slug is taken or reserved"
+        );
       } catch {
         if (!active) return;
         setSlugAvailable(false);
@@ -158,88 +194,99 @@ export default function AlbumDetail() {
     };
   }, [albumSlug, album, triggerSlugCheck]);
 
-  const ensureFileUrl = useCallback(async (fileId?: string | null): Promise<string | null> => {
-    if (!fileId) return null;
-    if (fileUrls[fileId]) return fileUrls[fileId];
-    
-    try {
-      const data = await triggerFileUrl({ id: fileId }).unwrap();
-      const url = data.url || null;
-      if (url) {
-        setFileUrls(prev => ({ ...prev, [fileId]: url }));
-      }
-      return url;
-    } catch {
-      return null;
-    }
-  }, [fileUrls, triggerFileUrl]);
+  const ensureFileUrl = useCallback(
+    async (fileId?: string | null): Promise<string | null> => {
+      if (!fileId) return null;
+      if (fileUrls[fileId]) return fileUrls[fileId];
 
-  const handleFileUpload = useCallback(async (files: FileList) => {
-    if (!files.length) return;
-    
-    setUploading(true);
-    const uploadPromises = Array.from(files).map(async (file) => {
       try {
-        // Initialize upload
-        const initResponse = await initUpload({
-          id,
-          uploadInitRequest: {
-            name: file.name,
-            mime: file.type,
-            size: file.size,
-          },
-        }).unwrap();
-
-        if (!initResponse.upload_url || !initResponse.file_id) {
-          throw new Error('Failed to initialize upload');
+        const data = await triggerFileUrl({ id: fileId }).unwrap();
+        const url = data.url || null;
+        if (url) {
+          setFileUrls((prev) => ({ ...prev, [fileId]: url }));
         }
-
-        // Upload file to storage
-        await fetch(initResponse.upload_url, {
-          method: 'PUT',
-          body: file,
-          headers: { 'content-type': file.type },
-        });
-
-        // Create original photo record
-        await createOriginal({
-          id,
-          createOriginalRequest: { file_id: initResponse.file_id },
-        }).unwrap();
-
-        return { success: true, fileName: file.name };
-      } catch (error) {
-        console.error('Upload failed for', file.name, error);
-        return { success: false, fileName: file.name, error };
+        return url;
+      } catch {
+        return null;
       }
-    });
+    },
+    [fileUrls, triggerFileUrl]
+  );
 
-    const results = await Promise.all(uploadPromises);
-    const successful = results.filter(r => r.success).length;
-    const failed = results.filter(r => !r.success).length;
+  const handleFileUpload = useCallback(
+    async (files: FileList) => {
+      if (!files.length) return;
 
-    if (successful > 0) {
-      toast.success(`Successfully uploaded ${successful} file${successful > 1 ? 's' : ''}`);
-      refetchOriginals();
-    }
-    
-    if (failed > 0) {
-      toast.error(`Failed to upload ${failed} file${failed > 1 ? 's' : ''}`);
-    }
+      setUploading(true);
+      const uploadPromises = Array.from(files).map(async (file) => {
+        try {
+          // Initialize upload
+          const initResponse = await initUpload({
+            id,
+            uploadInitRequest: {
+              name: file.name,
+              mime: file.type,
+              size: file.size,
+            },
+          }).unwrap();
 
-    setUploading(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [id, initUpload, createOriginal, refetchOriginals]);
+          if (!initResponse.upload_url || !initResponse.file_id) {
+            throw new Error("Failed to initialize upload");
+          }
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileUpload(files);
-    }
-  }, [handleFileUpload]);
+          // Upload file to storage
+          await fetch(initResponse.upload_url, {
+            method: "PUT",
+            body: file,
+            headers: { "content-type": file.type },
+          });
+
+          // Create original photo record
+          await createOriginal({
+            id,
+            createOriginalRequest: { file_id: initResponse.file_id },
+          }).unwrap();
+
+          return { success: true, fileName: file.name };
+        } catch (error) {
+          console.error("Upload failed for", file.name, error);
+          return { success: false, fileName: file.name, error };
+        }
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const successful = results.filter((r) => r.success).length;
+      const failed = results.filter((r) => !r.success).length;
+
+      if (successful > 0) {
+        toast.success(
+          `Successfully uploaded ${successful} file${successful > 1 ? "s" : ""}`
+        );
+        refetchOriginals();
+      }
+
+      if (failed > 0) {
+        toast.error(`Failed to upload ${failed} file${failed > 1 ? "s" : ""}`);
+      }
+
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    [id, initUpload, createOriginal, refetchOriginals]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileUpload(files);
+      }
+    },
+    [handleFileUpload]
+  );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -247,7 +294,7 @@ export default function AlbumDetail() {
 
   const handleGenerateAll = async () => {
     if (!originals?.length || !selectedThemeId) return;
-    
+
     setGenerating(true);
     try {
       const generatePromises = originals.map(async (original) => {
@@ -263,11 +310,13 @@ export default function AlbumDetail() {
       });
 
       const results = await Promise.all(generatePromises);
-      const successful = results.filter(r => r.success).length;
-      
-      toast.success(`Started generating ${successful} image${successful > 1 ? 's' : ''}`);
+      const successful = results.filter((r) => r.success).length;
+
+      toast.success(
+        `Started generating ${successful} image${successful > 1 ? "s" : ""}`
+      );
     } catch {
-      toast.error('Failed to start generation');
+      toast.error("Failed to start generation");
     } finally {
       setGenerating(false);
     }
@@ -276,7 +325,7 @@ export default function AlbumDetail() {
   const handleSaveSettings = async () => {
     try {
       if (slugAvailable === false) {
-        toast.error('Please choose a different slug');
+        toast.error("Please choose a different slug");
         return;
       }
       await patchAlbum({
@@ -287,27 +336,31 @@ export default function AlbumDetail() {
           visibility: albumVisibility || null,
         },
       }).unwrap();
-      
+
       setShowSettings(false);
-      toast.success('Album settings updated');
+      toast.success("Album settings updated");
       refetchAlbum();
     } catch {
-      toast.error('Failed to update album settings');
+      toast.error("Failed to update album settings");
     }
   };
 
   const handleDeleteAlbum = async () => {
     try {
       await deleteAlbum({ id }).unwrap();
-      router.push('/app');
-      toast.success('Album deleted');
+      router.push("/app");
+      toast.success("Album deleted");
     } catch {
-      toast.error('Failed to delete album');
+      toast.error("Failed to delete album");
     }
   };
 
-  const totalProcessing = originals?.reduce((sum, original) => sum + (original.processing || 0), 0) || 0;
-  const selectedVisibility = VISIBILITY_OPTIONS.find(opt => opt.value === albumVisibility);
+  const totalProcessing =
+    originals?.reduce((sum, original) => sum + (original.processing || 0), 0) ||
+    0;
+  const selectedVisibility = VISIBILITY_OPTIONS.find(
+    (opt) => opt.value === albumVisibility
+  );
 
   if (!album) {
     return (
@@ -329,14 +382,20 @@ export default function AlbumDetail() {
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="secondary">/{album.slug}</Badge>
               <Badge variant="outline" className="flex items-center gap-1">
-                {selectedVisibility?.icon && <selectedVisibility.icon className="h-3 w-3" />}
+                {selectedVisibility?.icon && (
+                  <selectedVisibility.icon className="h-3 w-3" />
+                )}
                 {selectedVisibility?.label}
               </Badge>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
-              <a href={`/a/${album.slug}`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`/a/${album.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Share2 className="h-4 w-4 mr-2" />
                 View Public
               </a>
@@ -374,12 +433,14 @@ export default function AlbumDetail() {
                       placeholder="my-album"
                     />
                     <div className="text-xs text-muted-foreground">
-                      Preview: /a/{albumSlug || '<slug>'}
+                      Preview: /a/{albumSlug || "<slug>"}
                     </div>
                     {albumSlug && (
                       <div className="text-xs">
                         {slugChecking ? (
-                          <span className="text-muted-foreground">Checking availability…</span>
+                          <span className="text-muted-foreground">
+                            Checking availability…
+                          </span>
                         ) : slugAvailable ? (
                           <span className="text-green-600">{slugMessage}</span>
                         ) : (
@@ -390,7 +451,10 @@ export default function AlbumDetail() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="album-visibility">Privacy</Label>
-                    <Select value={albumVisibility} onValueChange={setAlbumVisibility}>
+                    <Select
+                      value={albumVisibility}
+                      onValueChange={setAlbumVisibility}
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -400,8 +464,12 @@ export default function AlbumDetail() {
                             <div className="flex items-center gap-2">
                               <option.icon className="h-4 w-4" />
                               <div>
-                                <div className="font-medium">{option.label}</div>
-                                <div className="text-xs text-muted-foreground">{option.description}</div>
+                                <div className="font-medium">
+                                  {option.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {option.description}
+                                </div>
                               </div>
                             </div>
                           </SelectItem>
@@ -411,10 +479,16 @@ export default function AlbumDetail() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowSettings(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowSettings(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveSettings} disabled={slugChecking || slugAvailable === false}>
+                  <Button
+                    onClick={handleSaveSettings}
+                    disabled={slugChecking || slugAvailable === false}
+                  >
                     Save Changes
                   </Button>
                 </DialogFooter>
@@ -431,13 +505,16 @@ export default function AlbumDetail() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Album</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the album
-                    and all associated photos and generated images.
+                    This action cannot be undone. This will permanently delete
+                    the album and all associated photos and generated images.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAlbum} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  <AlertDialogAction
+                    onClick={handleDeleteAlbum}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
                     Delete Album
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -475,7 +552,9 @@ export default function AlbumDetail() {
                   multiple
                   accept="image/*,.zip"
                   className="hidden"
-                  onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                  onChange={(e) =>
+                    e.target.files && handleFileUpload(e.target.files)
+                  }
                 />
               </div>
               {uploading && (
@@ -497,13 +576,17 @@ export default function AlbumDetail() {
                 Generate Images
               </CardTitle>
               <CardDescription>
-                Apply AI themes to transform your photos with consistent styling.
+                Apply AI themes to transform your photos with consistent
+                styling.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Select Theme</Label>
-                <Select value={selectedThemeId} onValueChange={setSelectedThemeId}>
+                <Select
+                  value={selectedThemeId}
+                  onValueChange={setSelectedThemeId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a theme" />
                   </SelectTrigger>
@@ -516,8 +599,8 @@ export default function AlbumDetail() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={handleGenerateAll}
                 disabled={!originals?.length || !selectedThemeId || generating}
               >
@@ -536,7 +619,8 @@ export default function AlbumDetail() {
               {totalProcessing > 0 && (
                 <div className="text-sm text-blue-600 flex items-center gap-2">
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  {totalProcessing} image{totalProcessing > 1 ? 's' : ''} processing...
+                  {totalProcessing} image{totalProcessing > 1 ? "s" : ""}{" "}
+                  processing...
                 </div>
               )}
             </CardContent>
@@ -568,7 +652,8 @@ export default function AlbumDetail() {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold">Photos</h2>
             <div className="text-sm text-muted-foreground">
-              {originals?.length || 0} original{originals?.length !== 1 ? 's' : ''}
+              {originals?.length || 0} original
+              {originals?.length !== 1 ? "s" : ""}
             </div>
           </div>
 
@@ -578,7 +663,8 @@ export default function AlbumDetail() {
                 <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No photos yet</h3>
                 <p className="text-muted-foreground text-center mb-4">
-                  Upload your first photos to get started with AI-powered styling.
+                  Upload your first photos to get started with AI-powered
+                  styling.
                 </p>
                 <Button onClick={() => fileInputRef.current?.click()}>
                   <Upload className="h-4 w-4 mr-2" />
@@ -627,9 +713,17 @@ interface PhotoCardProps {
   onGenerate: () => void;
 }
 
-function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate }: PhotoCardProps) {
+function PhotoCard({
+  original,
+  index,
+  ensureFileUrl,
+  selectedThemeId,
+  onGenerate,
+}: PhotoCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<Array<{ file_id?: string | null; url?: string | null; state?: string; }>>([]);
+  const [generatedImages, setGeneratedImages] = useState<
+    Array<{ file_id?: string | null; url?: string | null; state?: string }>
+  >([]);
   const [showGenerated, setShowGenerated] = useState(false);
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
 
@@ -639,7 +733,7 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
 
   const loadGenerated = async () => {
     if (!original.id) return;
-    
+
     try {
       const data = await triggerGenerated({ id: original.id }).unwrap();
       const imagesWithUrls = await Promise.all(
@@ -650,7 +744,7 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
       );
       setGeneratedImages(imagesWithUrls);
     } catch (error) {
-      console.error('Failed to load generated images:', error);
+      console.error("Failed to load generated images:", error);
     }
   };
 
@@ -686,11 +780,7 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
         </div>
         <CardContent className="p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <Button
-              size="sm"
-              onClick={onGenerate}
-              disabled={!selectedThemeId}
-            >
+            <Button size="sm" onClick={onGenerate} disabled={!selectedThemeId}>
               <Zap className="h-4 w-4 mr-1" />
               Generate
             </Button>
@@ -700,25 +790,28 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
               </Badge>
             )}
           </div>
-          
+
           <Button
             variant="ghost"
             size="sm"
             className="w-full text-xs"
             onClick={handleShowGenerated}
           >
-            {showGenerated ? 'Hide' : 'Show'} Generated
+            {showGenerated ? "Hide" : "Show"} Generated
           </Button>
-          
+
           {showGenerated && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="grid grid-cols-2 gap-2"
             >
               {generatedImages.map((img, i) => (
-                <div key={i} className="aspect-square bg-muted rounded overflow-hidden">
+                <div
+                  key={i}
+                  className="aspect-square bg-muted rounded overflow-hidden"
+                >
                   {img.url ? (
                     <Image
                       src={img.url}
@@ -741,5 +834,3 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
     </motion.div>
   );
 }
-
-

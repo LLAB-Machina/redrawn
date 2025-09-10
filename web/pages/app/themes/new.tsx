@@ -1,6 +1,12 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,18 +47,37 @@ export default function NewThemePage() {
             <form className="space-y-6" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="prompt">Prompt</Label>
-                <Textarea id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe the style and content..." rows={6} />
+                <Textarea
+                  id="prompt"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Describe the style and content..."
+                  rows={6}
+                />
               </div>
               {error ? (
                 <p className="text-sm text-destructive">{error}</p>
               ) : null}
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="ghost" onClick={() => router.push("/app/themes")}>Cancel</Button>
-                <Button type="submit" disabled={isLoading}>{isLoading ? "Creating..." : "Create"}</Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => router.push("/app/themes")}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Creating..." : "Create"}
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -61,5 +86,3 @@ export default function NewThemePage() {
     </AppLayout>
   );
 }
-
-

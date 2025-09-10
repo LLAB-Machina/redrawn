@@ -149,7 +149,16 @@ func (s *AlbumsService) ListByUser(ctx context.Context, email string) ([]api.Alb
 				previewIDs = append(previewIDs, p.Edges.File.ID)
 			}
 		}
-		out = append(out, api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, PhotoCount: n, PreviewFileIDs: previewIDs})
+		out = append(
+			out,
+			api.Album{
+				ID:             a.ID,
+				Name:           a.Name,
+				Slug:           a.Slug,
+				PhotoCount:     n,
+				PreviewFileIDs: previewIDs,
+			},
+		)
 	}
 	return out, nil
 }
@@ -194,7 +203,14 @@ func (s *AlbumsService) Get(ctx context.Context, id string) (api.Album, error) {
 			previewIDs = append(previewIDs, p.Edges.File.ID)
 		}
 	}
-	return api.Album{ID: a.ID, Name: a.Name, Slug: a.Slug, Visibility: string(a.Visibility), PhotoCount: n, PreviewFileIDs: previewIDs}, nil
+	return api.Album{
+		ID:             a.ID,
+		Name:           a.Name,
+		Slug:           a.Slug,
+		Visibility:     string(a.Visibility),
+		PhotoCount:     n,
+		PreviewFileIDs: previewIDs,
+	}, nil
 }
 
 func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpdateRequest) error {

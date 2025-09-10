@@ -1,7 +1,17 @@
 import { PublicLayout } from "@/components/layouts/PublicLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation, useGetV1MeQuery, useGetV1PublicAlbumsByIdInviteAndTokenQuery } from "@/services/genApi";
+import {
+  usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation,
+  useGetV1MeQuery,
+  useGetV1PublicAlbumsByIdInviteAndTokenQuery,
+} from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -13,10 +23,13 @@ export default function JoinAlbumInvitationPage() {
   };
 
   const [acceptInvite] = usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation();
-  const { data: me, isLoading: meLoading } = useGetV1MeQuery({}, { refetchOnMountOrArgChange: true });
+  const { data: me, isLoading: meLoading } = useGetV1MeQuery(
+    {},
+    { refetchOnMountOrArgChange: true }
+  );
   const [message, setMessage] = useState<string>("Accepting invite…");
   const { data: preview } = useGetV1PublicAlbumsByIdInviteAndTokenQuery(
-    albumId && token ? { id: albumId, token } : { id: '', token: '' },
+    albumId && token ? { id: albumId, token } : { id: "", token: "" },
     { skip: !albumId || !token }
   );
 
@@ -35,10 +48,16 @@ export default function JoinAlbumInvitationPage() {
         setMessage("Success! Redirecting…");
         router.replace(`/app/albums/${albumId}`);
       } catch (e: unknown) {
-        const error = e as { status?: number; data?: { detail?: string; message?: string } };
+        const error = e as {
+          status?: number;
+          data?: { detail?: string; message?: string };
+        };
         const status = error?.status;
-        const detail: string = String(error?.data?.detail || error?.data?.message || "");
-        const isUnauthorized = status === 401 || detail.toLowerCase().includes("unauthorized");
+        const detail: string = String(
+          error?.data?.detail || error?.data?.message || ""
+        );
+        const isUnauthorized =
+          status === 401 || detail.toLowerCase().includes("unauthorized");
 
         if (isUnauthorized) {
           const next = encodeURIComponent(`/join/${albumId}/${token}`);
@@ -61,9 +80,7 @@ export default function JoinAlbumInvitationPage() {
               <CardTitle>You&apos;ve been invited</CardTitle>
               <CardDescription>
                 {preview?.album_name ? (
-                  <>
-                    to collaborate on &quot;{preview.album_name}&quot;.
-                  </>
+                  <>to collaborate on &quot;{preview.album_name}&quot;.</>
                 ) : (
                   <>to collaborate on this album.</>
                 )}
@@ -72,10 +89,14 @@ export default function JoinAlbumInvitationPage() {
             <CardContent className="space-y-4 text-center">
               {preview && (
                 <div className="text-sm text-muted-foreground space-y-1">
-                  {preview.album_slug && <div>Public page: /a/{preview.album_slug}</div>}
+                  {preview.album_slug && (
+                    <div>Public page: /a/{preview.album_slug}</div>
+                  )}
                   {preview.role && <div>Role: {preview.role}</div>}
                   {!preview.valid && preview.reason && (
-                    <div className="text-red-600">This link is {preview.reason}.</div>
+                    <div className="text-red-600">
+                      This link is {preview.reason}.
+                    </div>
                   )}
                 </div>
               )}
@@ -105,5 +126,3 @@ export default function JoinAlbumInvitationPage() {
     </PublicLayout>
   );
 }
-
-

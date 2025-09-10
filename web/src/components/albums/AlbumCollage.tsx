@@ -24,7 +24,10 @@ export function AlbumCollage(props: AlbumCollageProps) {
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
   const [urls, setUrls] = React.useState<string[]>([]);
 
-  const sizes = ("sizes" in props && props.sizes) ? props.sizes : "(max-width: 1200px) 50vw, 25vw";
+  const sizes =
+    "sizes" in props && props.sizes
+      ? props.sizes
+      : "(max-width: 1200px) 50vw, 25vw";
 
   const ids = React.useMemo(() => {
     if ("fileIds" in props) {
@@ -65,7 +68,9 @@ export function AlbumCollage(props: AlbumCollageProps) {
   if (!ids.length || !urls.length) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        {"emptyIcon" in props && props.emptyIcon ? props.emptyIcon : (
+        {"emptyIcon" in props && props.emptyIcon ? (
+          props.emptyIcon
+        ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -88,14 +93,21 @@ export function AlbumCollage(props: AlbumCollageProps) {
   return (
     <div className={`w-full h-full grid ${gridClass} gap-[2px] bg-background`}>
       {urls.map((u, i) => (
-        <div key={i} className={urls.length === 3 && i === 0 ? "row-span-2" : ""}>
+        <div
+          key={i}
+          className={urls.length === 3 && i === 0 ? "row-span-2" : ""}
+        >
           <div className="relative w-full h-full min-h-full">
-            <Image src={u} alt="preview" fill className="object-cover" sizes={sizes} />
+            <Image
+              src={u}
+              alt="preview"
+              fill
+              className="object-cover"
+              sizes={sizes}
+            />
           </div>
         </div>
       ))}
     </div>
   );
 }
-
-

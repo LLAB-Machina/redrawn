@@ -16,7 +16,9 @@ export default function AdminUsersPage() {
             {(data ?? []).map((u) => (
               <div key={u.id} className="border rounded-md p-4">
                 <div className="font-medium">{u.email}</div>
-                <div className="text-sm text-muted-foreground">{u.name || '—'}</div>
+                <div className="text-sm text-muted-foreground">
+                  {u.name || "—"}
+                </div>
                 <div className="text-sm mt-1">Credits: {u.credits}</div>
                 <div className="text-sm">Plan: {u.plan}</div>
               </div>
@@ -27,5 +29,3 @@ export default function AdminUsersPage() {
     </AppLayout>
   );
 }
-
-

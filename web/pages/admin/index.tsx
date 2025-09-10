@@ -1,28 +1,37 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  useGetV1AdminJobsSummaryQuery, 
+import {
+  useGetV1AdminJobsSummaryQuery,
   useGetV1AdminAlbumsQuery,
-  useGetV1AdminUsersQuery 
+  useGetV1AdminUsersQuery,
 } from "@/services/genApi";
-import { 
-  Shield, 
-  Users, 
-  FolderOpen, 
-  Zap, 
-  TrendingUp, 
+import {
+  Shield,
+  Users,
+  FolderOpen,
+  Zap,
+  TrendingUp,
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
-  const { data: jobsSummary, isLoading: jobsLoading } = useGetV1AdminJobsSummaryQuery({});
-  const { data: albums, isLoading: albumsLoading } = useGetV1AdminAlbumsQuery({});
+  const { data: jobsSummary, isLoading: jobsLoading } =
+    useGetV1AdminJobsSummaryQuery({});
+  const { data: albums, isLoading: albumsLoading } = useGetV1AdminAlbumsQuery(
+    {}
+  );
   const { data: users, isLoading: usersLoading } = useGetV1AdminUsersQuery({});
 
   const stats = [
@@ -31,14 +40,14 @@ export default function AdminPage() {
       value: users?.length || 0,
       icon: Users,
       loading: usersLoading,
-      href: "/admin/users"
+      href: "/admin/users",
     },
     {
-      title: "Total Albums", 
+      title: "Total Albums",
       value: albums?.length || 0,
       icon: FolderOpen,
       loading: albumsLoading,
-      href: "/admin/albums"
+      href: "/admin/albums",
     },
     {
       title: "Queued Jobs",
@@ -46,7 +55,7 @@ export default function AdminPage() {
       icon: Clock,
       loading: jobsLoading,
       href: "/admin/jobs",
-      variant: "warning" as const
+      variant: "warning" as const,
     },
     {
       title: "Running Jobs",
@@ -54,8 +63,8 @@ export default function AdminPage() {
       icon: Zap,
       loading: jobsLoading,
       href: "/admin/jobs",
-      variant: "info" as const
-    }
+      variant: "info" as const,
+    },
   ];
 
   return (
@@ -67,23 +76,32 @@ export default function AdminPage() {
               <Shield className="h-8 w-8 mr-3 text-primary" />
               Admin Panel
             </h1>
-            <p className="text-muted-foreground">System overview and management</p>
+            <p className="text-muted-foreground">
+              System overview and management
+            </p>
           </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat) => (
-            <Card key={stat.title} className="hover:shadow-md transition-shadow">
+            <Card
+              key={stat.title}
+              className="hover:shadow-md transition-shadow"
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {stat.title}
                 </CardTitle>
-                <stat.icon className={`h-4 w-4 ${
-                  stat.variant === 'warning' ? 'text-yellow-500' :
-                  stat.variant === 'info' ? 'text-blue-500' :
-                  'text-muted-foreground'
-                }`} />
+                <stat.icon
+                  className={`h-4 w-4 ${
+                    stat.variant === "warning"
+                      ? "text-yellow-500"
+                      : stat.variant === "info"
+                      ? "text-blue-500"
+                      : "text-muted-foreground"
+                  }`}
+                />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -161,9 +179,7 @@ export default function AdminPage() {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common administrative tasks
-            </CardDescription>
+            <CardDescription>Common administrative tasks</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

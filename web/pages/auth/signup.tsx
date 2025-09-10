@@ -1,6 +1,12 @@
 import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useGetV1AuthGoogleStartQuery } from "@/services/genApi";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
@@ -26,9 +32,12 @@ export default function SignupPage() {
         >
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Get started with Redrawn</CardTitle>
+              <CardTitle className="text-2xl">
+                Get started with Redrawn
+              </CardTitle>
               <CardDescription>
-                Create your account and get 10 free credits to start creating beautiful AI-styled photo albums.
+                Create your account and get 10 free credits to start creating
+                beautiful AI-styled photo albums.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -61,7 +70,10 @@ export default function SignupPage() {
 
               <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <Link href="/auth/signin" className="text-primary hover:underline">
+                <Link
+                  href="/auth/signin"
+                  className="text-primary hover:underline"
+                >
                   Sign in
                 </Link>
               </div>
@@ -87,7 +99,9 @@ export default function SignupPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-8 text-center"
           >
-            <h3 className="text-lg font-semibold mb-4">What you get with Redrawn</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              What you get with Redrawn
+            </h3>
             <div className="grid grid-cols-1 gap-4 text-sm">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">

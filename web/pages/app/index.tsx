@@ -1,12 +1,31 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useGetV1AlbumsQuery, usePostV1AlbumsMutation, usePatchV1MeMutation, type Album } from "@/services/genApi";
+import {
+  useGetV1AlbumsQuery,
+  usePostV1AlbumsMutation,
+  usePatchV1MeMutation,
+  type Album,
+} from "@/services/genApi";
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
@@ -19,7 +38,7 @@ export default function AppDashboard() {
   const { data: albums, refetch: refetchAlbums } = useGetV1AlbumsQuery({});
   const [createAlbum] = usePostV1AlbumsMutation();
   const [updateProfile] = usePatchV1MeMutation();
-  
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [albumName, setAlbumName] = useState("");
@@ -27,7 +46,7 @@ export default function AppDashboard() {
   const [profileName, setProfileName] = useState(user?.name || "");
 
   const albumList = (albums ?? []) as Album[];
-  const needsProfile = user && (!user.name || user.name.trim() === '');
+  const needsProfile = user && (!user.name || user.name.trim() === "");
 
   const handleCreateAlbum = async () => {
     if (!albumName.trim() || !albumSlug.trim()) {
@@ -40,10 +59,10 @@ export default function AppDashboard() {
         albumCreateRequest: {
           name: albumName.trim(),
           slug: albumSlug.trim(),
-          visibility: "public"
-        }
+          visibility: "public",
+        },
       }).unwrap();
-      
+
       setShowCreateDialog(false);
       setAlbumName("");
       setAlbumSlug("");
@@ -62,9 +81,9 @@ export default function AppDashboard() {
 
     try {
       await updateProfile({
-        patchMeRequest: { name: profileName.trim() }
+        patchMeRequest: { name: profileName.trim() },
       }).unwrap();
-      
+
       setShowProfileDialog(false);
       toast.success("Profile updated successfully!");
     } catch {
@@ -75,9 +94,9 @@ export default function AppDashboard() {
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
       .trim();
   };
 
@@ -98,7 +117,7 @@ export default function AppDashboard() {
               <div className="text-2xl font-bold">{user?.credits || 0}</div>
             </div>
             <Badge variant="secondary" className="text-sm">
-              {user?.plan || 'Free'}
+              {user?.plan || "Free"}
             </Badge>
           </div>
         </div>
@@ -112,9 +131,12 @@ export default function AppDashboard() {
           >
             <Card className="border-orange-200 bg-orange-50">
               <CardHeader>
-                <CardTitle className="text-orange-800">Complete your profile</CardTitle>
+                <CardTitle className="text-orange-800">
+                  Complete your profile
+                </CardTitle>
                 <CardDescription className="text-orange-700">
-                  We couldn&apos;t get your name from Google. Please enter your name to continue.
+                  We couldn&apos;t get your name from Google. Please enter your
+                  name to continue.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -130,37 +152,43 @@ export default function AppDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Albums</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Albums
+              </CardTitle>
               <FolderOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{albumList.length}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Credits Available</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Credits Available
+              </CardTitle>
               <Palette className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{user?.credits || 0}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Plan</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{user?.plan || 'Free'}</div>
+              <div className="text-2xl font-bold">{user?.plan || "Free"}</div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Generated Images</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Generated Images
+              </CardTitle>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <Image className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -173,7 +201,9 @@ export default function AppDashboard() {
         {/* Albums Section */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold tracking-tight">Your Albums</h2>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Your Albums
+            </h2>
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
                 <Button>
@@ -185,7 +215,8 @@ export default function AppDashboard() {
                 <DialogHeader>
                   <DialogTitle>Create New Album</DialogTitle>
                   <DialogDescription>
-                    Set up a new photo album with custom themes and privacy settings.
+                    Set up a new photo album with custom themes and privacy
+                    settings.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -215,7 +246,10 @@ export default function AppDashboard() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowCreateDialog(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleCreateAlbum}>Create Album</Button>
@@ -230,7 +264,8 @@ export default function AppDashboard() {
                 <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No albums yet</h3>
                 <p className="text-muted-foreground text-center mb-4">
-                  Create your first album to start organizing and styling your photos with AI.
+                  Create your first album to start organizing and styling your
+                  photos with AI.
                 </p>
                 <Button onClick={() => setShowCreateDialog(true)}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -250,21 +285,33 @@ export default function AppDashboard() {
                   <Link href={`/app/albums/${album.id}`}>
                     <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer">
                       <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
-                        <AlbumCollage fileIds={(album as { preview_file_ids?: string[] }).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
+                        <AlbumCollage
+                          fileIds={
+                            (album as { preview_file_ids?: string[] })
+                              .preview_file_ids || []
+                          }
+                          sizes="(max-width: 1200px) 50vw, 25vw"
+                        />
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
-                          {album.name || 'Untitled Album'}
+                          {album.name || "Untitled Album"}
                         </h3>
                         <p className="text-sm text-muted-foreground truncate">
                           /{album.slug}
                         </p>
                         <div className="flex items-center justify-between mt-2">
                           <Badge variant="secondary" className="text-xs">
-                            {album.visibility || 'public'}
+                            {album.visibility || "public"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {(album as { photo_count?: number }).photo_count || 0} photo{(((album as { photo_count?: number }).photo_count || 0) === 1) ? '' : 's'}
+                            {(album as { photo_count?: number }).photo_count ||
+                              0}{" "}
+                            photo
+                            {((album as { photo_count?: number }).photo_count ||
+                              0) === 1
+                              ? ""
+                              : "s"}
                           </span>
                         </div>
                       </CardContent>
@@ -297,7 +344,10 @@ export default function AppDashboard() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowProfileDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowProfileDialog(false)}
+              >
                 Skip for now
               </Button>
               <Button onClick={handleUpdateProfile}>Save</Button>

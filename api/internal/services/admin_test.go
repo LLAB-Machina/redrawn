@@ -14,13 +14,20 @@ func TestAdminPriceCRUD_BehindInterface(t *testing.T) {
 	svc := NewAdminService(a)
 
 	// Create
-	p, err := svc.CreatePrice(context.Background(), api.CreatePriceRequest{Name: "Pack", StripePriceID: "price_123", Credits: 5, Active: true})
+	p, err := svc.CreatePrice(
+		context.Background(),
+		api.CreatePriceRequest{Name: "Pack", StripePriceID: "price_123", Credits: 5, Active: true},
+	)
 	if err != nil {
 		t.Fatalf("create price: %v", err)
 	}
 	// Update
 	newName := "Pack Pro"
-	updated, err := svc.UpdatePrice(context.Background(), p.ID, api.UpdatePriceRequest{Name: &newName})
+	updated, err := svc.UpdatePrice(
+		context.Background(),
+		p.ID,
+		api.UpdatePriceRequest{Name: &newName},
+	)
 	if err != nil {
 		t.Fatalf("update price: %v", err)
 	}

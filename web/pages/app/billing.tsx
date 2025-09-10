@@ -1,30 +1,42 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useGetV1BillingPricesQuery, usePostV1BillingCreateCheckoutSessionMutation } from "@/services/genApi";
+import {
+  useGetV1BillingPricesQuery,
+  usePostV1BillingCreateCheckoutSessionMutation,
+} from "@/services/genApi";
 import { useAuth } from "@/hooks/useAuth";
 import { CreditCard, Coins, Zap, Check } from "lucide-react";
 import { useState } from "react";
 
 export default function BillingPage() {
   const { user } = useAuth();
-  const { data: prices, isLoading: pricesLoading } = useGetV1BillingPricesQuery({});
-  const [createCheckoutSession, { isLoading: checkoutLoading }] = usePostV1BillingCreateCheckoutSessionMutation();
+  const { data: prices, isLoading: pricesLoading } = useGetV1BillingPricesQuery(
+    {}
+  );
+  const [createCheckoutSession, { isLoading: checkoutLoading }] =
+    usePostV1BillingCreateCheckoutSessionMutation();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
   const handlePurchase = async (priceId: string) => {
     try {
       setLoadingPriceId(priceId);
       const result = await createCheckoutSession({
-        createCheckoutSessionRequest: { price_id: priceId }
+        createCheckoutSessionRequest: { price_id: priceId },
       }).unwrap();
-      
+
       if (result.url) {
         window.location.href = result.url;
       }
     } catch (error) {
-      console.error('Failed to create checkout session:', error);
+      console.error("Failed to create checkout session:", error);
     } finally {
       setLoadingPriceId(null);
     }
@@ -36,7 +48,9 @@ export default function BillingPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
-            <p className="text-muted-foreground">Manage your credits and billing</p>
+            <p className="text-muted-foreground">
+              Manage your credits and billing
+            </p>
           </div>
         </div>
 
@@ -61,15 +75,18 @@ export default function BillingPage() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              Each credit allows you to generate one AI-styled photo from your originals.
+              Each credit allows you to generate one AI-styled photo from your
+              originals.
             </p>
           </CardContent>
         </Card>
 
         {/* Purchase Credits */}
         <div>
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Purchase Credits</h2>
-          
+          <h2 className="text-2xl font-bold tracking-tight mb-4">
+            Purchase Credits
+          </h2>
+
           {pricesLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, i) => (
@@ -93,8 +110,12 @@ export default function BillingPage() {
                     <CreditCard className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">No pricing plans available</h3>
-                    <p className="text-muted-foreground">Check back later for credit packages</p>
+                    <h3 className="text-lg font-semibold">
+                      No pricing plans available
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Check back later for credit packages
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -102,7 +123,10 @@ export default function BillingPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {prices.map((price, index) => (
-                <Card key={price.id} className="relative hover:shadow-md transition-shadow">
+                <Card
+                  key={price.id}
+                  className="relative hover:shadow-md transition-shadow"
+                >
                   {index === 1 && (
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-primary text-primary-foreground">
@@ -113,9 +137,14 @@ export default function BillingPage() {
                   )}
                   <CardHeader className="text-center">
                     <CardTitle className="text-xl">{price.name}</CardTitle>
-                    <CardDescription>Get {price.credits} credits</CardDescription>
+                    <CardDescription>
+                      Get {price.credits} credits
+                    </CardDescription>
                     <div className="text-3xl font-bold text-primary">
-                      ${price.credits ? (price.credits * 0.10).toFixed(2) : '0.00'}
+                      $
+                      {price.credits
+                        ? (price.credits * 0.1).toFixed(2)
+                        : "0.00"}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -126,17 +155,19 @@ export default function BillingPage() {
                       </div>
                       <div className="flex items-center">
                         <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm">Generate {price.credits} AI photos</span>
+                        <span className="text-sm">
+                          Generate {price.credits} AI photos
+                        </span>
                       </div>
                       <div className="flex items-center">
                         <Check className="h-4 w-4 text-green-500 mr-2" />
                         <span className="text-sm">No expiration</span>
                       </div>
                     </div>
-                    
-                    <Button 
-                      className="w-full" 
-                      onClick={() => handlePurchase(price.id || '')}
+
+                    <Button
+                      className="w-full"
+                      onClick={() => handlePurchase(price.id || "")}
                       disabled={checkoutLoading || loadingPriceId === price.id}
                       variant={index === 1 ? "default" : "outline"}
                     >
@@ -160,9 +191,7 @@ export default function BillingPage() {
         <Card>
           <CardHeader>
             <CardTitle>Billing Information</CardTitle>
-            <CardDescription>
-              Secure payments powered by Stripe
-            </CardDescription>
+            <CardDescription>Secure payments powered by Stripe</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 text-sm">

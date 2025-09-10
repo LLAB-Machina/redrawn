@@ -1,24 +1,40 @@
 import { ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { usePostV1AuthLogoutMutation } from "@/services/genApi";
 import { setAuthToken } from "@/services/auth";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { 
-  Home, 
-  FolderOpen, 
-  Palette, 
-  CreditCard, 
-  Settings, 
-  LogOut, 
+import {
+  Home,
+  FolderOpen,
+  Palette,
+  CreditCard,
+  Settings,
+  LogOut,
   User,
   Shield,
-  Plus
+  Plus,
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -38,7 +54,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       // Logout anyway on error
     } finally {
       setAuthToken(null);
-      router.push('/');
+      router.push("/");
     }
   };
 
@@ -47,7 +63,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-semibold">Please sign in</h1>
-          <p className="text-muted-foreground">You need to be authenticated to access this page.</p>
+          <p className="text-muted-foreground">
+            You need to be authenticated to access this page.
+          </p>
           <Button asChild>
             <Link href="/auth/signin">Sign In</Link>
           </Button>
@@ -61,26 +79,26 @@ export function AppLayout({ children }: AppLayoutProps) {
       title: "Dashboard",
       icon: Home,
       href: "/app",
-      isActive: router.pathname === "/app"
+      isActive: router.pathname === "/app",
     },
     {
       title: "Albums",
       icon: FolderOpen,
       href: "/app/albums",
-      isActive: router.pathname.startsWith("/app/albums")
+      isActive: router.pathname.startsWith("/app/albums"),
     },
     {
       title: "Themes",
       icon: Palette,
       href: "/app/themes",
-      isActive: router.pathname === "/app/themes"
+      isActive: router.pathname === "/app/themes",
     },
     {
       title: "Billing",
       icon: CreditCard,
       href: "/app/billing",
-      isActive: router.pathname === "/app/billing"
-    }
+      isActive: router.pathname === "/app/billing",
+    },
   ];
 
   const adminItems = [
@@ -88,8 +106,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       title: "Admin Panel",
       icon: Shield,
       href: "/admin",
-      isActive: router.pathname.startsWith("/admin")
-    }
+      isActive: router.pathname.startsWith("/admin"),
+    },
   ];
 
   return (
@@ -104,7 +122,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <span className="font-semibold">Redrawn</span>
             </div>
           </SidebarHeader>
-          
+
           <SidebarContent>
             <SidebarMenu>
               {sidebarItems.map((item) => (
@@ -117,7 +135,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              
+
               {/* Admin section - only show if user has admin access */}
               {user?.email && (
                 <>
@@ -140,7 +158,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               )}
             </SidebarMenu>
           </SidebarContent>
-          
+
           <SidebarFooter className="border-t border-sidebar-border">
             <SidebarMenu>
               <SidebarMenuItem>
@@ -149,19 +167,21 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <SidebarMenuButton className="w-full justify-start">
                       <Avatar className="h-6 w-6">
                         <AvatarFallback className="text-xs">
-                          {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                          {user?.name?.charAt(0)?.toUpperCase() ||
+                            user?.email?.charAt(0)?.toUpperCase() ||
+                            "U"}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col items-start text-left">
                         <span className="text-sm font-medium truncate">
-                          {user?.name || 'User'}
+                          {user?.name || "User"}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground">
                             {user?.credits || 0} credits
                           </span>
                           <Badge variant="secondary" className="text-xs">
-                            {user?.plan || 'Free'}
+                            {user?.plan || "Free"}
                           </Badge>
                         </div>
                       </div>
@@ -191,7 +211,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        
+
         <main className="flex-1 flex flex-col">
           <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center px-4 gap-4">
@@ -205,7 +225,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </Button>
             </div>
           </header>
-          
+
           <div className="flex-1 p-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

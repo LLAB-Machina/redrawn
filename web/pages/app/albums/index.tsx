@@ -1,6 +1,12 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useGetV1AlbumsQuery } from "@/services/genApi";
 import React from "react";
@@ -53,7 +59,9 @@ export default function AlbumsPage() {
           </div>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-destructive">Failed to load albums. Please try again.</p>
+              <p className="text-destructive">
+                Failed to load albums. Please try again.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -86,7 +94,9 @@ export default function AlbumsPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">No albums yet</h3>
-                  <p className="text-muted-foreground">Create your first album to get started</p>
+                  <p className="text-muted-foreground">
+                    Create your first album to get started
+                  </p>
                 </div>
                 <Button asChild>
                   <Link href="/app/albums/new">
@@ -100,30 +110,45 @@ export default function AlbumsPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {albums.map((album) => (
-              <Card key={album.id} className="hover:shadow-md transition-shadow">
+              <Card
+                key={album.id}
+                className="hover:shadow-md transition-shadow"
+              >
                 <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
-                  <AlbumCollage fileIds={(album as { preview_file_ids?: string[] }).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
+                  <AlbumCollage
+                    fileIds={
+                      (album as { preview_file_ids?: string[] })
+                        .preview_file_ids || []
+                    }
+                    sizes="(max-width: 1200px) 50vw, 25vw"
+                  />
                 </div>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
                       <CardTitle className="text-lg">
-                        <Link 
+                        <Link
                           href={`/app/albums/${album.id}`}
                           className="hover:underline"
                         >
                           {album.name}
                         </Link>
                       </CardTitle>
-                      <CardDescription>
-                        Album ID: {album.id}
-                      </CardDescription>
+                      <CardDescription>Album ID: {album.id}</CardDescription>
                     </div>
-                    <Badge variant={album.visibility === 'public' ? 'default' : 'secondary'}>
-                      {album.visibility === 'public' ? (
-                        <><Eye className="h-3 w-3 mr-1" /> Public</>
+                    <Badge
+                      variant={
+                        album.visibility === "public" ? "default" : "secondary"
+                      }
+                    >
+                      {album.visibility === "public" ? (
+                        <>
+                          <Eye className="h-3 w-3 mr-1" /> Public
+                        </>
                       ) : (
-                        <><Lock className="h-3 w-3 mr-1" /> Private</>
+                        <>
+                          <Lock className="h-3 w-3 mr-1" /> Private
+                        </>
                       )}
                     </Badge>
                   </div>
@@ -132,11 +157,15 @@ export default function AlbumsPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      {(album as { photo_count?: number }).photo_count || 0} photo{(((album as { photo_count?: number }).photo_count || 0) === 1) ? '' : 's'}
+                      {(album as { photo_count?: number }).photo_count ||
+                        0}{" "}
+                      photo
+                      {((album as { photo_count?: number }).photo_count ||
+                        0) === 1
+                        ? ""
+                        : "s"}
                     </div>
-                    <div>
-                      {album.visibility || 'private'}
-                    </div>
+                    <div>{album.visibility || "private"}</div>
                   </div>
                   {album.slug && (
                     <div className="mt-2">

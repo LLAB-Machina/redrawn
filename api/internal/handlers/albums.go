@@ -25,14 +25,18 @@ func RegisterAlbums(s *fuego.Server, a *app.App) {
 		return service.List(c.Context())
 	})
 
-	fuego.Get(s, "/v1/album_slugs/{slug}/check", func(c fuego.ContextNoBody) (api.SlugCheckResponse, error) {
-		slug := c.PathParam("slug")
-		available, err := service.IsSlugAvailable(c.Context(), slug)
-		if err != nil {
-			return api.SlugCheckResponse{}, err
-		}
-		return api.SlugCheckResponse{Available: available}, nil
-	})
+	fuego.Get(
+		s,
+		"/v1/album_slugs/{slug}/check",
+		func(c fuego.ContextNoBody) (api.SlugCheckResponse, error) {
+			slug := c.PathParam("slug")
+			available, err := service.IsSlugAvailable(c.Context(), slug)
+			if err != nil {
+				return api.SlugCheckResponse{}, err
+			}
+			return api.SlugCheckResponse{Available: available}, nil
+		},
+	)
 
 	fuego.Get(s, "/v1/users/{email}/albums", func(c fuego.ContextNoBody) ([]api.Album, error) {
 		email := c.PathParam("email")

@@ -46,7 +46,13 @@ func TestPhotosCreateOriginal_Success(t *testing.T) {
 	uid := testutil.MustCreateUser(t, a, "u@example.com")
 	ctx := appctx.WithUserID(context.Background(), uid)
 	// create a file row required by CreateOriginal
-	f, err := a.Db.File.Create().SetProvider("r2").SetProviderKey("k").SetOriginalName("n").SetMimeType("image/jpeg").SetSizeBytes(1).Save(ctx)
+	f, err := a.Db.File.Create().
+		SetProvider("r2").
+		SetProviderKey("k").
+		SetOriginalName("n").
+		SetMimeType("image/jpeg").
+		SetSizeBytes(1).
+		Save(ctx)
 	if err != nil {
 		t.Fatalf("seed file: %v", err)
 	}
@@ -65,7 +71,13 @@ func TestPhotosFileURL_PublicBase(t *testing.T) {
 	svc := NewPhotosService(a)
 
 	// create a file row
-	f, err := a.Db.File.Create().SetProvider("r2").SetProviderKey("folder/key.jpg").SetOriginalName("n").SetMimeType("image/jpeg").SetSizeBytes(1).Save(context.Background())
+	f, err := a.Db.File.Create().
+		SetProvider("r2").
+		SetProviderKey("folder/key.jpg").
+		SetOriginalName("n").
+		SetMimeType("image/jpeg").
+		SetSizeBytes(1).
+		Save(context.Background())
 	if err != nil {
 		t.Fatalf("seed file: %v", err)
 	}

@@ -17,7 +17,12 @@ func (f *FakeStorage) Download(_ context.Context, key string) ([]byte, string, e
 
 func (f *FakeStorage) Upload(_ context.Context, _ string, _ []byte, _ string) error { return nil }
 
-func (f *FakeStorage) PresignPut(_ context.Context, key string, _ string, _ time.Duration) (string, error) {
+func (f *FakeStorage) PresignPut(
+	_ context.Context,
+	key string,
+	_ string,
+	_ time.Duration,
+) (string, error) {
 	return "https://upload.local/put/" + key, nil
 }
 

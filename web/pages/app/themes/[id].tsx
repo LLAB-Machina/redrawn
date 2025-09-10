@@ -1,6 +1,12 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -11,7 +17,12 @@ export default function ThemeDetailsPage() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
 
-  const { data: themes, isLoading, isFetching, error } = useGetV1ThemesQuery({});
+  const {
+    data: themes,
+    isLoading,
+    isFetching,
+    error,
+  } = useGetV1ThemesQuery({});
 
   const theme = useMemo(() => {
     if (!id || !themes) return undefined;
@@ -61,7 +72,9 @@ export default function ThemeDetailsPage() {
           </div>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-destructive">Failed to load themes. Please try again.</p>
+              <p className="text-destructive">
+                Failed to load themes. Please try again.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -75,8 +88,12 @@ export default function ThemeDetailsPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Theme not found</h1>
-              <p className="text-muted-foreground">The requested theme does not exist.</p>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Theme not found
+              </h1>
+              <p className="text-muted-foreground">
+                The requested theme does not exist.
+              </p>
             </div>
             <Button asChild variant="outline">
               <Link href="/app/themes">Back</Link>
@@ -93,7 +110,9 @@ export default function ThemeDetailsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{theme.name}</h1>
-            <p className="text-muted-foreground">Inspect your generation theme</p>
+            <p className="text-muted-foreground">
+              Inspect your generation theme
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="outline">
@@ -110,19 +129,29 @@ export default function ThemeDetailsPage() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">Theme ID</p>
-                <Badge variant="outline" className="text-xs break-all">{theme.id}</Badge>
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  Theme ID
+                </p>
+                <Badge variant="outline" className="text-xs break-all">
+                  {theme.id}
+                </Badge>
               </div>
               {theme.slug ? (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1">Slug</p>
-                  <Badge variant="secondary" className="text-xs">/{theme.slug}</Badge>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
+                    Slug
+                  </p>
+                  <Badge variant="secondary" className="text-xs">
+                    /{theme.slug}
+                  </Badge>
                 </div>
               ) : null}
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-1">Prompt</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">
+                Prompt
+              </p>
               <div className="rounded-md border p-3 text-sm bg-muted/30">
                 {theme.prompt || "No prompt provided"}
               </div>
@@ -133,5 +162,3 @@ export default function ThemeDetailsPage() {
     </AppLayout>
   );
 }
-
-

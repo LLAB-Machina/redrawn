@@ -1,19 +1,25 @@
 import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { 
-  Upload, 
-  Palette, 
-  Share2, 
-  Zap, 
-  Shield, 
+import {
+  Upload,
+  Palette,
+  Share2,
+  Zap,
+  Shield,
   Users,
   ArrowRight,
   Check,
-  Star
+  Star,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -21,33 +27,39 @@ export default function HomePage() {
     {
       icon: Upload,
       title: "Easy Upload",
-      description: "Upload single images, multiple files, or entire .zip archives with drag and drop."
+      description:
+        "Upload single images, multiple files, or entire .zip archives with drag and drop.",
     },
     {
       icon: Palette,
       title: "AI Themes",
-      description: "Apply beautiful AI-generated themes to transform your photos with consistent styling."
+      description:
+        "Apply beautiful AI-generated themes to transform your photos with consistent styling.",
     },
     {
       icon: Share2,
       title: "Instant Sharing",
-      description: "Share albums with custom links, privacy controls, and collaborative features."
+      description:
+        "Share albums with custom links, privacy controls, and collaborative features.",
     },
     {
       icon: Zap,
       title: "Fast Processing",
-      description: "Get your styled images in seconds with our optimized AI processing pipeline."
+      description:
+        "Get your styled images in seconds with our optimized AI processing pipeline.",
     },
     {
       icon: Shield,
       title: "Privacy First",
-      description: "Control who sees your albums with public, unlisted, or invite-only privacy settings."
+      description:
+        "Control who sees your albums with public, unlisted, or invite-only privacy settings.",
     },
     {
       icon: Users,
       title: "Collaboration",
-      description: "Invite friends and family to contribute photos and generate styles together."
-    }
+      description:
+        "Invite friends and family to contribute photos and generate styles together.",
+    },
   ];
 
   const pricing = [
@@ -60,11 +72,11 @@ export default function HomePage() {
         "10 free credits",
         "Unlimited albums",
         "Basic themes",
-        "Public & unlisted sharing"
+        "Public & unlisted sharing",
       ],
       cta: "Get Started",
       href: "/auth/signup",
-      popular: false
+      popular: false,
     },
     {
       name: "Pro",
@@ -76,11 +88,11 @@ export default function HomePage() {
         "Premium themes",
         "Priority processing",
         "Advanced privacy controls",
-        "Collaboration features"
+        "Collaboration features",
       ],
       cta: "Start Pro Trial",
       href: "/auth/signup?plan=pro",
-      popular: true
+      popular: true,
     },
     {
       name: "Studio",
@@ -92,12 +104,12 @@ export default function HomePage() {
         "Custom themes",
         "Team management",
         "API access",
-        "Priority support"
+        "Priority support",
       ],
       cta: "Contact Sales",
       href: "/contact",
-      popular: false
-    }
+      popular: false,
+    },
   ];
 
   return (
@@ -120,8 +132,9 @@ export default function HomePage() {
                 <span className="text-primary">you can share</span>
               </h1>
               <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-3xl mx-auto">
-                Create an album, apply a theme, and instantly get beautiful, on‑brand images 
-                to share with friends and family. Each generated image costs just 1 credit.
+                Create an album, apply a theme, and instantly get beautiful,
+                on‑brand images to share with friends and family. Each generated
+                image costs just 1 credit.
               </p>
               <div className="mt-10 flex items-center justify-center gap-4">
                 <Button size="lg" asChild>
@@ -139,7 +152,7 @@ export default function HomePage() {
               </p>
             </motion.div>
           </div>
-          
+
           {/* Hero Image Grid */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -167,7 +180,7 @@ export default function HomePage() {
               Powerful features that make photo sharing beautiful and effortless
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <motion.div
@@ -203,24 +216,27 @@ export default function HomePage() {
               Three simple steps to beautiful, shareable photo albums
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: "1",
                 title: "Create an album",
-                description: "Start a new album for an event or memory. Invite collaborators to contribute."
+                description:
+                  "Start a new album for an event or memory. Invite collaborators to contribute.",
               },
               {
-                step: "2", 
+                step: "2",
                 title: "Upload and choose a theme",
-                description: "Upload single images, many at once, or a .zip. Pick a theme per album or image."
+                description:
+                  "Upload single images, many at once, or a .zip. Pick a theme per album or image.",
               },
               {
                 step: "3",
                 title: "Generate and share",
-                description: "We generate styled images (1 credit each). Share the album link with anyone."
-              }
+                description:
+                  "We generate styled images (1 credit each). Share the album link with anyone.",
+              },
             ].map((item, index) => (
               <motion.div
                 key={item.step}
@@ -252,7 +268,7 @@ export default function HomePage() {
               Pay only for what you use. No hidden fees.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {pricing.map((plan, index) => (
               <motion.div
@@ -262,7 +278,11 @@ export default function HomePage() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className={`h-full relative ${plan.popular ? 'border-primary shadow-lg' : ''}`}>
+                <Card
+                  className={`h-full relative ${
+                    plan.popular ? "border-primary shadow-lg" : ""
+                  }`}
+                >
                   {plan.popular && (
                     <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                       Most Popular
@@ -272,9 +292,13 @@ export default function HomePage() {
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">{plan.price}</span>
-                      <span className="text-muted-foreground">/{plan.period}</span>
+                      <span className="text-muted-foreground">
+                        /{plan.period}
+                      </span>
                     </div>
-                    <CardDescription className="mt-2">{plan.description}</CardDescription>
+                    <CardDescription className="mt-2">
+                      {plan.description}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <ul className="space-y-3">
@@ -285,8 +309,8 @@ export default function HomePage() {
                         </li>
                       ))}
                     </ul>
-                    <Button 
-                      className="w-full mt-6" 
+                    <Button
+                      className="w-full mt-6"
                       variant={plan.popular ? "default" : "outline"}
                       asChild
                     >
@@ -314,8 +338,8 @@ export default function HomePage() {
               Ready to create beautiful albums?
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of users who are already creating stunning photo albums 
-              with AI-powered themes.
+              Join thousands of users who are already creating stunning photo
+              albums with AI-powered themes.
             </p>
             <div className="mt-8">
               <Button size="lg" asChild>

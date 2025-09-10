@@ -31,14 +31,20 @@ export default function ProfilePage() {
             <form className="space-y-4" onSubmit={onSave}>
               <div>
                 <Label>Email</Label>
-                <Input value={me?.email || ''} readOnly />
+                <Input value={me?.email || ""} readOnly />
               </div>
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div className="flex justify-end">
-                <Button type="submit" disabled={isLoading}>{isLoading ? 'Saving...' : 'Save'}</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Save"}
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -47,5 +53,3 @@ export default function ProfilePage() {
     </AppLayout>
   );
 }
-
-

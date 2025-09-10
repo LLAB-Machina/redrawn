@@ -126,8 +126,10 @@ func main() {
 
 			// Always set these headers for any request with an Origin
 			if origin != "" {
-				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
+				w.Header().
+					Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+				w.Header().
+					Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept")
 			}
 
 			next.ServeHTTP(w, r)

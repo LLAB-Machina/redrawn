@@ -9,11 +9,11 @@ export default function SettingsPage() {
           <CardTitle>Settings</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">More settings coming soon.</p>
+          <p className="text-sm text-muted-foreground">
+            More settings coming soon.
+          </p>
         </CardContent>
       </Card>
     </AppLayout>
   );
 }
-
-

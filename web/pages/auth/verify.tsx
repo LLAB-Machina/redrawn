@@ -1,6 +1,12 @@
 import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
@@ -10,7 +16,9 @@ import { toast } from "sonner";
 export default function VerifyPage() {
   const router = useRouter();
   const { token } = router.query as { token: string };
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  const [status, setStatus] = useState<"verifying" | "success" | "error">(
+    "verifying"
+  );
 
   useEffect(() => {
     const handleVerify = async () => {
@@ -18,29 +26,30 @@ export default function VerifyPage() {
 
       try {
         // Make direct API call to verify endpoint
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
         const response = await fetch(`${apiUrl}/v1/auth/verify`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify({ token }),
         });
 
         if (response.ok) {
-          setStatus('success');
+          setStatus("success");
           toast.success("Successfully signed in!");
-          
+
           // Redirect to app after a short delay
           setTimeout(() => {
-            router.push('/app');
+            router.push("/app");
           }, 2000);
         } else {
-          throw new Error('Verification failed');
+          throw new Error("Verification failed");
         }
       } catch {
-        setStatus('error');
+        setStatus("error");
         toast.error("Invalid or expired verification link");
       }
     };
@@ -52,34 +61,34 @@ export default function VerifyPage() {
 
   const getStatusContent = () => {
     switch (status) {
-      case 'verifying':
+      case "verifying":
         return {
           icon: <Loader2 className="h-12 w-12 text-primary animate-spin" />,
           title: "Verifying your account",
           description: "Please wait while we verify your magic link...",
-          action: null
+          action: null,
         };
-      case 'success':
+      case "success":
         return {
           icon: <CheckCircle className="h-12 w-12 text-green-500" />,
           title: "Verification successful!",
-          description: "You've been successfully signed in. Redirecting to your dashboard...",
+          description:
+            "You've been successfully signed in. Redirecting to your dashboard...",
           action: (
-            <Button onClick={() => router.push('/app')}>
-              Go to Dashboard
-            </Button>
-          )
+            <Button onClick={() => router.push("/app")}>Go to Dashboard</Button>
+          ),
         };
-      case 'error':
+      case "error":
         return {
           icon: <XCircle className="h-12 w-12 text-red-500" />,
           title: "Verification failed",
-          description: "The verification link is invalid or has expired. Please request a new one.",
+          description:
+            "The verification link is invalid or has expired. Please request a new one.",
           action: (
-            <Button onClick={() => router.push('/auth/signin')}>
+            <Button onClick={() => router.push("/auth/signin")}>
               Back to Sign In
             </Button>
-          )
+          ),
         };
     }
   };
@@ -97,9 +106,7 @@ export default function VerifyPage() {
         >
           <Card>
             <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                {content.icon}
-              </div>
+              <div className="flex justify-center mb-4">{content.icon}</div>
               <CardTitle className="text-2xl">{content.title}</CardTitle>
               <CardDescription>{content.description}</CardDescription>
             </CardHeader>

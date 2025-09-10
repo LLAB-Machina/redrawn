@@ -1,6 +1,12 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useGetV1ThemesQuery } from "@/services/genApi";
 import { Plus, Palette, Sparkles } from "lucide-react";
@@ -16,7 +22,9 @@ export default function ThemesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Themes</h1>
-              <p className="text-muted-foreground">Browse and manage AI generation themes</p>
+              <p className="text-muted-foreground">
+                Browse and manage AI generation themes
+              </p>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -45,12 +53,16 @@ export default function ThemesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Themes</h1>
-              <p className="text-muted-foreground">Browse and manage AI generation themes</p>
+              <p className="text-muted-foreground">
+                Browse and manage AI generation themes
+              </p>
             </div>
           </div>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-destructive">Failed to load themes. Please try again.</p>
+              <p className="text-destructive">
+                Failed to load themes. Please try again.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -64,7 +76,9 @@ export default function ThemesPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Themes</h1>
-            <p className="text-muted-foreground">Browse and manage AI generation themes</p>
+            <p className="text-muted-foreground">
+              Browse and manage AI generation themes
+            </p>
           </div>
           <Button asChild>
             <Link href="/app/themes/new">
@@ -83,7 +97,9 @@ export default function ThemesPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">No themes available</h3>
-                  <p className="text-muted-foreground">Create or import themes to generate styled photos</p>
+                  <p className="text-muted-foreground">
+                    Create or import themes to generate styled photos
+                  </p>
                 </div>
                 <Button asChild>
                   <Link href="/app/themes/new">
@@ -97,7 +113,10 @@ export default function ThemesPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {themes.map((theme) => (
-              <Card key={theme.id} className="hover:shadow-md transition-shadow">
+              <Card
+                key={theme.id}
+                className="hover:shadow-md transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
@@ -115,17 +134,17 @@ export default function ThemesPage() {
                   <div className="space-y-3">
                     {theme.slug && (
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Slug</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">
+                          Slug
+                        </p>
                         <Badge variant="outline" className="text-xs">
                           /{theme.slug}
                         </Badge>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center justify-between">
-                      <Badge variant="secondary">
-                        Theme
-                      </Badge>
+                      <Badge variant="secondary">Theme</Badge>
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/app/themes/${theme.id}`}>
                           View Details

@@ -1,10 +1,25 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { usePostV1AlbumsMutation, useLazyGetV1AlbumSlugsBySlugCheckQuery } from "@/services/genApi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  usePostV1AlbumsMutation,
+  useLazyGetV1AlbumSlugsBySlugCheckQuery,
+} from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -16,7 +31,8 @@ export default function NewAlbumPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [visibility, setVisibility] = useState("public");
-  const [triggerSlugCheck, { data: slugStatus, isFetching: checkingSlug }] = useLazyGetV1AlbumSlugsBySlugCheckQuery();
+  const [triggerSlugCheck, { data: slugStatus, isFetching: checkingSlug }] =
+    useLazyGetV1AlbumSlugsBySlugCheckQuery();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const checkingDelayRef = useRef<NodeJS.Timeout | null>(null);
   const [showChecking, setShowChecking] = useState(false);
@@ -89,7 +105,9 @@ export default function NewAlbumPage() {
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
-                  setSlug((prev) => (prev ? prev : generateSlug(e.target.value)));
+                  setSlug((prev) =>
+                    prev ? prev : generateSlug(e.target.value)
+                  );
                 }}
                 placeholder="My Album"
               />
@@ -108,7 +126,9 @@ export default function NewAlbumPage() {
               {slug && (
                 <p className="text-xs mt-1">
                   {checkingSlug && showChecking ? (
-                    <span className="text-muted-foreground">Checking availability…</span>
+                    <span className="text-muted-foreground">
+                      Checking availability…
+                    </span>
                   ) : slugStatus?.available === true ? (
                     <span className="text-green-600">Available ✓</span>
                   ) : slugStatus?.available === false ? (
@@ -131,7 +151,18 @@ export default function NewAlbumPage() {
               </Select>
             </div>
             <div className="pt-2">
-              <Button onClick={handleCreate} className="w-full" disabled={!name.trim() || !slug.trim() || slugStatus?.available === false || checkingSlug}>Create Album</Button>
+              <Button
+                onClick={handleCreate}
+                className="w-full"
+                disabled={
+                  !name.trim() ||
+                  !slug.trim() ||
+                  slugStatus?.available === false ||
+                  checkingSlug
+                }
+              >
+                Create Album
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -139,5 +170,3 @@ export default function NewAlbumPage() {
     </AppLayout>
   );
 }
-
-

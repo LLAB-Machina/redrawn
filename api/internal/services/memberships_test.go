@@ -28,7 +28,12 @@ func TestMemberships_LinkLifecycle(t *testing.T) {
 	}
 
 	// Create an invite link
-	link, err := ms.CreateLink(ctx, created.ID, api.CreateInviteLinkRequest{Role: "viewer"}, ownerID)
+	link, err := ms.CreateLink(
+		ctx,
+		created.ID,
+		api.CreateInviteLinkRequest{Role: "viewer"},
+		ownerID,
+	)
 	if err != nil {
 		t.Fatalf("create link: %v", err)
 	}

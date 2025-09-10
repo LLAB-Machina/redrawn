@@ -13,38 +13,44 @@ import { toast } from "sonner";
 export default function PublicAlbumPage() {
   const router = useRouter();
   const { slug } = router.query as { slug: string };
-  
-  const { data: album, error } = useGetV1PublicAlbumsBySlugQuery({ slug }, { skip: !slug });
+
+  const { data: album, error } = useGetV1PublicAlbumsBySlugQuery(
+    { slug },
+    { skip: !slug }
+  );
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
 
-  const ensureFileUrl = useCallback(async (fileId?: string | null): Promise<string | null> => {
-    if (!fileId) return null;
-    if (fileUrls[fileId]) return fileUrls[fileId];
-    
-    try {
-      const data = await triggerFileUrl({ id: fileId }).unwrap();
-      const url = data.url || null;
-      if (url) {
-        setFileUrls(prev => ({ ...prev, [fileId]: url }));
+  const ensureFileUrl = useCallback(
+    async (fileId?: string | null): Promise<string | null> => {
+      if (!fileId) return null;
+      if (fileUrls[fileId]) return fileUrls[fileId];
+
+      try {
+        const data = await triggerFileUrl({ id: fileId }).unwrap();
+        const url = data.url || null;
+        if (url) {
+          setFileUrls((prev) => ({ ...prev, [fileId]: url }));
+        }
+        return url;
+      } catch {
+        return null;
       }
-      return url;
-    } catch {
-      return null;
-    }
-  }, [fileUrls, triggerFileUrl]);
+    },
+    [fileUrls, triggerFileUrl]
+  );
 
   const handleShare = async () => {
     try {
       await navigator.share({
-        title: album?.name || 'Photo Album',
+        title: album?.name || "Photo Album",
         text: `Check out this photo album: ${album?.name}`,
         url: window.location.href,
       });
     } catch {
       // Fallback to copying URL
       await navigator.clipboard.writeText(window.location.href);
-      toast.success('Album link copied to clipboard!');
+      toast.success("Album link copied to clipboard!");
     }
   };
 
@@ -59,9 +65,7 @@ export default function PublicAlbumPage() {
               <p className="text-muted-foreground mb-4">
                 This album doesn&apos;t exist or is not publicly accessible.
               </p>
-              <Button onClick={() => router.push('/')}> 
-                Back to Home
-              </Button>
+              <Button onClick={() => router.push("/")}>Back to Home</Button>
             </CardContent>
           </Card>
         </div>
@@ -82,7 +86,8 @@ export default function PublicAlbumPage() {
     );
   }
 
-  const canOpen = album.member_role === 'contributor' || album.member_role === 'editor';
+  const canOpen =
+    album.member_role === "contributor" || album.member_role === "editor";
   const photoCount = album.photo_count ?? (album.photos?.length || 0);
   const contributorCount = album.contributor_count ?? 0;
 
@@ -97,7 +102,10 @@ export default function PublicAlbumPage() {
           className="space-y-6"
         >
           <div className="aspect-[4/2] bg-muted rounded-lg overflow-hidden">
-            <PublicAlbumCollage photos={album.photos || []} ensureFileUrl={ensureFileUrl} />
+            <PublicAlbumCollage
+              photos={album.photos || []}
+              ensureFileUrl={ensureFileUrl}
+            />
           </div>
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-bold tracking-tight">{album.name}</h1>
@@ -106,7 +114,8 @@ export default function PublicAlbumPage() {
               <Badge variant="outline">{photoCount} photos</Badge>
               <Badge variant="outline" className="flex items-center gap-1">
                 <Users className="h-3 w-3" />
-                {contributorCount} contributor{contributorCount === 1 ? '' : 's'}
+                {contributorCount} contributor
+                {contributorCount === 1 ? "" : "s"}
               </Badge>
             </div>
             <div className="flex items-center justify-center gap-2">
@@ -115,7 +124,10 @@ export default function PublicAlbumPage() {
                 Share Album
               </Button>
               {canOpen && (
-                <Button size="sm" onClick={() => router.push(`/app/albums/${album.id}`)}>
+                <Button
+                  size="sm"
+                  onClick={() => router.push(`/app/albums/${album.id}`)}
+                >
                   Open (contributors only)
                 </Button>
               )}
@@ -184,21 +196,21 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
 
   const handleDownload = async () => {
     if (!imageUrl) return;
-    
+
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `photo-${photo.id || 'unknown'}.jpg`;
+      a.download = `photo-${photo.id || "unknown"}.jpg`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('Photo downloaded!');
+      toast.success("Photo downloaded!");
     } catch {
-      toast.error('Failed to download photo');
+      toast.error("Failed to download photo");
     }
   };
 
@@ -227,7 +239,7 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
           )}
-          
+
           {/* Overlay with download button */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
             <Button
@@ -246,7 +258,13 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
   );
 }
 
-function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: Array<{ id?: string; file_id?: string | null; }>; ensureFileUrl: (fileId?: string | null) => Promise<string | null>; }) {
+function PublicAlbumCollage({
+  photos,
+  ensureFileUrl,
+}: {
+  photos: Array<{ id?: string; file_id?: string | null }>;
+  ensureFileUrl: (fileId?: string | null) => Promise<string | null>;
+}) {
   const [urls, setUrls] = useState<string[]>([]);
   useEffect(() => {
     let isCancelled = false;
@@ -260,7 +278,9 @@ function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: Array<{ id?: st
       if (!isCancelled) setUrls(out);
     }
     load();
-    return () => { isCancelled = true };
+    return () => {
+      isCancelled = true;
+    };
   }, [photos, ensureFileUrl]);
 
   if (!urls.length) {
@@ -276,9 +296,18 @@ function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: Array<{ id?: st
   return (
     <div className={`w-full h-full grid ${gridClass} gap-[2px] bg-background`}>
       {urls.map((u, i) => (
-        <div key={i} className={urls.length === 3 && i === 0 ? "row-span-2" : ""}>
+        <div
+          key={i}
+          className={urls.length === 3 && i === 0 ? "row-span-2" : ""}
+        >
           <div className="relative w-full h-full min-h-full">
-            <Image src={u} alt="preview" fill className="object-cover" sizes="100vw" />
+            <Image
+              src={u}
+              alt="preview"
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
           </div>
         </div>
       ))}
