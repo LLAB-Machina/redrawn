@@ -100,10 +100,13 @@ type PublicPhoto struct {
 }
 
 type PublicAlbum struct {
-	ID     string        `json:"id"`
-	Slug   string        `json:"slug"`
-	Name   string        `json:"name"`
-	Photos []PublicPhoto `json:"photos"`
+	ID               string        `json:"id"`
+	Slug             string        `json:"slug"`
+	Name             string        `json:"name"`
+	Photos           []PublicPhoto `json:"photos"`
+	PhotoCount       int           `json:"photo_count"`
+	ContributorCount int           `json:"contributor_count"`
+	MemberRole       string        `json:"member_role,omitempty"`
 }
 
 // Requests
@@ -251,6 +254,20 @@ type InviteLink struct {
 	MaxUses   *int    `json:"max_uses,omitempty"`
 	ExpiresAt *string `json:"expires_at,omitempty"`
 	RevokedAt *string `json:"revoked_at,omitempty"`
+}
+
+// Public preview of an invite link. Does not require authentication.
+type InviteLinkPreview struct {
+	AlbumID   string  `json:"album_id"`
+	AlbumName string  `json:"album_name"`
+	AlbumSlug string  `json:"album_slug"`
+	Role      string  `json:"role"`
+	Uses      int     `json:"uses"`
+	MaxUses   *int    `json:"max_uses,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	RevokedAt *string `json:"revoked_at,omitempty"`
+	Valid     bool    `json:"valid"`
+	Reason    string  `json:"reason,omitempty"`
 }
 
 type CreateInviteLinkRequest struct {

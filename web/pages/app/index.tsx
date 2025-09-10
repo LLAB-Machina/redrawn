@@ -7,11 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useGetV1AlbumsQuery, usePostV1AlbumsMutation, usePatchV1MeMutation, type Album } from "@/services/genApi";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Plus, FolderOpen, Users, Image, Palette } from "lucide-react";
 import { toast } from "sonner";
+import ImageNext from "next/image";
+import { api } from "@/services/genApi";
+import { AlbumCollage } from "@/components/albums/AlbumCollage";
 
 export default function AppDashboard() {
   const { user } = useAuth();
@@ -247,10 +250,8 @@ export default function AppDashboard() {
                 >
                   <Link href={`/app/albums/${album.id}`}>
                     <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 rounded-t-lg overflow-hidden">
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Image className="h-8 w-8 text-muted-foreground" />
-                        </div>
+                      <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
+                        <AlbumCollage fileIds={(album as any).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
@@ -264,7 +265,7 @@ export default function AppDashboard() {
                             {album.visibility || 'public'}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            0 photos
+                            {(album as any).photo_count || 0} photo{(((album as any).photo_count || 0) === 1) ? '' : 's'}
                           </span>
                         </div>
                       </CardContent>
@@ -308,3 +309,5 @@ export default function AppDashboard() {
     </AppLayout>
   );
 }
+
+// inline AlbumCollage removed in favor of shared component

@@ -2,9 +2,12 @@ import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useGetV1AlbumsQuery } from "@/services/genApi";
+import { api, useGetV1AlbumsQuery } from "@/services/genApi";
+import Image from "next/image";
+import React from "react";
 import { Plus, Users, Eye, Lock } from "lucide-react";
 import Link from "next/link";
+import { AlbumCollage } from "@/components/albums/AlbumCollage";
 // import { formatDistanceToNow } from "date-fns";
 
 export default function AlbumsPage() {
@@ -99,6 +102,9 @@ export default function AlbumsPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {albums.map((album) => (
               <Card key={album.id} className="hover:shadow-md transition-shadow">
+                <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
+                  <AlbumCollage fileIds={(album as any).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
+                </div>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
@@ -127,7 +133,7 @@ export default function AlbumsPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      Album
+                      {(album as any).photo_count || 0} photo{(((album as any).photo_count || 0) === 1) ? '' : 's'}
                     </div>
                     <div>
                       {album.visibility || 'private'}
@@ -149,3 +155,5 @@ export default function AlbumsPage() {
     </AppLayout>
   );
 }
+
+// inline AlbumCollageSmall removed in favor of shared component

@@ -4,13 +4,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useGetV1AuthGoogleStartQuery } from "@/services/genApi";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function SigninPage() {
+  const router = useRouter();
   const { data: googleAuthUrl } = useGetV1AuthGoogleStartQuery({});
 
   const handleGoogleSignin = () => {
     if (googleAuthUrl?.url) {
-      window.location.href = googleAuthUrl.url;
+      const next = (router.query.next as string) || "";
+      const url = new URL(googleAuthUrl.url);
+      if (next) {
+        // backend treats `state` as the next path
+        url.searchParams.set("state", next);
+      }
+      window.location.href = url.toString();
     }
   };
 

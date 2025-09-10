@@ -34,7 +34,7 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		return api.URLResponse{URL: u}, nil
 	})
 
-	// Google OAuth callback: exchanges code, sets session cookie, redirects
+	// Google OAuth callback: exchanges code, sets session cookie, optionally accepts invite, redirects
 	fuego.Get(s, "/v1/auth/google/callback", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		code := c.Request().URL.Query().Get("code")
 		next := c.Request().URL.Query().Get("state")
@@ -53,7 +53,20 @@ func RegisterAuth(s *fuego.Server, a *app.App) {
 		}
 
 		dest := strings.TrimRight(frontendURL, "/") + "/app"
-		if next != "" && next[0] == '/' {
+		if strings.HasPrefix(next, "/join/") {
+			// Expected: /join/{albumId}/{token}
+			parts := strings.Split(strings.TrimPrefix(next, "/join/"), "/")
+			if len(parts) == 2 {
+				albumID := parts[0]
+				token := parts[1]
+				// Best-effort server-side acceptance to avoid exposing token in final URL
+				ms := services.NewMembershipService(a)
+				_ = ms.AcceptLink(c.Context(), albumID, token, uid)
+				dest = strings.TrimRight(frontendURL, "/") + "/app/albums/" + albumID
+			} else if next != "" && next[0] == '/' {
+				dest = strings.TrimRight(frontendURL, "/") + next
+			}
+		} else if next != "" && next[0] == '/' {
 			dest = strings.TrimRight(frontendURL, "/") + next
 		}
 		httpRes.Header().Set("Location", dest)

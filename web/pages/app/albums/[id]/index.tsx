@@ -68,7 +68,7 @@ export default function AlbumDetail() {
   const router = useRouter();
   const { id } = router.query as { id: string };
   
-  const { data: album } = useGetV1AlbumsByIdQuery({ id }, { skip: !id });
+  const { data: album, refetch: refetchAlbum } = useGetV1AlbumsByIdQuery({ id }, { skip: !id });
   const { data: originals, refetch: refetchOriginals } = useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id });
   const { data: themes } = useGetV1ThemesQuery({});
   
@@ -79,6 +79,7 @@ export default function AlbumDetail() {
   const [generateImage] = usePostV1OriginalsByIdGenerateMutation();
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
+  const [triggerSlugCheck] = api.useLazyGetV1AlbumSlugsBySlugCheckQuery();
   
   const [selectedThemeId, setSelectedThemeId] = useState<string>('');
   const [uploading, setUploading] = useState(false);
@@ -87,6 +88,10 @@ export default function AlbumDetail() {
   const [showSettings, setShowSettings] = useState(false);
   const [albumName, setAlbumName] = useState('');
   const [albumVisibility, setAlbumVisibility] = useState('public');
+  const [albumSlug, setAlbumSlug] = useState('');
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [slugChecking, setSlugChecking] = useState(false);
+  const [slugMessage, setSlugMessage] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -95,6 +100,9 @@ export default function AlbumDetail() {
     if (album) {
       setAlbumName(album.name || '');
       setAlbumVisibility(album.visibility || 'public');
+      setAlbumSlug(album.slug || '');
+      setSlugAvailable(true);
+      setSlugMessage(null);
     }
   }, [album]);
   
@@ -104,6 +112,55 @@ export default function AlbumDetail() {
       setSelectedThemeId(themes[0].id || '');
     }
   }, [themes, selectedThemeId]);
+
+  // Slug helpers and availability check
+  const slugify = useCallback((value: string) => {
+    const lower = value.toLowerCase();
+    const replaced = lower
+      .replace(/[^a-z0-9\s-]/g, "") // remove invalid chars
+      .replace(/\s+/g, "-") // spaces to hyphens
+      .replace(/-+/g, "-"); // collapse hyphens
+    return replaced.replace(/^-+|-+$/g, ""); // trim hyphens
+  }, []);
+
+  const onSlugChange = (v: string) => {
+    const s = slugify(v);
+    setAlbumSlug(s);
+  };
+
+  useEffect(() => {
+    let active = true;
+    if (!albumSlug) {
+      setSlugAvailable(null);
+      setSlugMessage(null);
+      return;
+    }
+    // If unchanged from current, consider available
+    if (album && album.slug === albumSlug) {
+      setSlugAvailable(true);
+      setSlugMessage(null);
+      return;
+    }
+    setSlugChecking(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await triggerSlugCheck({ slug: albumSlug }).unwrap();
+        if (!active) return;
+        setSlugAvailable(!!res.available);
+        setSlugMessage(res.available ? "Slug available" : "Slug is taken or reserved");
+      } catch {
+        if (!active) return;
+        setSlugAvailable(false);
+        setSlugMessage("Unable to check slug");
+      } finally {
+        if (active) setSlugChecking(false);
+      }
+    }, 300);
+    return () => {
+      active = false;
+      clearTimeout(t);
+    };
+  }, [albumSlug, album, triggerSlugCheck]);
 
   const ensureFileUrl = useCallback(async (fileId?: string | null): Promise<string | null> => {
     if (!fileId) return null;
@@ -222,16 +279,22 @@ export default function AlbumDetail() {
 
   const handleSaveSettings = async () => {
     try {
+      if (slugAvailable === false) {
+        toast.error('Please choose a different slug');
+        return;
+      }
       await patchAlbum({
         id,
         albumUpdateRequest: {
           name: albumName || null,
+          slug: albumSlug || null,
           visibility: albumVisibility || null,
         },
       }).unwrap();
       
       setShowSettings(false);
       toast.success('Album settings updated');
+      refetchAlbum();
     } catch (error) {
       toast.error('Failed to update album settings');
     }
@@ -293,7 +356,7 @@ export default function AlbumDetail() {
                 <DialogHeader>
                   <DialogTitle>Album Settings</DialogTitle>
                   <DialogDescription>
-                    Update your album name and privacy settings.
+                    Update your album name, public slug, and privacy settings.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -305,6 +368,29 @@ export default function AlbumDetail() {
                       onChange={(e) => setAlbumName(e.target.value)}
                       placeholder="Album name"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="album-slug">Public Slug</Label>
+                    <Input
+                      id="album-slug"
+                      value={albumSlug}
+                      onChange={(e) => onSlugChange(e.target.value)}
+                      placeholder="my-album"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Preview: /a/{albumSlug || '<slug>'}
+                    </div>
+                    {albumSlug && (
+                      <div className="text-xs">
+                        {slugChecking ? (
+                          <span className="text-muted-foreground">Checking availability…</span>
+                        ) : slugAvailable ? (
+                          <span className="text-green-600">{slugMessage}</span>
+                        ) : (
+                          <span className="text-red-600">{slugMessage}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="album-visibility">Privacy</Label>
@@ -332,7 +418,9 @@ export default function AlbumDetail() {
                   <Button variant="outline" onClick={() => setShowSettings(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveSettings}>Save Changes</Button>
+                  <Button onClick={handleSaveSettings} disabled={slugChecking || slugAvailable === false}>
+                    Save Changes
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

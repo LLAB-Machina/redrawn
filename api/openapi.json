@@ -394,6 +394,46 @@
         },
         "type": "object"
       },
+      "InviteLinkPreview": {
+        "description": "InviteLinkPreview schema",
+        "properties": {
+          "album_id": {
+            "type": "string"
+          },
+          "album_name": {
+            "type": "string"
+          },
+          "album_slug": {
+            "type": "string"
+          },
+          "expires_at": {
+            "nullable": true,
+            "type": "string"
+          },
+          "max_uses": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "reason": {
+            "nullable": true,
+            "type": "string"
+          },
+          "revoked_at": {
+            "nullable": true,
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "uses": {
+            "type": "integer"
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "InviteRequest": {
         "description": "InviteRequest schema",
         "properties": {
@@ -558,11 +598,21 @@
       "PublicAlbum": {
         "description": "PublicAlbum schema",
         "properties": {
+          "contributor_count": {
+            "type": "integer"
+          },
           "id": {
+            "type": "string"
+          },
+          "member_role": {
+            "nullable": true,
             "type": "string"
           },
           "name": {
             "type": "string"
+          },
+          "photo_count": {
+            "type": "integer"
           },
           "photos": {
             "items": {
@@ -3646,6 +3696,88 @@
           }
         },
         "summary": "func5"
+      }
+    },
+    "/v1/public/albums/{id}/invite/{token}": {
+      "get": {
+        "description": "#### Controller: \n\n`redrawn/api/internal/handlers.RegisterPublic.func2`\n\n#### Middlewares:\n\n- `github.com/go-fuego/fuego.defaultLogger.middleware`\n\n---\n\n",
+        "operationId": "GET_/v1/public/albums/:id/invite/:token",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Accept",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteLinkPreview"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteLinkPreview"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request _(validation or deserialization error)_"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error _(panics)_"
+          },
+          "default": {
+            "description": ""
+          }
+        },
+        "summary": "func2"
       }
     },
     "/v1/public/albums/{slug}": {

@@ -123,6 +123,8 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 		},
 	)
 
+	// public preview route is registered in handlers.RegisterPublic
+
 	// Pending email invites management: revoke and update role
 	fuego.Delete(
 		s,

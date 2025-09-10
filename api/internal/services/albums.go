@@ -93,12 +93,12 @@ func (s *AlbumsService) List(ctx context.Context) ([]api.Album, error) {
 			}
 		}
 		out = append(out, api.Album{
-			ID:              a.ID,
-			Name:            a.Name,
-			Slug:            a.Slug,
-			Visibility:      string(a.Visibility),
-			PhotoCount:      n,
-			PreviewFileIDs:  previewIDs,
+			ID:             a.ID,
+			Name:           a.Name,
+			Slug:           a.Slug,
+			Visibility:     string(a.Visibility),
+			PhotoCount:     n,
+			PreviewFileIDs: previewIDs,
 		})
 	}
 	return out, nil
@@ -198,15 +198,50 @@ func (s *AlbumsService) Get(ctx context.Context, id string) (api.Album, error) {
 }
 
 func (s *AlbumsService) Update(ctx context.Context, id string, req api.AlbumUpdateRequest) error {
+	// Load current to support no-op updates and proactive conflict detection
+	cur, err := s.app.Db.Album.Get(ctx, id)
+	if err != nil {
+		if generated.IsNotFound(err) {
+			return errorsx.ErrNotFound
+		}
+		return err
+	}
+
 	m := s.app.Db.Album.UpdateOneID(id)
-	if req.Name != nil && *req.Name != "" {
+	changed := false
+
+	if req.Name != nil && *req.Name != "" && *req.Name != cur.Name {
 		m.SetName(*req.Name)
+		changed = true
 	}
+
 	if req.Slug != nil && *req.Slug != "" {
-		m.SetSlug(*req.Slug)
+		newSlug := *req.Slug
+		if newSlug != cur.Slug {
+			// Check for conflicts excluding this album
+			exists, err := s.app.Db.Album.Query().
+				Where(album.SlugEQ(newSlug)).
+				Where(album.IDNEQ(id)).
+				Where(album.DeletedAtIsNil()).
+				Exist(ctx)
+			if err != nil {
+				return err
+			}
+			if exists {
+				return errorsx.ErrConflict
+			}
+			m.SetSlug(newSlug)
+			changed = true
+		}
 	}
-	if req.Visibility != nil && *req.Visibility != "" {
+
+	if req.Visibility != nil && *req.Visibility != "" && string(cur.Visibility) != *req.Visibility {
 		m.SetVisibility(album.Visibility(*req.Visibility))
+		changed = true
+	}
+
+	if !changed {
+		return nil
 	}
 	return m.Exec(ctx)
 }

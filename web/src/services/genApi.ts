@@ -368,6 +368,15 @@ const injectedRtkApi = api
           headers: { Accept: queryArg.accept },
         }),
       }),
+      getV1PublicAlbumsByIdInviteAndToken: build.query<
+        GetV1PublicAlbumsByIdInviteAndTokenApiResponse,
+        GetV1PublicAlbumsByIdInviteAndTokenApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/public/albums/${queryArg.id}/invite/${queryArg.token}`,
+          headers: { Accept: queryArg.accept },
+        }),
+      }),
       getV1PublicAlbumsBySlug: build.query<
         GetV1PublicAlbumsBySlugApiResponse,
         GetV1PublicAlbumsBySlugApiArg
@@ -651,6 +660,13 @@ export type GetV1OriginalsByIdGeneratedApiArg = {
   accept?: string;
   id: string;
 };
+export type GetV1PublicAlbumsByIdInviteAndTokenApiResponse =
+  /** status 200 OK */ InviteLinkPreview;
+export type GetV1PublicAlbumsByIdInviteAndTokenApiArg = {
+  accept?: string;
+  id: string;
+  token: string;
+};
 export type GetV1PublicAlbumsBySlugApiResponse =
   /** status 200 OK */ PublicAlbum;
 export type GetV1PublicAlbumsBySlugApiArg = {
@@ -886,9 +902,24 @@ export type GeneratedPhoto = {
   state?: string;
   theme_id?: string | null;
 };
+export type InviteLinkPreview = {
+  album_id?: string;
+  album_name?: string;
+  album_slug?: string;
+  expires_at?: string | null;
+  max_uses?: number | null;
+  reason?: string | null;
+  revoked_at?: string | null;
+  role?: string;
+  uses?: number;
+  valid?: boolean;
+};
 export type PublicAlbum = {
+  contributor_count?: number;
   id?: string;
+  member_role?: string | null;
   name?: string;
+  photo_count?: number;
   photos?: {
     file_id?: string | null;
     id?: string;
@@ -965,6 +996,8 @@ export const {
   usePostV1OriginalsByIdGenerateMutation,
   useGetV1OriginalsByIdGeneratedQuery,
   useLazyGetV1OriginalsByIdGeneratedQuery,
+  useGetV1PublicAlbumsByIdInviteAndTokenQuery,
+  useLazyGetV1PublicAlbumsByIdInviteAndTokenQuery,
   useGetV1PublicAlbumsBySlugQuery,
   useLazyGetV1PublicAlbumsBySlugQuery,
   usePostV1StripeWebhookMutation,

@@ -22,7 +22,7 @@ func MakeSessionCookie(cfg config.Config, userID string) *http.Cookie {
 		Value:    val,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   !cfg.Dev,
 		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(30 * 24 * time.Hour),
 	}

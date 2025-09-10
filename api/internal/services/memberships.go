@@ -278,6 +278,64 @@ func (s *MembershipService) AcceptLink(ctx context.Context, albumID, token, user
 	return nil
 }
 
+// PreviewLink returns non-sensitive information about an invite link for public display
+func (s *MembershipService) PreviewLink(
+	ctx context.Context,
+	albumID, token string,
+) (api.InviteLinkPreview, error) {
+	l, err := s.app.Db.AlbumInviteLink.Query().
+		Where(albuminvitelink.HasAlbumWith(album.IDEQ(albumID)), albuminvitelink.TokenEQ(token)).
+		WithAlbum().
+		Only(ctx)
+	if err != nil {
+		return api.InviteLinkPreview{Valid: false, Reason: "not found"}, nil
+	}
+	var maxUses *int
+	var expStr *string
+	var revStr *string
+	if l.MaxUses != nil {
+		v := *l.MaxUses
+		maxUses = &v
+	}
+	if l.ExpiresAt != nil {
+		s := l.ExpiresAt.Format(time.RFC3339)
+		expStr = &s
+	}
+	if l.RevokedAt != nil {
+		s := l.RevokedAt.Format(time.RFC3339)
+		revStr = &s
+	}
+
+	// validate state
+	valid := true
+	reason := ""
+	if l.RevokedAt != nil {
+		valid = false
+		reason = "revoked"
+	}
+	if valid && l.ExpiresAt != nil && time.Now().After(*l.ExpiresAt) {
+		valid = false
+		reason = "expired"
+	}
+	if valid && l.MaxUses != nil && l.Uses >= *l.MaxUses {
+		valid = false
+		reason = "exhausted"
+	}
+
+	return api.InviteLinkPreview{
+		AlbumID:   albumID,
+		AlbumName: l.Edges.Album.Name,
+		AlbumSlug: l.Edges.Album.Slug,
+		Role:      string(l.Role),
+		Uses:      l.Uses,
+		MaxUses:   maxUses,
+		ExpiresAt: expStr,
+		RevokedAt: revStr,
+		Valid:     valid,
+		Reason:    reason,
+	}, nil
+}
+
 func generateToken() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

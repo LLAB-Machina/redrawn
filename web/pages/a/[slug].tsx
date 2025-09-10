@@ -6,7 +6,7 @@ import { useGetV1PublicAlbumsBySlugQuery, api } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "motion/react";
-import { Image as ImageIcon, Share2, Download, Eye } from "lucide-react";
+import { Image as ImageIcon, Share2, Download, Eye, Users } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -59,7 +59,7 @@ export default function PublicAlbumPage() {
               <p className="text-muted-foreground mb-4">
                 This album doesn't exist or is not publicly accessible.
               </p>
-              <Button onClick={() => router.push('/')}>
+              <Button onClick={() => router.push('/')}> 
                 Back to Home
               </Button>
             </CardContent>
@@ -82,26 +82,44 @@ export default function PublicAlbumPage() {
     );
   }
 
+  const canOpen = album.member_role === 'contributor' || album.member_role === 'editor';
+  const photoCount = album.photo_count ?? (album.photos?.length || 0);
+  const contributorCount = album.contributor_count ?? 0;
+
   return (
     <PublicLayout>
       <div className="max-w-6xl mx-auto py-8 space-y-8">
-        {/* Album Header */}
+        {/* Album Header with collage */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center space-y-4"
+          className="space-y-6"
         >
-          <h1 className="text-4xl font-bold tracking-tight">{album.name}</h1>
-          <div className="flex items-center justify-center gap-4">
-            <Badge variant="secondary">/{album.slug}</Badge>
-            <Badge variant="outline">{album.photos?.length || 0} photos</Badge>
+          <div className="aspect-[4/2] bg-muted rounded-lg overflow-hidden">
+            <PublicAlbumCollage photos={album.photos || []} ensureFileUrl={ensureFileUrl} />
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share Album
-            </Button>
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-bold tracking-tight">{album.name}</h1>
+            <div className="flex items-center justify-center gap-4">
+              <Badge variant="secondary">/{album.slug}</Badge>
+              <Badge variant="outline">{photoCount} photos</Badge>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                {contributorCount} contributor{contributorCount === 1 ? '' : 's'}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share Album
+              </Button>
+              {canOpen && (
+                <Button size="sm" onClick={() => router.push(`/app/albums/${album.id}`)}>
+                  Open (contributors only)
+                </Button>
+              )}
+            </div>
           </div>
         </motion.div>
 
@@ -222,5 +240,45 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
         </div>
       </Card>
     </motion.div>
+  );
+}
+
+function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: any[]; ensureFileUrl: (fileId?: string | null) => Promise<string | null>; }) {
+  const [urls, setUrls] = useState<string[]>([]);
+  useEffect(() => {
+    let isCancelled = false;
+    async function load() {
+      const top = (photos || []).slice(0, 4);
+      const out: string[] = [];
+      for (const p of top) {
+        const url = await ensureFileUrl(p.file_id);
+        if (url) out.push(url);
+      }
+      if (!isCancelled) setUrls(out);
+    }
+    load();
+    return () => { isCancelled = true };
+  }, [photos, ensureFileUrl]);
+
+  if (!urls.length) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const gridClass = urls.length <= 1 ? "grid-cols-1" : "grid-cols-2";
+
+  return (
+    <div className={`w-full h-full grid ${gridClass} gap-[2px] bg-background`}>
+      {urls.map((u, i) => (
+        <div key={i} className={urls.length === 3 && i === 0 ? "row-span-2" : ""}>
+          <div className="relative w-full h-full min-h-full">
+            <Image src={u} alt="preview" fill className="object-cover" sizes="100vw" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
