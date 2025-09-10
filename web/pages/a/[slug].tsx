@@ -41,7 +41,7 @@ export default function PublicAlbumPage() {
         text: `Check out this photo album: ${album?.name}`,
         url: window.location.href,
       });
-    } catch (error) {
+    } catch {
       // Fallback to copying URL
       await navigator.clipboard.writeText(window.location.href);
       toast.success('Album link copied to clipboard!');
@@ -57,7 +57,7 @@ export default function PublicAlbumPage() {
               <Eye className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Album not found</h2>
               <p className="text-muted-foreground mb-4">
-                This album doesn't exist or is not publicly accessible.
+                This album doesn&apos;t exist or is not publicly accessible.
               </p>
               <Button onClick={() => router.push('/')}> 
                 Back to Home
@@ -163,7 +163,10 @@ export default function PublicAlbumPage() {
 }
 
 interface PhotoCardProps {
-  photo: any;
+  photo: {
+    id?: string;
+    file_id?: string | null;
+  };
   index: number;
   ensureFileUrl: (fileId?: string | null) => Promise<string | null>;
 }
@@ -188,13 +191,13 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `photo-${photo.id}.jpg`;
+      a.download = `photo-${photo.id || 'unknown'}.jpg`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Photo downloaded!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to download photo');
     }
   };
@@ -243,7 +246,7 @@ function PhotoCard({ photo, index, ensureFileUrl }: PhotoCardProps) {
   );
 }
 
-function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: any[]; ensureFileUrl: (fileId?: string | null) => Promise<string | null>; }) {
+function PublicAlbumCollage({ photos, ensureFileUrl }: { photos: Array<{ id?: string; file_id?: string | null; }>; ensureFileUrl: (fileId?: string | null) => Promise<string | null>; }) {
   const [urls, setUrls] = useState<string[]>([]);
   useEffect(() => {
     let isCancelled = false;

@@ -23,8 +23,9 @@ export default function NewThemePage() {
         createThemeRequest: { name, prompt },
       }).unwrap();
       router.push("/app/themes");
-    } catch (err: any) {
-      setError(err?.data?.detail || "Failed to create theme");
+    } catch (err: unknown) {
+      const errorData = err as { data?: { detail?: string } };
+      setError(errorData?.data?.detail || "Failed to create theme");
     }
   };
 

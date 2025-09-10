@@ -7,13 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useGetV1AlbumsQuery, usePostV1AlbumsMutation, usePatchV1MeMutation, type Album } from "@/services/genApi";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Plus, FolderOpen, Users, Image, Palette } from "lucide-react";
 import { toast } from "sonner";
-import ImageNext from "next/image";
-import { api } from "@/services/genApi";
 import { AlbumCollage } from "@/components/albums/AlbumCollage";
 
 export default function AppDashboard() {
@@ -51,7 +49,7 @@ export default function AppDashboard() {
       setAlbumSlug("");
       refetchAlbums();
       toast.success("Album created successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to create album");
     }
   };
@@ -69,7 +67,7 @@ export default function AppDashboard() {
       
       setShowProfileDialog(false);
       toast.success("Profile updated successfully!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update profile");
     }
   };
@@ -116,7 +114,7 @@ export default function AppDashboard() {
               <CardHeader>
                 <CardTitle className="text-orange-800">Complete your profile</CardTitle>
                 <CardDescription className="text-orange-700">
-                  We couldn't get your name from Google. Please enter your name to continue.
+                  We couldn&apos;t get your name from Google. Please enter your name to continue.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -163,6 +161,7 @@ export default function AppDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Generated Images</CardTitle>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <Image className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -251,7 +250,7 @@ export default function AppDashboard() {
                   <Link href={`/app/albums/${album.id}`}>
                     <Card className="group hover:shadow-lg transition-all duration-200 cursor-pointer">
                       <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
-                        <AlbumCollage fileIds={(album as any).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
+                        <AlbumCollage fileIds={(album as { preview_file_ids?: string[] }).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
@@ -265,7 +264,7 @@ export default function AppDashboard() {
                             {album.visibility || 'public'}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {(album as any).photo_count || 0} photo{(((album as any).photo_count || 0) === 1) ? '' : 's'}
+                            {(album as { photo_count?: number }).photo_count || 0} photo{(((album as { photo_count?: number }).photo_count || 0) === 1) ? '' : 's'}
                           </span>
                         </div>
                       </CardContent>

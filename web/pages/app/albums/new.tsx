@@ -48,7 +48,7 @@ export default function NewAlbumPage() {
       } else {
         router.replace("/app");
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to create album");
     }
   };

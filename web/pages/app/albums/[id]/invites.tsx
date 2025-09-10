@@ -28,8 +28,8 @@ export default function AlbumInvitesPage() {
   const router = useRouter();
   const id = (router.query.id as string) || "";
 
-  const { data: album } = useGetV1AlbumsByIdQuery(id ? { id } : (undefined as any), { skip: !id });
-  const { data: memberships, refetch, isLoading } = useGetV1AlbumsByIdMembershipsQuery(id ? { id } : (undefined as any), { skip: !id });
+  const { data: album } = useGetV1AlbumsByIdQuery(id ? { id } : { id: '' }, { skip: !id });
+  const { data: memberships, refetch, isLoading } = useGetV1AlbumsByIdMembershipsQuery(id ? { id } : { id: '' }, { skip: !id });
 
   const [invite] = usePostV1AlbumsByIdInvitesMutation();
   const [createLink] = usePostV1AlbumsByIdInviteLinksMutation();
@@ -113,8 +113,9 @@ export default function AlbumInvitesPage() {
                     toast.success("Invite sent");
                     input!.value = "";
                     await refetch();
-                  } catch (err: any) {
-                    toast.error(err?.data?.detail || "Failed to send invite");
+                  } catch (err: unknown) {
+                    const errorData = err as { data?: { detail?: string } };
+                    toast.error(errorData?.data?.detail || "Failed to send invite");
                   }
                 }}
               >
@@ -149,8 +150,9 @@ export default function AlbumInvitesPage() {
                     await createLink({ id, createInviteLinkRequest: { role: linkRole } }).unwrap();
                     toast.success("Link created");
                     await refetch();
-                  } catch (err: any) {
-                    toast.error(err?.data?.detail || "Failed to create link");
+                  } catch (err: unknown) {
+                    const errorData = err as { data?: { detail?: string } };
+                    toast.error(errorData?.data?.detail || "Failed to create link");
                   }
                 }}
               >

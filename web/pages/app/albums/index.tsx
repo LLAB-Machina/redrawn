@@ -2,8 +2,7 @@ import { AppLayout } from "@/components/layouts/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { api, useGetV1AlbumsQuery } from "@/services/genApi";
-import Image from "next/image";
+import { useGetV1AlbumsQuery } from "@/services/genApi";
 import React from "react";
 import { Plus, Users, Eye, Lock } from "lucide-react";
 import Link from "next/link";
@@ -103,7 +102,7 @@ export default function AlbumsPage() {
             {albums.map((album) => (
               <Card key={album.id} className="hover:shadow-md transition-shadow">
                 <div className="aspect-[4/3] bg-muted rounded-t-lg overflow-hidden">
-                  <AlbumCollage fileIds={(album as any).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
+                  <AlbumCollage fileIds={(album as { preview_file_ids?: string[] }).preview_file_ids || []} sizes="(max-width: 1200px) 50vw, 25vw" />
                 </div>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -133,7 +132,7 @@ export default function AlbumsPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Users className="h-4 w-4 mr-1" />
-                      {(album as any).photo_count || 0} photo{(((album as any).photo_count || 0) === 1) ? '' : 's'}
+                      {(album as { photo_count?: number }).photo_count || 0} photo{(((album as { photo_count?: number }).photo_count || 0) === 1) ? '' : 's'}
                     </div>
                     <div>
                       {album.visibility || 'private'}

@@ -34,7 +34,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const handleLogout = async () => {
     try {
       await logout({});
-    } catch (error) {
+    } catch {
       // Logout anyway on error
     } finally {
       setAuthToken(null);

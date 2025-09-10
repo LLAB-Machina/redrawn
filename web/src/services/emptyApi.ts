@@ -3,7 +3,6 @@ import { getAuthToken } from '@/services/auth';
 
 // Debug: Log the API URL being used
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-console.log('API Base URL:', apiUrl);
 
 export const emptySplitApi = createApi({
   reducerPath: 'api',

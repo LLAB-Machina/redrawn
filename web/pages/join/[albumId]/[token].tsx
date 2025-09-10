@@ -16,7 +16,7 @@ export default function JoinAlbumInvitationPage() {
   const { data: me, isLoading: meLoading } = useGetV1MeQuery({}, { refetchOnMountOrArgChange: true });
   const [message, setMessage] = useState<string>("Accepting invite…");
   const { data: preview } = useGetV1PublicAlbumsByIdInviteAndTokenQuery(
-    albumId && token ? { id: albumId, token } : (undefined as any),
+    albumId && token ? { id: albumId, token } : { id: '', token: '' },
     { skip: !albumId || !token }
   );
 
@@ -34,9 +34,10 @@ export default function JoinAlbumInvitationPage() {
         await acceptInvite({ id: albumId, token }).unwrap();
         setMessage("Success! Redirecting…");
         router.replace(`/app/albums/${albumId}`);
-      } catch (e: any) {
-        const status = e?.status;
-        const detail: string = String(e?.data?.detail || e?.data?.message || "");
+      } catch (e: unknown) {
+        const error = e as { status?: number; data?: { detail?: string; message?: string } };
+        const status = error?.status;
+        const detail: string = String(error?.data?.detail || error?.data?.message || "");
         const isUnauthorized = status === 401 || detail.toLowerCase().includes("unauthorized");
 
         if (isUnauthorized) {
@@ -57,11 +58,11 @@ export default function JoinAlbumInvitationPage() {
         <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
           <Card className="max-w-md w-full">
             <CardHeader className="text-center">
-              <CardTitle>You've been invited</CardTitle>
+              <CardTitle>You&apos;ve been invited</CardTitle>
               <CardDescription>
                 {preview?.album_name ? (
                   <>
-                    to collaborate on “{preview.album_name}”.
+                    to collaborate on &quot;{preview.album_name}&quot;.
                   </>
                 ) : (
                   <>to collaborate on this album.</>

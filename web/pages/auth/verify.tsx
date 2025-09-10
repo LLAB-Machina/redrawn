@@ -13,42 +13,42 @@ export default function VerifyPage() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
 
   useEffect(() => {
+    const handleVerify = async () => {
+      if (!token) return;
+
+      try {
+        // Make direct API call to verify endpoint
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const response = await fetch(`${apiUrl}/v1/auth/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ token }),
+        });
+
+        if (response.ok) {
+          setStatus('success');
+          toast.success("Successfully signed in!");
+          
+          // Redirect to app after a short delay
+          setTimeout(() => {
+            router.push('/app');
+          }, 2000);
+        } else {
+          throw new Error('Verification failed');
+        }
+      } catch {
+        setStatus('error');
+        toast.error("Invalid or expired verification link");
+      }
+    };
+
     if (token) {
       handleVerify();
     }
-  }, [token]);
-
-  const handleVerify = async () => {
-    if (!token) return;
-
-    try {
-      // Make direct API call to verify endpoint
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiUrl}/v1/auth/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ token }),
-      });
-
-      if (response.ok) {
-        setStatus('success');
-        toast.success("Successfully signed in!");
-        
-        // Redirect to app after a short delay
-        setTimeout(() => {
-          router.push('/app');
-        }, 2000);
-      } else {
-        throw new Error('Verification failed');
-      }
-    } catch (error) {
-      setStatus('error');
-      toast.error("Invalid or expired verification link");
-    }
-  };
+  }, [token, router]);
 
   const getStatusContent = () => {
     switch (status) {

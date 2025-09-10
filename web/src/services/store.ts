@@ -10,26 +10,50 @@ export const store = configureStore({
       // User-friendly toast middleware for rejected API calls
       () => (next: (action: unknown) => unknown) => (action: unknown) => {
         // RTK Query rejected action shape: type ends with '/rejected'
+        interface RejectedAction {
+          type: string;
+          payload?: {
+            data?: {
+              message?: string;
+              detail?: string;
+              error?: string;
+              status?: number;
+            };
+            error?: string;
+            status?: number;
+          };
+          meta?: {
+            arg?: {
+              endpointName?: string;
+            };
+          };
+        }
+        
+        const rejectedAction = action as RejectedAction;
+        
         if (
-          typeof (action as any)?.type === 'string' &&
-          (action as any).type.endsWith('/rejected') &&
+          typeof rejectedAction?.type === 'string' &&
+          rejectedAction.type.endsWith('/rejected') &&
           typeof window !== 'undefined'
         ) {
-          const payload = (action as any).payload as { data?: any; error?: any; status?: number } | undefined;
+          const payload = rejectedAction.payload;
           const data = payload?.data ?? payload;
-          const status = (payload as any)?.status ?? (data as any)?.status;
-          const endpointName: string | undefined = (action as any)?.meta?.arg?.endpointName;
+          const status = payload?.status ?? (data && typeof data === 'object' && 'status' in data ? data.status : undefined);
+          const endpointName: string | undefined = rejectedAction?.meta?.arg?.endpointName;
 
           // Suppress noisy unauthenticated toasts when probing session state
           const suppressToast = endpointName === 'getV1Me' && status === 401;
 
           if (!suppressToast) {
-            const msg =
-              (data as any)?.message ||
-              (data as any)?.detail ||
-              (data as any)?.error ||
-              (typeof data === 'string' ? (data as any) : '') ||
-              'Something went wrong';
+            let msg = 'Something went wrong';
+            
+            if (typeof data === 'string') {
+              msg = data;
+            } else if (data && typeof data === 'object') {
+              const errorData = data as { message?: string; detail?: string; error?: string };
+              msg = errorData.message || errorData.detail || errorData.error || msg;
+            }
+            
             toast.error(msg);
           }
         }

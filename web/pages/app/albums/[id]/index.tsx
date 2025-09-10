@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   useGetV1AlbumsByIdQuery,
   usePatchV1AlbumsByIdMutation,
@@ -31,9 +30,7 @@ import {
   Palette, 
   Users, 
   Share2,
-  Download,
   Eye,
-  EyeOff,
   Globe,
   Lock,
   UserPlus,
@@ -78,7 +75,6 @@ export default function AlbumDetail() {
   const [createOriginal] = usePostV1AlbumsByIdOriginalsMutation();
   const [generateImage] = usePostV1OriginalsByIdGenerateMutation();
   const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
-  const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
   const [triggerSlugCheck] = api.useLazyGetV1AlbumSlugsBySlugCheckQuery();
   
   const [selectedThemeId, setSelectedThemeId] = useState<string>('');
@@ -178,7 +174,7 @@ export default function AlbumDetail() {
     }
   }, [fileUrls, triggerFileUrl]);
 
-  const handleFileUpload = async (files: FileList) => {
+  const handleFileUpload = useCallback(async (files: FileList) => {
     if (!files.length) return;
     
     setUploading(true);
@@ -235,7 +231,7 @@ export default function AlbumDetail() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
+  }, [id, initUpload, createOriginal, refetchOriginals]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -243,7 +239,7 @@ export default function AlbumDetail() {
     if (files.length > 0) {
       handleFileUpload(files);
     }
-  }, []);
+  }, [handleFileUpload]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -261,8 +257,8 @@ export default function AlbumDetail() {
             generateRequest: { theme_id: selectedThemeId },
           }).unwrap();
           return { success: true, id: original.id };
-        } catch (error) {
-          return { success: false, id: original.id, error };
+        } catch (err) {
+          return { success: false, id: original.id, error: err };
         }
       });
 
@@ -270,7 +266,7 @@ export default function AlbumDetail() {
       const successful = results.filter(r => r.success).length;
       
       toast.success(`Started generating ${successful} image${successful > 1 ? 's' : ''}`);
-    } catch (error) {
+    } catch {
       toast.error('Failed to start generation');
     } finally {
       setGenerating(false);
@@ -295,7 +291,7 @@ export default function AlbumDetail() {
       setShowSettings(false);
       toast.success('Album settings updated');
       refetchAlbum();
-    } catch (error) {
+    } catch {
       toast.error('Failed to update album settings');
     }
   };
@@ -305,12 +301,12 @@ export default function AlbumDetail() {
       await deleteAlbum({ id }).unwrap();
       router.push('/app');
       toast.success('Album deleted');
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete album');
     }
   };
 
-  const totalProcessing = originals?.reduce((sum, original: any) => sum + (original.processing || 0), 0) || 0;
+  const totalProcessing = originals?.reduce((sum, original) => sum + (original.processing || 0), 0) || 0;
   const selectedVisibility = VISIBILITY_OPTIONS.find(opt => opt.value === albumVisibility);
 
   if (!album) {
@@ -620,7 +616,11 @@ export default function AlbumDetail() {
 }
 
 interface PhotoCardProps {
-  original: any;
+  original: {
+    id?: string;
+    file_id?: string | null;
+    processing?: number | null;
+  };
   index: number;
   ensureFileUrl: (fileId?: string | null) => Promise<string | null>;
   selectedThemeId: string;
@@ -629,7 +629,7 @@ interface PhotoCardProps {
 
 function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate }: PhotoCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<any[]>([]);
+  const [generatedImages, setGeneratedImages] = useState<Array<{ file_id?: string | null; url?: string | null; state?: string; }>>([]);
   const [showGenerated, setShowGenerated] = useState(false);
   const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
 
@@ -638,6 +638,8 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
   }, [original.file_id, ensureFileUrl]);
 
   const loadGenerated = async () => {
+    if (!original.id) return;
+    
     try {
       const data = await triggerGenerated({ id: original.id }).unwrap();
       const imagesWithUrls = await Promise.all(
@@ -692,7 +694,7 @@ function PhotoCard({ original, index, ensureFileUrl, selectedThemeId, onGenerate
               <Zap className="h-4 w-4 mr-1" />
               Generate
             </Button>
-            {original.processing > 0 && (
+            {(original.processing ?? 0) > 0 && (
               <Badge variant="secondary" className="text-xs">
                 Processing ×{original.processing}
               </Badge>
