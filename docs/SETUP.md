@@ -36,8 +36,7 @@ Environment mode
 - `ENV` or `APP_ENV`: `development` (default) or `production`. Controls `Dev` flag.
 
 Frontend
-- `NEXT_PUBLIC_API_BASE_URL`: Where the API is reachable from the browser for rewrites. Default is `http://localhost:8080` when running Next dev.
-- `API_PROXY_TARGET`: Optional; used by Next.js rewrites to forward `/api/*` to the backend (defaults to `http://localhost:8080`).
+- `NEXT_PUBLIC_API_URL`: Where the API is reachable from the browser for rewrites. Default is `http://localhost:8080` when running Next dev.
 
 ### Google Sign-In
 Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `PUBLIC_BASE_URL` in `.env`.
