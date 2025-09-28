@@ -89,26 +89,52 @@ func (s *PhotosService) ListOriginals(
 	items, err := s.app.Db.OriginalPhoto.Query().
 		Where(originalphoto.HasAlbumWith(album.IDEQ(albumID)), originalphoto.DeletedAtIsNil()).
 		WithFile().
+		WithGenerated(func(q *generated.GeneratedPhotoQuery) {
+			q.Where(generatedphoto.DeletedAtIsNil()).
+				WithFile().
+				WithTheme()
+		}).
 		All(ctx)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]api.OriginalPhoto, 0, len(items))
 	for _, o := range items {
-		op := api.OriginalPhoto{ID: o.ID, CreatedAt: o.CreatedAt}
+		op := api.OriginalPhoto{
+			ID:        o.ID,
+			CreatedAt: o.CreatedAt,
+		}
 		if o.Edges.File != nil {
 			op.FileID = o.Edges.File.ID
 		}
-		// Count how many generated photos are currently processing for this original
-		if n, err := s.app.Db.GeneratedPhoto.Query().
-			Where(
-				generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(o.ID)),
-				generatedphoto.StatusEQ(generatedphoto.StatusProcessing),
-				generatedphoto.DeletedAtIsNil(),
-			).
-			Count(ctx); err == nil {
-			op.Processing = n
+
+		if o.Edges.Generated != nil {
+			generated := make([]api.GeneratedPhoto, 0, len(o.Edges.Generated))
+			processingCount := 0
+			for _, g := range o.Edges.Generated {
+				gp := api.GeneratedPhoto{
+					ID:         g.ID,
+					State:      string(g.Status),
+					IsFavorite: g.IsFavorite,
+				}
+				if g.ErrorMessage != nil {
+					gp.Error = *g.ErrorMessage
+				}
+				if g.Edges.File != nil {
+					gp.FileID = g.Edges.File.ID
+				}
+				if g.Edges.Theme != nil {
+					gp.ThemeID = g.Edges.Theme.ID
+				}
+				if g.Status == generatedphoto.StatusProcessing {
+					processingCount++
+				}
+				generated = append(generated, gp)
+			}
+			op.GeneratedPhotos = generated
+			op.Processing = processingCount
 		}
+
 		out = append(out, op)
 	}
 	return out, nil
@@ -247,4 +273,19 @@ func (s *PhotosService) FileURL(ctx context.Context, fileID string) (string, err
 
 	// No legacy image hosting fallback supported anymore
 	return "", errors.New("delivery not configured")
+}
+
+func (s *PhotosService) MarkAsFavorite(ctx context.Context, originalID string, generatedID string) error {
+	_, err := s.app.Db.GeneratedPhoto.Update().
+		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID)), generatedphoto.DeletedAtIsNil()).
+		SetIsFavorite(false).
+		Save(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = s.app.Db.GeneratedPhoto.UpdateOneID(generatedID).SetIsFavorite(true).Save(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }

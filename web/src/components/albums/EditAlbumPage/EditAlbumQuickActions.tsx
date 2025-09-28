@@ -20,7 +20,7 @@ import {
   useInitPhotoUploadMutation,
   useCreateOriginalPhotoMutation,
   useListThemesQuery,
-  useGenerateOriginalPhotoMutation,
+  useGeneratePhotoMutation,
   useListOriginalPhotosQuery,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
@@ -39,7 +39,7 @@ export default function EditAlbumQuickActions() {
 
   const [initUpload] = useInitPhotoUploadMutation();
   const [createOriginal] = useCreateOriginalPhotoMutation();
-  const [generateImage] = useGenerateOriginalPhotoMutation();
+  const [generateImage] = useGeneratePhotoMutation();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string>("");
   const [uploading, setUploading] = useState(false);

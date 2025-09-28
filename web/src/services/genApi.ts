@@ -254,12 +254,24 @@ const injectedRtkApi = api
         }),
         providesTags: ["v1/albums/photos"],
       }),
-      generateOriginalPhoto: build.mutation<
-        GenerateOriginalPhotoApiResponse,
-        GenerateOriginalPhotoApiArg
+      markGeneratedPhotoAsFavorite: build.mutation<
+        MarkGeneratedPhotoAsFavoriteApiResponse,
+        MarkGeneratedPhotoAsFavoriteApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photos/originals/generate/${queryArg.id}`,
+          url: `/v1/albums/photos/originals/generated/mark-as-favorite`,
+          method: "PATCH",
+          body: queryArg.markAsFavoriteRequest,
+          headers: { Accept: queryArg.accept },
+        }),
+        invalidatesTags: ["v1/albums/photos"],
+      }),
+      generatePhoto: build.mutation<
+        GeneratePhotoApiResponse,
+        GeneratePhotoApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/albums/photos/originals/${queryArg.id}/generate`,
           method: "POST",
           body: queryArg.generateRequest,
           headers: { Accept: queryArg.accept },
@@ -271,27 +283,29 @@ const injectedRtkApi = api
         ListGeneratedPhotosApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photos/originals/generated/${queryArg.id}`,
+          url: `/v1/albums/photos/originals/${queryArg.id}/generated`,
           headers: { Accept: queryArg.accept },
         }),
         providesTags: ["v1/albums/photos"],
       }),
-      getPhotoTaskStatus: build.query<
-        GetPhotoTaskStatusApiResponse,
-        GetPhotoTaskStatusApiArg
+      createOriginalPhoto: build.mutation<
+        CreateOriginalPhotoApiResponse,
+        CreateOriginalPhotoApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photos/tasks/${queryArg.id}`,
+          url: `/v1/albums/photos/${queryArg.id}/create-original`,
+          method: "POST",
+          body: queryArg.createOriginalRequest,
           headers: { Accept: queryArg.accept },
         }),
-        providesTags: ["v1/albums/photos"],
+        invalidatesTags: ["v1/albums/photos"],
       }),
       initPhotoUpload: build.mutation<
         InitPhotoUploadApiResponse,
         InitPhotoUploadApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photos/${queryArg.id}/uploads`,
+          url: `/v1/albums/photos/${queryArg.id}/init-upload`,
           method: "POST",
           body: queryArg.uploadInitRequest,
           headers: { Accept: queryArg.accept },
@@ -303,22 +317,20 @@ const injectedRtkApi = api
         ListOriginalPhotosApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photosoriginals/${queryArg.id}`,
+          url: `/v1/albums/photos/${queryArg.id}/originals`,
           headers: { Accept: queryArg.accept },
         }),
         providesTags: ["v1/albums/photos"],
       }),
-      createOriginalPhoto: build.mutation<
-        CreateOriginalPhotoApiResponse,
-        CreateOriginalPhotoApiArg
+      getPhotoTaskStatus: build.query<
+        GetPhotoTaskStatusApiResponse,
+        GetPhotoTaskStatusApiArg
       >({
         query: (queryArg) => ({
-          url: `/v1/albums/photosoriginals/${queryArg.id}`,
-          method: "POST",
-          body: queryArg.createOriginalRequest,
+          url: `/v1/albums/photos/${queryArg.id}/tasks`,
           headers: { Accept: queryArg.accept },
         }),
-        invalidatesTags: ["v1/albums/photos"],
+        providesTags: ["v1/albums/photos"],
       }),
       slugAvailability: build.query<
         SlugAvailabilityApiResponse,
@@ -600,9 +612,15 @@ export type GetPhotoFileUrlApiArg = {
   accept?: string;
   id: string;
 };
-export type GenerateOriginalPhotoApiResponse =
-  /** status 200 OK */ TaskResponse;
-export type GenerateOriginalPhotoApiArg = {
+export type MarkGeneratedPhotoAsFavoriteApiResponse =
+  /** status 200 OK */ OkResponse;
+export type MarkGeneratedPhotoAsFavoriteApiArg = {
+  accept?: string;
+  /** Request body for api.MarkAsFavoriteRequest */
+  markAsFavoriteRequest: MarkAsFavoriteRequest;
+};
+export type GeneratePhotoApiResponse = /** status 200 OK */ TaskResponse;
+export type GeneratePhotoApiArg = {
   accept?: string;
   id: string;
   /** Request body for api.GenerateRequest */
@@ -614,11 +632,12 @@ export type ListGeneratedPhotosApiArg = {
   accept?: string;
   id: string;
 };
-export type GetPhotoTaskStatusApiResponse =
-  /** status 200 OK */ TaskStatusResponse;
-export type GetPhotoTaskStatusApiArg = {
+export type CreateOriginalPhotoApiResponse = /** status 200 OK */ IdResponse;
+export type CreateOriginalPhotoApiArg = {
   accept?: string;
   id: string;
+  /** Request body for api.CreateOriginalRequest */
+  createOriginalRequest: CreateOriginalRequest;
 };
 export type InitPhotoUploadApiResponse =
   /** status 200 OK */ UploadInitResponse;
@@ -634,12 +653,11 @@ export type ListOriginalPhotosApiArg = {
   accept?: string;
   id: string;
 };
-export type CreateOriginalPhotoApiResponse = /** status 200 OK */ IdResponse;
-export type CreateOriginalPhotoApiArg = {
+export type GetPhotoTaskStatusApiResponse =
+  /** status 200 OK */ TaskStatusResponse;
+export type GetPhotoTaskStatusApiArg = {
   accept?: string;
   id: string;
-  /** Request body for api.CreateOriginalRequest */
-  createOriginalRequest: CreateOriginalRequest;
 };
 export type SlugAvailabilityApiResponse =
   /** status 200 OK */ SlugCheckResponse;
@@ -872,6 +890,10 @@ export type MembershipsResponse = {
 export type UrlResponse = {
   url?: string;
 };
+export type MarkAsFavoriteRequest = {
+  generated_photo_id?: string;
+  original_photo_id?: string;
+};
 export type TaskResponse = {
   task_id?: string;
 };
@@ -886,8 +908,11 @@ export type GeneratedPhoto = {
   state?: string;
   theme_id?: string | null;
 };
-export type TaskStatusResponse = {
-  status?: string;
+export type IdResponse = {
+  id?: string;
+};
+export type CreateOriginalRequest = {
+  file_id?: string;
 };
 export type UploadInitResponse = {
   file_id?: string;
@@ -901,14 +926,21 @@ export type UploadInitRequest = {
 export type OriginalPhoto = {
   created_at?: string;
   file_id?: string | null;
+  generated_photos?:
+    | {
+        error?: string | null;
+        file_id?: string | null;
+        id?: string;
+        is_favorite?: boolean;
+        state?: string;
+        theme_id?: string | null;
+      }[]
+    | null;
   id?: string;
   processing?: number | null;
 };
-export type IdResponse = {
-  id?: string;
-};
-export type CreateOriginalRequest = {
-  file_id?: string;
+export type TaskStatusResponse = {
+  status?: string;
 };
 export type SlugCheckResponse = {
   available?: boolean;
@@ -1000,15 +1032,16 @@ export const {
   useLazyMembershipsListQuery,
   useGetPhotoFileUrlQuery,
   useLazyGetPhotoFileUrlQuery,
-  useGenerateOriginalPhotoMutation,
+  useMarkGeneratedPhotoAsFavoriteMutation,
+  useGeneratePhotoMutation,
   useListGeneratedPhotosQuery,
   useLazyListGeneratedPhotosQuery,
-  useGetPhotoTaskStatusQuery,
-  useLazyGetPhotoTaskStatusQuery,
+  useCreateOriginalPhotoMutation,
   useInitPhotoUploadMutation,
   useListOriginalPhotosQuery,
   useLazyListOriginalPhotosQuery,
-  useCreateOriginalPhotoMutation,
+  useGetPhotoTaskStatusQuery,
+  useLazyGetPhotoTaskStatusQuery,
   useSlugAvailabilityQuery,
   useLazySlugAvailabilityQuery,
   useDeleteAlbumMutation,

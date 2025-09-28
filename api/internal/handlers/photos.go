@@ -20,7 +20,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 
 	fuego.Post(
 		s,
-		"/{id}/uploads",
+		"/{id}/init-upload",
 		func(c fuego.ContextWithBody[uploadInitReq]) (api.UploadInitResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -35,7 +35,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 
 	fuego.Post(
 		s,
-		"originals/{id}",
+		"/{id}/create-original",
 		func(c fuego.ContextWithBody[createOriginalReq]) (api.IDResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -50,7 +50,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 
 	fuego.Get(
 		s,
-		"originals/{id}",
+		"/{id}/originals",
 		func(c fuego.ContextNoBody) ([]api.OriginalPhoto, error) {
 			id := c.PathParam("id")
 			return service.ListOriginals(c.Context(), id)
@@ -61,7 +61,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 
 	fuego.Post(
 		s,
-		"/originals/generate/{id}",
+		"/originals/{id}/generate",
 		func(c fuego.ContextWithBody[genReq]) (api.TaskResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -70,18 +70,18 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 			id := c.PathParam("id")
 			return service.Generate(c.Context(), id, body.ThemeID)
 		},
-		option.Summary("Generate original photo from theme"),
-		option.OperationID("GenerateOriginalPhoto"),
+		option.Summary("Generate photo from theme"),
+		option.OperationID("GeneratePhoto"),
 	)
 
 	fuego.Get(
 		s,
-		"/originals/generated/{id}",
+		"/originals/{id}/generated",
 		func(c fuego.ContextNoBody) ([]api.GeneratedPhoto, error) {
 			id := c.PathParam("id")
 			return service.ListGenerated(c.Context(), id)
 		},
-		option.Summary("List generated photos for album"),
+		option.Summary("List generated photos for original"),
 		option.OperationID("ListGeneratedPhotos"),
 	)
 
@@ -94,7 +94,7 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		return api.URLResponse{URL: url}, nil
 	}, option.Summary("Get signed file URL"), option.OperationID("GetPhotoFileURL"))
 
-	fuego.Get(s, "/tasks/{id}", func(c fuego.ContextNoBody) (api.TaskStatusResponse, error) {
+	fuego.Get(s, "/{id}/tasks", func(c fuego.ContextNoBody) (api.TaskStatusResponse, error) {
 		if a.Queue == nil {
 			return api.TaskStatusResponse{Status: "unknown"}, nil
 		}
@@ -104,4 +104,16 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		}
 		return api.TaskStatusResponse{Status: "not_found"}, nil
 	}, option.Summary("Get photo task status"), option.OperationID("GetPhotoTaskStatus"))
+
+	fuego.Patch(s, "/originals/generated/mark-as-favorite", func(c fuego.ContextWithBody[api.MarkAsFavoriteRequest]) (api.OkResponse, error) {
+		body, err := BindAndValidate(c)
+		if err != nil {
+			return api.OkResponse{}, err
+		}
+
+		if err := service.MarkAsFavorite(c.Context(), body.OriginalPhotoID, body.GeneratedPhotoID); err != nil {
+			return api.OkResponse{}, err
+		}
+		return api.OkResponse{Ok: "true"}, nil
+	}, option.Summary("Mark generated photo as favorite"), option.OperationID("MarkGeneratedPhotoAsFavorite"))
 }

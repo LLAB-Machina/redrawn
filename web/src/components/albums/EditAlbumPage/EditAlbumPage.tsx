@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   useGetAlbumByIdQuery,
   useListThemesQuery,
-  useGenerateOriginalPhotoMutation,
+  useGeneratePhotoMutation,
   api,
   useListOriginalPhotosQuery,
 } from "@/services/genApi";
@@ -24,7 +24,7 @@ export default function EditAlbumPage() {
   const { data: originals } = useListOriginalPhotosQuery({ id }, { skip: !id });
   const { data: themes } = useListThemesQuery({});
 
-  const [generateImage] = useGenerateOriginalPhotoMutation();
+  const [generateImage] = useGeneratePhotoMutation();
   const [triggerFileUrl] = api.useLazyGetPhotoFileUrlQuery();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string>("");

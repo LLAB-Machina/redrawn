@@ -64,7 +64,8 @@ type OriginalPhoto struct {
 	CreatedAt time.Time `json:"created_at"`
 	FileID    string    `json:"file_id,omitempty"`
 	// Number of generated photos currently in processing state for this original
-	Processing int `json:"processing,omitempty"`
+	Processing      int              `json:"processing,omitempty"`
+	GeneratedPhotos []GeneratedPhoto `json:"generated_photos,omitempty"`
 }
 
 type GeneratedPhoto struct {
@@ -287,4 +288,9 @@ type MembershipsResponse struct {
 	Members []AlbumMember   `json:"members"`
 	Invites []PendingInvite `json:"invites"`
 	Links   []InviteLink    `json:"links"`
+}
+
+type MarkAsFavoriteRequest struct {
+	OriginalPhotoID  string `json:"original_photo_id"`
+	GeneratedPhotoID string `json:"generated_photo_id"`
 }
