@@ -10,7 +10,10 @@ endif
 .PHONY: help setup setup-all
 
 help: ## Show available make targets
-	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "%-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo "\033[1;36mAvailable targets:\033[0m"
+	@echo ""
+	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_.-]+:.*##/ {printf "\033[1;32m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
 
 setup: ## Complete setup guide for new developers
 	@echo "🚀 Redrawn Setup Guide"
@@ -269,7 +272,7 @@ generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 ent-gen: ## Generate Ent ORM code from schema
 	cd api && go generate ./internal/generated
 
-code-gen: ent-gen openapi generate-clients ## Generate Ent, OpenAPI JSON, and web client
+code-gen: ent-gen generate-clients ## Generate Ent, OpenAPI JSON, and web client
 	@true
 
 format: ## Format Go and Web code
