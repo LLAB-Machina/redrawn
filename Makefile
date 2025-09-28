@@ -1,4 +1,4 @@
-SHELL := /bin/zsh
+SHELL := /bin/sh
 
 # Auto-load variables from .env if present
 ENV_FILE ?= .env
@@ -81,10 +81,10 @@ setup-all: ## Automatically run complete setup from scratch (install, env, db, m
 	@echo ""
 	@echo "🎉 Then visit http://localhost:3000"
 
-.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list setup setup-all
+.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install install-git-hooks openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list setup setup-all
 
 api: ## Run API locally (requires Postgres running via docker compose)
-	@AIR_BIN=$$(${SHELL} -lc 'go env GOPATH')/bin/air; \
+	@AIR_BIN=$$(go env GOPATH)/bin/air; \
 	if [ -x "$$AIR_BIN" ]; then \
 		( cd api && "$$AIR_BIN" ); \
 	else \
@@ -118,33 +118,32 @@ prod-up: ## docker compose up for prod file
 prod-down: ## docker compose down for prod file
 	docker compose -f docker-compose.prod.yml down
 
-install: ## Install Go, Atlas, Node, and other local dev deps (macOS)
-	@if [ "$(shell uname -s)" != "Darwin" ]; then \
-		echo "This install target currently supports macOS only."; \
+install: ## Install Go, Atlas, Node, and other local dev deps (macOS/Debian/Ubuntu)
+	@OS=$$(uname -s); \
+	echo "Detected OS: $$OS"; \
+	if [ "$$OS" = "Darwin" ]; then \
+		./install-mac.sh; \
+	elif [ "$$OS" = "Linux" ]; then \
+		./install-linux.sh; \
+	else \
+		echo "Unsupported OS: $$OS. This target supports Linux and macOS only."; \
 		exit 1; \
 	fi
-	@echo "Checking Homebrew..."
-	@BREW_CMD=$$(command -v brew || ( [ -x /opt/homebrew/bin/brew ] && echo /opt/homebrew/bin/brew ) || ( [ -x /usr/local/bin/brew ] && echo /usr/local/bin/brew )); \
-	if [ -z "$$BREW_CMD" ]; then \
-		echo "Homebrew not found. Installing Homebrew..."; \
-		NONINTERACTIVE=1 /bin/bash -c "$$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
-		BREW_CMD=$$(command -v brew || ( [ -x /opt/homebrew/bin/brew ] && echo /opt/homebrew/bin/brew ) || ( [ -x /usr/local/bin/brew ] && echo /usr/local/bin/brew )); \
-	fi; \
-	echo "Using Homebrew at: $$BREW_CMD"; \
-	$$BREW_CMD update; \
-	$$BREW_CMD install go node golangci-lint golines gofumpt jq ariga/tap/atlas || true
+	@echo "Installing Go tools..."
 	@echo "Installing river CLI..."; \
-	GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/riverqueue/river/cmd/river@latest || true
+	GOBIN=$$(go env GOPATH)/bin go install github.com/riverqueue/river/cmd/river@latest || true
 	@echo "Installing air (Go live reload)..."; \
-	cd api && GO111MODULE=on GOBIN=$$(${SHELL} -lc 'go env GOPATH')/bin go install github.com/air-verse/air@latest || true
-	@echo "Ensuring golines is available (install via Homebrew if missing)..."; \
-	command -v golines >/dev/null 2>&1 || ( echo "golines not found in PATH; please install via Homebrew: brew install golines" )
+	cd api && GOBIN=$$(go env GOPATH)/bin go install github.com/air-verse/air@latest || true
 	@echo "Installing Go module dependencies..."
 	cd api && go mod download
 	@echo "Installing web dependencies (npm i)..."
 	cd web && npm i
 	$(MAKE) init-env
+	$(MAKE) install-git-hooks
 	@echo "Done. You can now run: 'docker compose up -d postgres' and then 'make dev'"
+
+
+install-git-hooks: ## Install Git pre-push hook
 	@echo "Installing Git pre-push hook..."
 	@HOOK_DIR=.git/hooks; HOOK_PATH=$$HOOK_DIR/pre-push; \
 		if [ -d .git ]; then \
@@ -318,7 +317,11 @@ local-stripe: ## Login (once), capture webhook secret into .env, and start forwa
 	fi; \
 	if [ -f .env ]; then \
 		if grep -q '^STRIPE_WEBHOOK_SECRET=' .env; then \
-			sed -i'' -e "s|^STRIPE_WEBHOOK_SECRET=.*|STRIPE_WEBHOOK_SECRET=$$SECRET|" .env; \
+			if [ "$$(uname -s)" = "Darwin" ]; then \
+				sed -i '' "s|^STRIPE_WEBHOOK_SECRET=.*|STRIPE_WEBHOOK_SECRET=$$SECRET|" .env; \
+			else \
+				sed -i "s|^STRIPE_WEBHOOK_SECRET=.*|STRIPE_WEBHOOK_SECRET=$$SECRET|" .env; \
+			fi; \
 		else \
 			echo "STRIPE_WEBHOOK_SECRET=$$SECRET" >> .env; \
 		fi; \
