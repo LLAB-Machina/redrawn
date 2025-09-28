@@ -882,6 +882,7 @@ export type GeneratedPhoto = {
   error?: string | null;
   file_id?: string | null;
   id?: string;
+  is_favorite?: boolean;
   state?: string;
   theme_id?: string | null;
 };

@@ -85,6 +85,11 @@ func StartedAt(v time.Time) predicate.GeneratedPhoto {
 	return predicate.GeneratedPhoto(sql.FieldEQ(FieldStartedAt, v))
 }
 
+// IsFavorite applies equality check predicate on the "is_favorite" field. It's identical to IsFavoriteEQ.
+func IsFavorite(v bool) predicate.GeneratedPhoto {
+	return predicate.GeneratedPhoto(sql.FieldEQ(FieldIsFavorite, v))
+}
+
 // FinishedAt applies equality check predicate on the "finished_at" field. It's identical to FinishedAtEQ.
 func FinishedAt(v time.Time) predicate.GeneratedPhoto {
 	return predicate.GeneratedPhoto(sql.FieldEQ(FieldFinishedAt, v))
@@ -283,6 +288,16 @@ func StartedAtLT(v time.Time) predicate.GeneratedPhoto {
 // StartedAtLTE applies the LTE predicate on the "started_at" field.
 func StartedAtLTE(v time.Time) predicate.GeneratedPhoto {
 	return predicate.GeneratedPhoto(sql.FieldLTE(FieldStartedAt, v))
+}
+
+// IsFavoriteEQ applies the EQ predicate on the "is_favorite" field.
+func IsFavoriteEQ(v bool) predicate.GeneratedPhoto {
+	return predicate.GeneratedPhoto(sql.FieldEQ(FieldIsFavorite, v))
+}
+
+// IsFavoriteNEQ applies the NEQ predicate on the "is_favorite" field.
+func IsFavoriteNEQ(v bool) predicate.GeneratedPhoto {
+	return predicate.GeneratedPhoto(sql.FieldNEQ(FieldIsFavorite, v))
 }
 
 // FinishedAtEQ applies the EQ predicate on the "finished_at" field.

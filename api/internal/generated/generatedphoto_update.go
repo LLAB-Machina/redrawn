@@ -108,6 +108,20 @@ func (_u *GeneratedPhotoUpdate) SetNillableStartedAt(v *time.Time) *GeneratedPho
 	return _u
 }
 
+// SetIsFavorite sets the "is_favorite" field.
+func (_u *GeneratedPhotoUpdate) SetIsFavorite(v bool) *GeneratedPhotoUpdate {
+	_u.mutation.SetIsFavorite(v)
+	return _u
+}
+
+// SetNillableIsFavorite sets the "is_favorite" field if the given value is not nil.
+func (_u *GeneratedPhotoUpdate) SetNillableIsFavorite(v *bool) *GeneratedPhotoUpdate {
+	if v != nil {
+		_u.SetIsFavorite(*v)
+	}
+	return _u
+}
+
 // SetFinishedAt sets the "finished_at" field.
 func (_u *GeneratedPhotoUpdate) SetFinishedAt(v time.Time) *GeneratedPhotoUpdate {
 	_u.mutation.SetFinishedAt(v)
@@ -320,6 +334,9 @@ func (_u *GeneratedPhotoUpdate) sqlSave(ctx context.Context) (_node int, err err
 	}
 	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(generatedphoto.FieldStartedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.IsFavorite(); ok {
+		_spec.SetField(generatedphoto.FieldIsFavorite, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.FinishedAt(); ok {
 		_spec.SetField(generatedphoto.FieldFinishedAt, field.TypeTime, value)
@@ -557,6 +574,20 @@ func (_u *GeneratedPhotoUpdateOne) SetStartedAt(v time.Time) *GeneratedPhotoUpda
 func (_u *GeneratedPhotoUpdateOne) SetNillableStartedAt(v *time.Time) *GeneratedPhotoUpdateOne {
 	if v != nil {
 		_u.SetStartedAt(*v)
+	}
+	return _u
+}
+
+// SetIsFavorite sets the "is_favorite" field.
+func (_u *GeneratedPhotoUpdateOne) SetIsFavorite(v bool) *GeneratedPhotoUpdateOne {
+	_u.mutation.SetIsFavorite(v)
+	return _u
+}
+
+// SetNillableIsFavorite sets the "is_favorite" field if the given value is not nil.
+func (_u *GeneratedPhotoUpdateOne) SetNillableIsFavorite(v *bool) *GeneratedPhotoUpdateOne {
+	if v != nil {
+		_u.SetIsFavorite(*v)
 	}
 	return _u
 }
@@ -803,6 +834,9 @@ func (_u *GeneratedPhotoUpdateOne) sqlSave(ctx context.Context) (_node *Generate
 	}
 	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(generatedphoto.FieldStartedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.IsFavorite(); ok {
+		_spec.SetField(generatedphoto.FieldIsFavorite, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.FinishedAt(); ok {
 		_spec.SetField(generatedphoto.FieldFinishedAt, field.TypeTime, value)

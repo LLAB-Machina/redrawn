@@ -116,6 +116,10 @@ func init() {
 	generatedphotoDescStartedAt := generatedphotoFields[2].Descriptor()
 	// generatedphoto.DefaultStartedAt holds the default value on creation for the started_at field.
 	generatedphoto.DefaultStartedAt = generatedphotoDescStartedAt.Default.(func() time.Time)
+	// generatedphotoDescIsFavorite is the schema descriptor for is_favorite field.
+	generatedphotoDescIsFavorite := generatedphotoFields[3].Descriptor()
+	// generatedphoto.DefaultIsFavorite holds the default value on creation for the is_favorite field.
+	generatedphoto.DefaultIsFavorite = generatedphotoDescIsFavorite.Default.(bool)
 	// generatedphotoDescID is the schema descriptor for id field.
 	generatedphotoDescID := generatedphotoFields[0].Descriptor()
 	// generatedphoto.DefaultID holds the default value on creation for the id field.

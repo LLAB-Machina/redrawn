@@ -78,6 +78,20 @@ func (_c *GeneratedPhotoCreate) SetNillableStartedAt(v *time.Time) *GeneratedPho
 	return _c
 }
 
+// SetIsFavorite sets the "is_favorite" field.
+func (_c *GeneratedPhotoCreate) SetIsFavorite(v bool) *GeneratedPhotoCreate {
+	_c.mutation.SetIsFavorite(v)
+	return _c
+}
+
+// SetNillableIsFavorite sets the "is_favorite" field if the given value is not nil.
+func (_c *GeneratedPhotoCreate) SetNillableIsFavorite(v *bool) *GeneratedPhotoCreate {
+	if v != nil {
+		_c.SetIsFavorite(*v)
+	}
+	return _c
+}
+
 // SetFinishedAt sets the "finished_at" field.
 func (_c *GeneratedPhotoCreate) SetFinishedAt(v time.Time) *GeneratedPhotoCreate {
 	_c.mutation.SetFinishedAt(v)
@@ -224,6 +238,10 @@ func (_c *GeneratedPhotoCreate) defaults() error {
 		v := generatedphoto.DefaultStartedAt()
 		_c.mutation.SetStartedAt(v)
 	}
+	if _, ok := _c.mutation.IsFavorite(); !ok {
+		v := generatedphoto.DefaultIsFavorite
+		_c.mutation.SetIsFavorite(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		if generatedphoto.DefaultID == nil {
 			return fmt.Errorf("generated: uninitialized generatedphoto.DefaultID (forgotten import generated/runtime?)")
@@ -252,6 +270,9 @@ func (_c *GeneratedPhotoCreate) check() error {
 	}
 	if _, ok := _c.mutation.StartedAt(); !ok {
 		return &ValidationError{Name: "started_at", err: errors.New(`generated: missing required field "GeneratedPhoto.started_at"`)}
+	}
+	if _, ok := _c.mutation.IsFavorite(); !ok {
+		return &ValidationError{Name: "is_favorite", err: errors.New(`generated: missing required field "GeneratedPhoto.is_favorite"`)}
 	}
 	if len(_c.mutation.OriginalPhotoIDs()) == 0 {
 		return &ValidationError{Name: "original_photo", err: errors.New(`generated: missing required edge "GeneratedPhoto.original_photo"`)}
@@ -313,6 +334,10 @@ func (_c *GeneratedPhotoCreate) createSpec() (*GeneratedPhoto, *sqlgraph.CreateS
 	if value, ok := _c.mutation.StartedAt(); ok {
 		_spec.SetField(generatedphoto.FieldStartedAt, field.TypeTime, value)
 		_node.StartedAt = value
+	}
+	if value, ok := _c.mutation.IsFavorite(); ok {
+		_spec.SetField(generatedphoto.FieldIsFavorite, field.TypeBool, value)
+		_node.IsFavorite = value
 	}
 	if value, ok := _c.mutation.FinishedAt(); ok {
 		_spec.SetField(generatedphoto.FieldFinishedAt, field.TypeTime, value)

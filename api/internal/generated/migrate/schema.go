@@ -287,6 +287,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"queued", "processing", "finished", "failed"}, Default: "queued"},
 		{Name: "started_at", Type: field.TypeTime},
+		{Name: "is_favorite", Type: field.TypeBool, Default: false},
 		{Name: "finished_at", Type: field.TypeTime, Nullable: true},
 		{Name: "error_message", Type: field.TypeString, Nullable: true},
 		{Name: "file_generated_of", Type: field.TypeString, Nullable: true},
@@ -301,19 +302,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "generated_photos_files_generated_of",
-				Columns:    []*schema.Column{GeneratedPhotosColumns[8]},
+				Columns:    []*schema.Column{GeneratedPhotosColumns[9]},
 				RefColumns: []*schema.Column{FilesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "generated_photos_original_photos_generated",
-				Columns:    []*schema.Column{GeneratedPhotosColumns[9]},
+				Columns:    []*schema.Column{GeneratedPhotosColumns[10]},
 				RefColumns: []*schema.Column{OriginalPhotosColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "generated_photos_themes_generated",
-				Columns:    []*schema.Column{GeneratedPhotosColumns[10]},
+				Columns:    []*schema.Column{GeneratedPhotosColumns[11]},
 				RefColumns: []*schema.Column{ThemesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

@@ -22,6 +22,7 @@ func (GeneratedPhoto) Fields() []ent.Field {
 		field.String("id").DefaultFunc(newID),
 		field.Enum("status").Values(GeneratedStatusValues...).Default(GeneratedStatusQueued),
 		field.Time("started_at").Default(time.Now),
+		field.Bool("is_favorite").Default(false),
 		field.Time("finished_at").Optional().Nillable(),
 		field.String("error_message").Optional().Nillable(),
 	}

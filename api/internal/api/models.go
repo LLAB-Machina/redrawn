@@ -68,11 +68,12 @@ type OriginalPhoto struct {
 }
 
 type GeneratedPhoto struct {
-	ID      string `json:"id"`
-	State   string `json:"state"`
-	Error   string `json:"error,omitempty"`
-	FileID  string `json:"file_id,omitempty"`
-	ThemeID string `json:"theme_id,omitempty"`
+	ID         string `json:"id"`
+	State      string `json:"state"`
+	Error      string `json:"error,omitempty"`
+	FileID     string `json:"file_id,omitempty"`
+	ThemeID    string `json:"theme_id,omitempty"`
+	IsFavorite bool   `json:"is_favorite"`
 }
 
 type UploadInitResponse struct {

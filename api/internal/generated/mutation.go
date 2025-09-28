@@ -6171,6 +6171,7 @@ type GeneratedPhotoMutation struct {
 	deleted_at            *time.Time
 	status                *generatedphoto.Status
 	started_at            *time.Time
+	is_favorite           *bool
 	finished_at           *time.Time
 	error_message         *string
 	clearedFields         map[string]struct{}
@@ -6485,6 +6486,42 @@ func (m *GeneratedPhotoMutation) ResetStartedAt() {
 	m.started_at = nil
 }
 
+// SetIsFavorite sets the "is_favorite" field.
+func (m *GeneratedPhotoMutation) SetIsFavorite(b bool) {
+	m.is_favorite = &b
+}
+
+// IsFavorite returns the value of the "is_favorite" field in the mutation.
+func (m *GeneratedPhotoMutation) IsFavorite() (r bool, exists bool) {
+	v := m.is_favorite
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsFavorite returns the old "is_favorite" field's value of the GeneratedPhoto entity.
+// If the GeneratedPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GeneratedPhotoMutation) OldIsFavorite(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsFavorite is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsFavorite requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsFavorite: %w", err)
+	}
+	return oldValue.IsFavorite, nil
+}
+
+// ResetIsFavorite resets all changes to the "is_favorite" field.
+func (m *GeneratedPhotoMutation) ResetIsFavorite() {
+	m.is_favorite = nil
+}
+
 // SetFinishedAt sets the "finished_at" field.
 func (m *GeneratedPhotoMutation) SetFinishedAt(t time.Time) {
 	m.finished_at = &t
@@ -6788,7 +6825,7 @@ func (m *GeneratedPhotoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GeneratedPhotoMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, generatedphoto.FieldCreatedAt)
 	}
@@ -6803,6 +6840,9 @@ func (m *GeneratedPhotoMutation) Fields() []string {
 	}
 	if m.started_at != nil {
 		fields = append(fields, generatedphoto.FieldStartedAt)
+	}
+	if m.is_favorite != nil {
+		fields = append(fields, generatedphoto.FieldIsFavorite)
 	}
 	if m.finished_at != nil {
 		fields = append(fields, generatedphoto.FieldFinishedAt)
@@ -6828,6 +6868,8 @@ func (m *GeneratedPhotoMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case generatedphoto.FieldStartedAt:
 		return m.StartedAt()
+	case generatedphoto.FieldIsFavorite:
+		return m.IsFavorite()
 	case generatedphoto.FieldFinishedAt:
 		return m.FinishedAt()
 	case generatedphoto.FieldErrorMessage:
@@ -6851,6 +6893,8 @@ func (m *GeneratedPhotoMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldStatus(ctx)
 	case generatedphoto.FieldStartedAt:
 		return m.OldStartedAt(ctx)
+	case generatedphoto.FieldIsFavorite:
+		return m.OldIsFavorite(ctx)
 	case generatedphoto.FieldFinishedAt:
 		return m.OldFinishedAt(ctx)
 	case generatedphoto.FieldErrorMessage:
@@ -6898,6 +6942,13 @@ func (m *GeneratedPhotoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStartedAt(v)
+		return nil
+	case generatedphoto.FieldIsFavorite:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsFavorite(v)
 		return nil
 	case generatedphoto.FieldFinishedAt:
 		v, ok := value.(time.Time)
@@ -6997,6 +7048,9 @@ func (m *GeneratedPhotoMutation) ResetField(name string) error {
 		return nil
 	case generatedphoto.FieldStartedAt:
 		m.ResetStartedAt()
+		return nil
+	case generatedphoto.FieldIsFavorite:
+		m.ResetIsFavorite()
 		return nil
 	case generatedphoto.FieldFinishedAt:
 		m.ResetFinishedAt()

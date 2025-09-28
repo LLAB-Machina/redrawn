@@ -30,6 +30,8 @@ type GeneratedPhoto struct {
 	Status generatedphoto.Status `json:"status,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
 	StartedAt time.Time `json:"started_at,omitempty"`
+	// IsFavorite holds the value of the "is_favorite" field.
+	IsFavorite bool `json:"is_favorite,omitempty"`
 	// FinishedAt holds the value of the "finished_at" field.
 	FinishedAt *time.Time `json:"finished_at,omitempty"`
 	// ErrorMessage holds the value of the "error_message" field.
@@ -105,6 +107,8 @@ func (*GeneratedPhoto) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case generatedphoto.FieldIsFavorite:
+			values[i] = new(sql.NullBool)
 		case generatedphoto.FieldID, generatedphoto.FieldStatus, generatedphoto.FieldErrorMessage:
 			values[i] = new(sql.NullString)
 		case generatedphoto.FieldCreatedAt, generatedphoto.FieldUpdatedAt, generatedphoto.FieldDeletedAt, generatedphoto.FieldStartedAt, generatedphoto.FieldFinishedAt:
@@ -166,6 +170,12 @@ func (_m *GeneratedPhoto) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
 				_m.StartedAt = value.Time
+			}
+		case generatedphoto.FieldIsFavorite:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_favorite", values[i])
+			} else if value.Valid {
+				_m.IsFavorite = value.Bool
 			}
 		case generatedphoto.FieldFinishedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -274,6 +284,9 @@ func (_m *GeneratedPhoto) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("started_at=")
 	builder.WriteString(_m.StartedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("is_favorite=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsFavorite))
 	builder.WriteString(", ")
 	if v := _m.FinishedAt; v != nil {
 		builder.WriteString("finished_at=")

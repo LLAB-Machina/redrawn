@@ -26,6 +26,8 @@ const (
 	FieldStatus = "status"
 	// FieldStartedAt holds the string denoting the started_at field in the database.
 	FieldStartedAt = "started_at"
+	// FieldIsFavorite holds the string denoting the is_favorite field in the database.
+	FieldIsFavorite = "is_favorite"
 	// FieldFinishedAt holds the string denoting the finished_at field in the database.
 	FieldFinishedAt = "finished_at"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
@@ -78,6 +80,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldStatus,
 	FieldStartedAt,
+	FieldIsFavorite,
 	FieldFinishedAt,
 	FieldErrorMessage,
 }
@@ -114,6 +117,8 @@ var (
 	Hooks [1]ent.Hook
 	// DefaultStartedAt holds the default value on creation for the "started_at" field.
 	DefaultStartedAt func() time.Time
+	// DefaultIsFavorite holds the default value on creation for the "is_favorite" field.
+	DefaultIsFavorite bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -177,6 +182,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByStartedAt orders the results by the started_at field.
 func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+}
+
+// ByIsFavorite orders the results by the is_favorite field.
+func ByIsFavorite(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsFavorite, opts...).ToFunc()
 }
 
 // ByFinishedAt orders the results by the finished_at field.
