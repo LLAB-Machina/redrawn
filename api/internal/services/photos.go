@@ -275,7 +275,11 @@ func (s *PhotosService) FileURL(ctx context.Context, fileID string) (string, err
 	return "", errors.New("delivery not configured")
 }
 
-func (s *PhotosService) MarkAsFavorite(ctx context.Context, originalID string, generatedID string) error {
+func (s *PhotosService) MarkAsFavorite(
+	ctx context.Context,
+	originalID string,
+	generatedID string,
+) error {
 	_, err := s.app.Db.GeneratedPhoto.Update().
 		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID)), generatedphoto.DeletedAtIsNil()).
 		SetIsFavorite(false).

@@ -105,15 +105,21 @@ func RegisterPhotos(s *fuego.Server, a *app.App) {
 		return api.TaskStatusResponse{Status: "not_found"}, nil
 	}, option.Summary("Get photo task status"), option.OperationID("GetPhotoTaskStatus"))
 
-	fuego.Patch(s, "/originals/generated/mark-as-favorite", func(c fuego.ContextWithBody[api.MarkAsFavoriteRequest]) (api.OkResponse, error) {
-		body, err := BindAndValidate(c)
-		if err != nil {
-			return api.OkResponse{}, err
-		}
+	fuego.Patch(
+		s,
+		"/originals/generated/mark-as-favorite",
+		func(c fuego.ContextWithBody[api.MarkAsFavoriteRequest]) (api.OkResponse, error) {
+			body, err := BindAndValidate(c)
+			if err != nil {
+				return api.OkResponse{}, err
+			}
 
-		if err := service.MarkAsFavorite(c.Context(), body.OriginalPhotoID, body.GeneratedPhotoID); err != nil {
-			return api.OkResponse{}, err
-		}
-		return api.OkResponse{Ok: "true"}, nil
-	}, option.Summary("Mark generated photo as favorite"), option.OperationID("MarkGeneratedPhotoAsFavorite"))
+			if err := service.MarkAsFavorite(c.Context(), body.OriginalPhotoID, body.GeneratedPhotoID); err != nil {
+				return api.OkResponse{}, err
+			}
+			return api.OkResponse{Ok: "true"}, nil
+		},
+		option.Summary("Mark generated photo as favorite"),
+		option.OperationID("MarkGeneratedPhotoAsFavorite"),
+	)
 }
