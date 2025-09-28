@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "preview": "next start",
+    "format": "prettier --write .",
     "codegen": "rtk-query-codegen-openapi rtk.codegen.cjs"
   },
   "dependencies": {

@@ -262,8 +262,9 @@ river-list: ## List River migrations and applied state
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	river migrate-list --line main --database-url '$(DATABASE_URL)'
 
-openapi: ## Generate OpenAPI JSON into api/openapi.json without running server (stable key order)
-	cd api && go run ./cmd/api --openapi-only | (command -v jq >/dev/null 2>&1 && jq -S . || cat) > openapi.json
+openapi: ## Generate OpenAPI JSON into api/doc/openapi.json without running server (deterministic order, formatted)
+	cd api && go run ./cmd/api --openapi-only | jq -S . > doc/openapi.json
+	cd web && npx prettier --write ../api/doc/openapi.json
 
 generate-clients: openapi ## Generate web RTK Query client from OpenAPI
 	cd web && npx --yes @rtk-query/codegen-openapi rtk.codegen.cjs

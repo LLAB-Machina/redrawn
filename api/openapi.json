@@ -167,10 +167,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "slug"
-        ],
+        "required": ["name", "slug"],
         "type": "object"
       },
       "AlbumUpdateRequest": {
@@ -198,9 +195,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "price_id"
-        ],
+        "required": ["price_id"],
         "type": "object"
       },
       "CreateInviteLinkRequest": {
@@ -218,9 +213,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "role"
-        ],
+        "required": ["role"],
         "type": "object"
       },
       "CreateOriginalRequest": {
@@ -249,11 +242,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "stripe_price_id",
-          "credits"
-        ],
+        "required": ["name", "stripe_price_id", "credits"],
         "type": "object"
       },
       "CreateThemeRequest": {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const srcPath = path.resolve(__dirname, '../../api/openapi.json');
+const srcPath = path.resolve(__dirname, '../../api/doc/openapi.json');
 const outPath = path.resolve(__dirname, '../openapi.client.json');
 
 const spec = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
