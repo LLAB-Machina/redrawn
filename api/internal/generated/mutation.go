@@ -7209,6 +7209,7 @@ type OriginalPhotoMutation struct {
 	created_at           *time.Time
 	updated_at           *time.Time
 	deleted_at           *time.Time
+	description          *string
 	captured_at          *time.Time
 	latitude             *float64
 	addlatitude          *float64
@@ -7461,6 +7462,55 @@ func (m *OriginalPhotoMutation) DeletedAtCleared() bool {
 func (m *OriginalPhotoMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, originalphoto.FieldDeletedAt)
+}
+
+// SetDescription sets the "description" field.
+func (m *OriginalPhotoMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *OriginalPhotoMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldDescription(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *OriginalPhotoMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[originalphoto.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *OriginalPhotoMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, originalphoto.FieldDescription)
 }
 
 // SetCapturedAt sets the "captured_at" field.
@@ -8149,7 +8199,7 @@ func (m *OriginalPhotoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OriginalPhotoMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, originalphoto.FieldCreatedAt)
 	}
@@ -8158,6 +8208,9 @@ func (m *OriginalPhotoMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, originalphoto.FieldDeletedAt)
+	}
+	if m.description != nil {
+		fields = append(fields, originalphoto.FieldDescription)
 	}
 	if m.captured_at != nil {
 		fields = append(fields, originalphoto.FieldCapturedAt)
@@ -8194,6 +8247,8 @@ func (m *OriginalPhotoMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case originalphoto.FieldDeletedAt:
 		return m.DeletedAt()
+	case originalphoto.FieldDescription:
+		return m.Description()
 	case originalphoto.FieldCapturedAt:
 		return m.CapturedAt()
 	case originalphoto.FieldLatitude:
@@ -8223,6 +8278,8 @@ func (m *OriginalPhotoMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case originalphoto.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case originalphoto.FieldDescription:
+		return m.OldDescription(ctx)
 	case originalphoto.FieldCapturedAt:
 		return m.OldCapturedAt(ctx)
 	case originalphoto.FieldLatitude:
@@ -8266,6 +8323,13 @@ func (m *OriginalPhotoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case originalphoto.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
 		return nil
 	case originalphoto.FieldCapturedAt:
 		v, ok := value.(time.Time)
@@ -8400,6 +8464,9 @@ func (m *OriginalPhotoMutation) ClearedFields() []string {
 	if m.FieldCleared(originalphoto.FieldDeletedAt) {
 		fields = append(fields, originalphoto.FieldDeletedAt)
 	}
+	if m.FieldCleared(originalphoto.FieldDescription) {
+		fields = append(fields, originalphoto.FieldDescription)
+	}
 	if m.FieldCleared(originalphoto.FieldCapturedAt) {
 		fields = append(fields, originalphoto.FieldCapturedAt)
 	}
@@ -8438,6 +8505,9 @@ func (m *OriginalPhotoMutation) ClearField(name string) error {
 	case originalphoto.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
+	case originalphoto.FieldDescription:
+		m.ClearDescription()
+		return nil
 	case originalphoto.FieldCapturedAt:
 		m.ClearCapturedAt()
 		return nil
@@ -8475,6 +8545,9 @@ func (m *OriginalPhotoMutation) ResetField(name string) error {
 		return nil
 	case originalphoto.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case originalphoto.FieldDescription:
+		m.ResetDescription()
 		return nil
 	case originalphoto.FieldCapturedAt:
 		m.ResetCapturedAt()

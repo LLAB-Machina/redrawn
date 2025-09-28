@@ -51,6 +51,20 @@ func (_c *OriginalPhotoCreate) SetNillableDeletedAt(v *time.Time) *OriginalPhoto
 	return _c
 }
 
+// SetDescription sets the "description" field.
+func (_c *OriginalPhotoCreate) SetDescription(v string) *OriginalPhotoCreate {
+	_c.mutation.SetDescription(v)
+	return _c
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableDescription(v *string) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetDescription(*v)
+	}
+	return _c
+}
+
 // SetCapturedAt sets the "captured_at" field.
 func (_c *OriginalPhotoCreate) SetCapturedAt(v time.Time) *OriginalPhotoCreate {
 	_c.mutation.SetCapturedAt(v)
@@ -336,6 +350,10 @@ func (_c *OriginalPhotoCreate) createSpec() (*OriginalPhoto, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(originalphoto.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(originalphoto.FieldDescription, field.TypeString, value)
+		_node.Description = &value
 	}
 	if value, ok := _c.mutation.CapturedAt(); ok {
 		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)

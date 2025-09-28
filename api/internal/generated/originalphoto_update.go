@@ -81,6 +81,26 @@ func (_u *OriginalPhotoUpdate) ClearDeletedAt() *OriginalPhotoUpdate {
 	return _u
 }
 
+// SetDescription sets the "description" field.
+func (_u *OriginalPhotoUpdate) SetDescription(v string) *OriginalPhotoUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableDescription(v *string) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *OriginalPhotoUpdate) ClearDescription() *OriginalPhotoUpdate {
+	_u.mutation.ClearDescription()
+	return _u
+}
+
 // SetCapturedAt sets the "captured_at" field.
 func (_u *OriginalPhotoUpdate) SetCapturedAt(v time.Time) *OriginalPhotoUpdate {
 	_u.mutation.SetCapturedAt(v)
@@ -442,6 +462,12 @@ func (_u *OriginalPhotoUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(originalphoto.FieldDeletedAt, field.TypeTime)
 	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(originalphoto.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(originalphoto.FieldDescription, field.TypeString)
+	}
 	if value, ok := _u.mutation.CapturedAt(); ok {
 		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)
 	}
@@ -738,6 +764,26 @@ func (_u *OriginalPhotoUpdateOne) SetNillableDeletedAt(v *time.Time) *OriginalPh
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (_u *OriginalPhotoUpdateOne) ClearDeletedAt() *OriginalPhotoUpdateOne {
 	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
+// SetDescription sets the "description" field.
+func (_u *OriginalPhotoUpdateOne) SetDescription(v string) *OriginalPhotoUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableDescription(v *string) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *OriginalPhotoUpdateOne) ClearDescription() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearDescription()
 	return _u
 }
 
@@ -1131,6 +1177,12 @@ func (_u *OriginalPhotoUpdateOne) sqlSave(ctx context.Context) (_node *OriginalP
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(originalphoto.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(originalphoto.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(originalphoto.FieldDescription, field.TypeString)
 	}
 	if value, ok := _u.mutation.CapturedAt(); ok {
 		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)

@@ -80,6 +80,11 @@ func DeletedAt(v time.Time) predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
+func Description(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldDescription, v))
+}
+
 // CapturedAt applies equality check predicate on the "captured_at" field. It's identical to CapturedAtEQ.
 func CapturedAt(v time.Time) predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldEQ(FieldCapturedAt, v))
@@ -243,6 +248,81 @@ func DeletedAtIsNil() predicate.OriginalPhoto {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// DescriptionEQ applies the EQ predicate on the "description" field.
+func DescriptionEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldDescription, v))
+}
+
+// DescriptionNEQ applies the NEQ predicate on the "description" field.
+func DescriptionNEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldDescription, v))
+}
+
+// DescriptionIn applies the In predicate on the "description" field.
+func DescriptionIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldDescription, vs...))
+}
+
+// DescriptionNotIn applies the NotIn predicate on the "description" field.
+func DescriptionNotIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldDescription, vs...))
+}
+
+// DescriptionGT applies the GT predicate on the "description" field.
+func DescriptionGT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldDescription, v))
+}
+
+// DescriptionGTE applies the GTE predicate on the "description" field.
+func DescriptionGTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldDescription, v))
+}
+
+// DescriptionLT applies the LT predicate on the "description" field.
+func DescriptionLT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldDescription, v))
+}
+
+// DescriptionLTE applies the LTE predicate on the "description" field.
+func DescriptionLTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldDescription, v))
+}
+
+// DescriptionContains applies the Contains predicate on the "description" field.
+func DescriptionContains(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContains(FieldDescription, v))
+}
+
+// DescriptionHasPrefix applies the HasPrefix predicate on the "description" field.
+func DescriptionHasPrefix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasPrefix(FieldDescription, v))
+}
+
+// DescriptionHasSuffix applies the HasSuffix predicate on the "description" field.
+func DescriptionHasSuffix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasSuffix(FieldDescription, v))
+}
+
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldDescription))
+}
+
+// DescriptionEqualFold applies the EqualFold predicate on the "description" field.
+func DescriptionEqualFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEqualFold(FieldDescription, v))
+}
+
+// DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
+func DescriptionContainsFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContainsFold(FieldDescription, v))
 }
 
 // CapturedAtEQ applies the EQ predicate on the "captured_at" field.

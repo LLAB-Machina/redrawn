@@ -270,8 +270,14 @@ func (s *PhotosService) ListGenerated(
 	originalID string,
 ) ([]api.GeneratedPhoto, error) {
 	items, err := s.app.Db.GeneratedPhoto.Query().
-		Where(generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID)), generatedphoto.DeletedAtIsNil()).
+		Where(
+			generatedphoto.HasOriginalPhotoWith(originalphoto.IDEQ(originalID)),
+			generatedphoto.DeletedAtIsNil(),
+		).
 		WithFile().
+		WithOriginalPhoto(func(q *generated.OriginalPhotoQuery) {
+			q.Select(originalphoto.FieldDescription)
+		}).
 		WithTheme().
 		All(ctx)
 	if err != nil {

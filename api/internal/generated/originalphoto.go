@@ -26,6 +26,8 @@ type OriginalPhoto struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// Description holds the value of the "description" field.
+	Description *string `json:"description,omitempty"`
 	// CapturedAt holds the value of the "captured_at" field.
 	CapturedAt *time.Time `json:"captured_at,omitempty"`
 	// Latitude holds the value of the "latitude" field.
@@ -126,7 +128,7 @@ func (*OriginalPhoto) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullFloat64)
 		case originalphoto.FieldImageWidth, originalphoto.FieldImageHeight:
 			values[i] = new(sql.NullInt64)
-		case originalphoto.FieldID, originalphoto.FieldLocationName, originalphoto.FieldOrientation:
+		case originalphoto.FieldID, originalphoto.FieldDescription, originalphoto.FieldLocationName, originalphoto.FieldOrientation:
 			values[i] = new(sql.NullString)
 		case originalphoto.FieldCreatedAt, originalphoto.FieldUpdatedAt, originalphoto.FieldDeletedAt, originalphoto.FieldCapturedAt:
 			values[i] = new(sql.NullTime)
@@ -175,6 +177,13 @@ func (_m *OriginalPhoto) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
+			}
+		case originalphoto.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				_m.Description = new(string)
+				*_m.Description = value.String
 			}
 		case originalphoto.FieldCapturedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -316,6 +325,11 @@ func (_m *OriginalPhoto) String() string {
 	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	if v := _m.CapturedAt; v != nil {

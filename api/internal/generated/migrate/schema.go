@@ -326,6 +326,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "captured_at", Type: field.TypeTime, Nullable: true},
 		{Name: "latitude", Type: field.TypeFloat64, Nullable: true},
 		{Name: "longitude", Type: field.TypeFloat64, Nullable: true},
@@ -345,19 +346,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "original_photos_albums_original_photos",
-				Columns:    []*schema.Column{OriginalPhotosColumns[11]},
+				Columns:    []*schema.Column{OriginalPhotosColumns[12]},
 				RefColumns: []*schema.Column{AlbumsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "original_photos_files_original_of",
-				Columns:    []*schema.Column{OriginalPhotosColumns[12]},
+				Columns:    []*schema.Column{OriginalPhotosColumns[13]},
 				RefColumns: []*schema.Column{FilesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "original_photos_users_uploaded_photos",
-				Columns:    []*schema.Column{OriginalPhotosColumns[13]},
+				Columns:    []*schema.Column{OriginalPhotosColumns[14]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
