@@ -7,14 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useGetV1AuthGoogleStartQuery } from "@/services/genApi";
+import { useAuthGoogleStartQuery } from "@/services/genApi";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
 export default function SigninPage() {
   const router = useRouter();
-  const { data: googleAuthUrl } = useGetV1AuthGoogleStartQuery({});
+  const { data: googleAuthUrl } = useAuthGoogleStartQuery({});
 
   const handleGoogleSignin = () => {
     if (googleAuthUrl?.url) {

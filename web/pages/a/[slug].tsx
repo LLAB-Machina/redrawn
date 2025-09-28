@@ -2,7 +2,7 @@ import { PublicLayout } from "@/components/layouts/PublicLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useGetV1PublicAlbumsBySlugQuery, api } from "@/services/genApi";
+import { useGetPublicAlbumBySlugQuery, api } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "motion/react";
@@ -14,11 +14,11 @@ export default function PublicAlbumPage() {
   const router = useRouter();
   const { slug } = router.query as { slug: string };
 
-  const { data: album, error } = useGetV1PublicAlbumsBySlugQuery(
+  const { data: album, error } = useGetPublicAlbumBySlugQuery(
     { slug },
     { skip: !slug }
   );
-  const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
+  const [triggerFileUrl] = api.useLazyGetPhotoFileUrlQuery();
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
 
   const ensureFileUrl = useCallback(

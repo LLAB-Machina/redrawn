@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePostV1AuthLogoutMutation } from "@/services/genApi";
+import { useAuthLogoutMutation } from "@/services/genApi";
 import { setAuthToken } from "@/services/auth";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -44,7 +44,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { user, isAuthenticated } = useAuth();
-  const [logout] = usePostV1AuthLogoutMutation();
+  const [logout] = useAuthLogoutMutation();
   const router = useRouter();
 
   const handleLogout = async () => {

@@ -10,6 +10,7 @@ import (
 	"redrawn/api/internal/services"
 
 	"github.com/go-fuego/fuego"
+	"github.com/go-fuego/fuego/option"
 )
 
 func RegisterAdmin(s *fuego.Server, a *app.App) {
@@ -35,16 +36,16 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 	}
 
 	// Price management
-	fuego.Get(s, "/v1/admin/prices", func(c fuego.ContextNoBody) ([]api.Price, error) {
+	fuego.Get(s, "/prices", func(c fuego.ContextNoBody) ([]api.Price, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
 		return service.ListAllPrices(c.Context())
-	})
+	}, option.Summary("List all prices"), option.OperationID("Admin_ListPrices"))
 
 	fuego.Post(
 		s,
-		"/v1/admin/prices",
+		"/prices",
 		func(c fuego.ContextWithBody[api.CreatePriceRequest]) (*api.Price, error) {
 			if err := checkAdminAuth(c.Context()); err != nil {
 				return nil, err
@@ -55,11 +56,13 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			}
 			return service.CreatePrice(c.Context(), body)
 		},
+		option.Summary("Create a price"),
+		option.OperationID("Admin_CreatePrice"),
 	)
 
 	fuego.Put(
 		s,
-		"/v1/admin/prices/{id}",
+		"/prices/{id}",
 		func(c fuego.ContextWithBody[api.UpdatePriceRequest]) (*api.Price, error) {
 			if err := checkAdminAuth(c.Context()); err != nil {
 				return nil, err
@@ -71,9 +74,11 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			}
 			return service.UpdatePrice(c.Context(), priceID, body)
 		},
+		option.Summary("Update a price"),
+		option.OperationID("Admin_UpdatePrice"),
 	)
 
-	fuego.Delete(s, "/v1/admin/prices/{id}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
+	fuego.Delete(s, "/prices/{id}", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return api.OkResponse{}, err
 		}
@@ -83,47 +88,49 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
-	})
+	}, option.Summary("Delete a price"), option.OperationID("Admin_DeletePrice"))
 
 	// User management
-	fuego.Get(s, "/v1/admin/users", func(c fuego.ContextNoBody) ([]api.AdminUser, error) {
+	fuego.Get(s, "/users", func(c fuego.ContextNoBody) ([]api.AdminUser, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
 		return service.ListAllUsers(c.Context())
-	})
+	}, option.Summary("List all users"), option.OperationID("Admin_ListUsers"))
 
 	// Album management
-	fuego.Get(s, "/v1/admin/albums", func(c fuego.ContextNoBody) ([]api.AdminAlbum, error) {
+	fuego.Get(s, "/albums", func(c fuego.ContextNoBody) ([]api.AdminAlbum, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
 		return service.ListAllAlbums(c.Context())
-	})
+	}, option.Summary("List all albums"), option.OperationID("Admin_ListAlbums"))
 
 	// Jobs management
-	fuego.Get(s, "/v1/admin/jobs", func(c fuego.ContextNoBody) ([]api.AdminJob, error) {
+	fuego.Get(s, "/jobs", func(c fuego.ContextNoBody) ([]api.AdminJob, error) {
 		if err := checkAdminAuth(c.Context()); err != nil {
 			return nil, err
 		}
 		return service.ListJobs(c.Context())
-	})
+	}, option.Summary("List all jobs"), option.OperationID("Admin_ListJobs"))
 
 	fuego.Get(
 		s,
-		"/v1/admin/jobs/summary",
+		"/jobs/summary",
 		func(c fuego.ContextNoBody) (api.AdminJobSummary, error) {
 			if err := checkAdminAuth(c.Context()); err != nil {
 				return api.AdminJobSummary{}, err
 			}
 			return service.JobSummary(c.Context())
 		},
+		option.Summary("Get job summary"),
+		option.OperationID("Admin_GetJobSummary"),
 	)
 
 	// Job logs endpoint: returns text logs captured by worker for a job
 	fuego.Get(
 		s,
-		"/v1/admin/jobs/{id}/logs",
+		"/jobs/{id}/logs",
 		func(c fuego.ContextNoBody) (api.JobLogsResponse, error) {
 			if err := checkAdminAuth(c.Context()); err != nil {
 				return api.JobLogsResponse{}, err
@@ -145,5 +152,7 @@ func RegisterAdmin(s *fuego.Server, a *app.App) {
 			}
 			return api.JobLogsResponse{Logs: string(data)}, nil
 		},
+		option.Summary("Get job logs"),
+		option.OperationID("Admin_GetJobLogs"),
 	)
 }

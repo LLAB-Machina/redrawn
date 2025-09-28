@@ -1,11 +1,11 @@
-import { useGetV1MeQuery } from "@/services/genApi";
+import { useMeQuery } from "@/services/genApi";
 
 export function useAuth() {
   const {
     data: user,
     error,
     isLoading,
-  } = useGetV1MeQuery(
+  } = useMeQuery(
     {},
     {
       // Avoid refetching on every route change/focus when cache exists

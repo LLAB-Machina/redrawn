@@ -7,6 +7,7 @@ import (
 	"redrawn/api/internal/services"
 
 	"github.com/go-fuego/fuego"
+	"github.com/go-fuego/fuego/option"
 )
 
 type inviteReq = api.InviteRequest
@@ -18,7 +19,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 
 	fuego.Post(
 		s,
-		"/v1/albums/{id}/invites",
+		"/{id}/invites",
 		func(c fuego.ContextWithBody[inviteReq]) (api.StatusResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -34,11 +35,13 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.StatusResponse{Status: "invited"}, nil
 		},
+		option.Summary("Invite user to album by email"),
+		option.OperationID("InviteToAlbum"),
 	)
 
 	fuego.Post(
 		s,
-		"/v1/albums/{id}/members/{userId}",
+		"/{id}/members/{userId}",
 		func(c fuego.ContextWithBody[roleReq]) (api.OkResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -51,11 +54,13 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Set album member role"),
+		option.OperationID("SetAlbumMemberRole"),
 	)
 
 	fuego.Delete(
 		s,
-		"/v1/albums/{id}/members/{userId}",
+		"/{id}/members/{userId}",
 		func(c fuego.ContextNoBody) (api.OkResponse, error) {
 			albumID := c.PathParam("id")
 			userID := c.PathParam("userId")
@@ -64,22 +69,26 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Remove album member"),
+		option.OperationID("RemoveAlbumMember"),
 	)
 
 	// List current members, pending invites, and invite links
 	fuego.Get(
 		s,
-		"/v1/albums/{id}/memberships",
+		"/{id}/memberships",
 		func(c fuego.ContextNoBody) (api.MembershipsResponse, error) {
 			albumID := c.PathParam("id")
 			return service.List(c.Context(), albumID)
 		},
+		option.Summary("List album members and invites"),
+		option.OperationID("Memberships_List"),
 	)
 
 	// Create an invite link
 	fuego.Post(
 		s,
-		"/v1/albums/{id}/invite_links",
+		"/{id}/invite_links",
 		func(c fuego.ContextWithBody[api.CreateInviteLinkRequest]) (api.InviteLink, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -89,12 +98,14 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			uid, _ := appctx.UserIDFromContext(c.Context())
 			return service.CreateLink(c.Context(), albumID, body, uid)
 		},
+		option.Summary("Create album invite link"),
+		option.OperationID("CreateAlbumInviteLink"),
 	)
 
 	// Revoke an invite link
 	fuego.Delete(
 		s,
-		"/v1/albums/{id}/invite_links/{linkId}",
+		"/{id}/invite_links/{linkId}",
 		func(c fuego.ContextNoBody) (api.OkResponse, error) {
 			albumID := c.PathParam("id")
 			linkID := c.PathParam("linkId")
@@ -103,12 +114,14 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Revoke album invite link"),
+		option.OperationID("RevokeAlbumLinkInvite"),
 	)
 
 	// Accept an invite link with a token for the current user
 	fuego.Post(
 		s,
-		"/v1/albums/{id}/invite_links/accept/{token}",
+		"/{id}/invite_links/accept/{token}",
 		func(c fuego.ContextNoBody) (api.OkResponse, error) {
 			albumID := c.PathParam("id")
 			token := c.PathParam("token")
@@ -121,6 +134,8 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Accept album invite link"),
+		option.OperationID("AcceptAlbumInviteLink"),
 	)
 
 	// public preview route is registered in handlers.RegisterPublic
@@ -128,7 +143,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 	// Pending email invites management: revoke and update role
 	fuego.Delete(
 		s,
-		"/v1/albums/{id}/invites/{inviteId}",
+		"/{id}/invites/{inviteId}",
 		func(c fuego.ContextNoBody) (api.OkResponse, error) {
 			albumID := c.PathParam("id")
 			inviteID := c.PathParam("inviteId")
@@ -137,11 +152,13 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Revoke pending email invite"),
+		option.OperationID("RevokeAlbumEmailInvite"),
 	)
 
 	fuego.Post(
 		s,
-		"/v1/albums/{id}/invites/{inviteId}",
+		"/{id}/invites/{inviteId}",
 		func(c fuego.ContextWithBody[roleReq]) (api.OkResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -154,5 +171,7 @@ func RegisterMembership(s *fuego.Server, a *appctx.App) {
 			}
 			return api.OkResponse{Ok: "true"}, nil
 		},
+		option.Summary("Update pending invite role"),
+		option.OperationID("UpdateAlbumEmailInviteRole"),
 	)
 }

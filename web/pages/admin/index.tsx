@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  useGetV1AdminJobsSummaryQuery,
-  useGetV1AdminAlbumsQuery,
-  useGetV1AdminUsersQuery,
+  useAdminGetJobSummaryQuery,
+  useAdminListAlbumsQuery,
+  useAdminListUsersQuery,
 } from "@/services/genApi";
 import {
   Shield,
@@ -28,11 +28,11 @@ import Link from "next/link";
 
 export default function AdminPage() {
   const { data: jobsSummary, isLoading: jobsLoading } =
-    useGetV1AdminJobsSummaryQuery({});
-  const { data: albums, isLoading: albumsLoading } = useGetV1AdminAlbumsQuery(
+    useAdminGetJobSummaryQuery({});
+  const { data: albums, isLoading: albumsLoading } = useAdminListAlbumsQuery(
     {}
   );
-  const { data: users, isLoading: usersLoading } = useGetV1AdminUsersQuery({});
+  const { data: users, isLoading: usersLoading } = useAdminListUsersQuery({});
 
   const stats = [
     {

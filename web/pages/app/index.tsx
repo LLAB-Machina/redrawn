@@ -21,9 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  useGetV1AlbumsQuery,
-  usePostV1AlbumsMutation,
-  usePatchV1MeMutation,
+  useListAlbumsQuery,
+  useCreateAlbumMutation,
+  useUpdateMeMutation,
   type Album,
 } from "@/services/genApi";
 import { useState } from "react";
@@ -35,9 +35,9 @@ import { AlbumCollage } from "@/components/albums/AlbumCollage";
 
 export default function AppDashboard() {
   const { user } = useAuth();
-  const { data: albums, refetch: refetchAlbums } = useGetV1AlbumsQuery({});
-  const [createAlbum] = usePostV1AlbumsMutation();
-  const [updateProfile] = usePatchV1MeMutation();
+  const { data: albums, refetch: refetchAlbums } = useListAlbumsQuery({});
+  const [createAlbum] = useCreateAlbumMutation();
+  const [updateProfile] = useUpdateMeMutation();
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);

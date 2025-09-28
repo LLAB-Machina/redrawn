@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useGetV1AuthGoogleStartQuery } from "@/services/genApi";
+import { useAuthGoogleStartQuery } from "@/services/genApi";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function SignupPage() {
-  const { data: googleAuthUrl } = useGetV1AuthGoogleStartQuery({});
+  const { data: googleAuthUrl } = useAuthGoogleStartQuery({});
 
   const handleGoogleSignup = () => {
     if (googleAuthUrl?.url) {

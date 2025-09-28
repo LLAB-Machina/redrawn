@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation,
-  useGetV1MeQuery,
-  useGetV1PublicAlbumsByIdInviteAndTokenQuery,
+  useAcceptAlbumInviteLinkMutation,
+  useMeQuery,
+  usePreviewInviteLinkQuery,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -22,13 +22,13 @@ export default function JoinAlbumInvitationPage() {
     token?: string;
   };
 
-  const [acceptInvite] = usePostV1AlbumsByIdInviteLinksAcceptAndTokenMutation();
-  const { data: me, isLoading: meLoading } = useGetV1MeQuery(
+  const [acceptInvite] = useAcceptAlbumInviteLinkMutation();
+  const { data: me, isLoading: meLoading } = useMeQuery(
     {},
     { refetchOnMountOrArgChange: true }
   );
   const [message, setMessage] = useState<string>("Accepting invite…");
-  const { data: preview } = useGetV1PublicAlbumsByIdInviteAndTokenQuery(
+  const { data: preview } = usePreviewInviteLinkQuery(
     albumId && token ? { id: albumId, token } : { id: "", token: "" },
     { skip: !albumId || !token }
   );

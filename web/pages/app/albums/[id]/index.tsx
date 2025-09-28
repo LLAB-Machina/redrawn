@@ -39,15 +39,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import {
-  useGetV1AlbumsByIdQuery,
-  usePatchV1AlbumsByIdMutation,
-  useDeleteV1AlbumsByIdMutation,
-  useGetV1AlbumsByIdOriginalsQuery,
-  usePostV1AlbumsByIdUploadsMutation,
-  usePostV1AlbumsByIdOriginalsMutation,
-  useGetV1ThemesQuery,
-  usePostV1OriginalsByIdGenerateMutation,
+  useGetAlbumByIdQuery,
+  useUpdateAlbumMutation,
+  useDeleteAlbumMutation,
+  useInitPhotoUploadMutation,
+  useCreateOriginalPhotoMutation,
+  useListThemesQuery,
+  useGenerateOriginalPhotoMutation,
   api,
+  useListOriginalPhotosQuery,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -95,21 +95,21 @@ export default function AlbumDetail() {
   const router = useRouter();
   const { id } = router.query as { id: string };
 
-  const { data: album, refetch: refetchAlbum } = useGetV1AlbumsByIdQuery(
+  const { data: album, refetch: refetchAlbum } = useGetAlbumByIdQuery(
     { id },
     { skip: !id }
   );
   const { data: originals, refetch: refetchOriginals } =
-    useGetV1AlbumsByIdOriginalsQuery({ id }, { skip: !id });
-  const { data: themes } = useGetV1ThemesQuery({});
+    useListOriginalPhotosQuery({ id }, { skip: !id });
+  const { data: themes } = useListThemesQuery({});
 
-  const [patchAlbum] = usePatchV1AlbumsByIdMutation();
-  const [deleteAlbum] = useDeleteV1AlbumsByIdMutation();
-  const [initUpload] = usePostV1AlbumsByIdUploadsMutation();
-  const [createOriginal] = usePostV1AlbumsByIdOriginalsMutation();
-  const [generateImage] = usePostV1OriginalsByIdGenerateMutation();
-  const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
-  const [triggerSlugCheck] = api.useLazyGetV1AlbumSlugsBySlugCheckQuery();
+  const [patchAlbum] = useUpdateAlbumMutation();
+  const [deleteAlbum] = useDeleteAlbumMutation();
+  const [initUpload] = useInitPhotoUploadMutation();
+  const [createOriginal] = useCreateOriginalPhotoMutation();
+  const [generateImage] = useGenerateOriginalPhotoMutation();
+  const [triggerFileUrl] = api.useLazyGetPhotoFileUrlQuery();
+  const [triggerSlugCheck] = api.useLazySlugAvailabilityQuery();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string>("");
   const [uploading, setUploading] = useState(false);
@@ -725,7 +725,7 @@ function PhotoCard({
     Array<{ file_id?: string | null; url?: string | null; state?: string }>
   >([]);
   const [showGenerated, setShowGenerated] = useState(false);
-  const [triggerGenerated] = api.useLazyGetV1OriginalsByIdGeneratedQuery();
+  const [triggerGenerated] = api.useLazyListGeneratedPhotosQuery();
 
   useEffect(() => {
     ensureFileUrl(original.file_id).then(setImageUrl);

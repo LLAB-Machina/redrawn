@@ -20,12 +20,12 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
-  useGetV1AlbumsByIdMembershipsQuery,
-  usePostV1AlbumsByIdInvitesMutation,
-  usePostV1AlbumsByIdInviteLinksMutation,
-  useDeleteV1AlbumsByIdInviteLinksAndLinkIdMutation,
-  useDeleteV1AlbumsByIdMembersAndUserIdMutation,
-  useGetV1AlbumsByIdQuery,
+  useMembershipsListQuery,
+  useInviteToAlbumMutation,
+  useCreateAlbumInviteLinkMutation,
+  useRevokeAlbumLinkInviteMutation,
+  useRemoveAlbumMemberMutation,
+  useGetAlbumByIdQuery,
 } from "@/services/genApi";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -40,21 +40,21 @@ export default function AlbumInvitesPage() {
   const router = useRouter();
   const id = (router.query.id as string) || "";
 
-  const { data: album } = useGetV1AlbumsByIdQuery(id ? { id } : { id: "" }, {
+  const { data: album } = useGetAlbumByIdQuery(id ? { id } : { id: "" }, {
     skip: !id,
   });
   const {
     data: memberships,
     refetch,
     isLoading,
-  } = useGetV1AlbumsByIdMembershipsQuery(id ? { id } : { id: "" }, {
+  } = useMembershipsListQuery(id ? { id } : { id: "" }, {
     skip: !id,
   });
 
-  const [invite] = usePostV1AlbumsByIdInvitesMutation();
-  const [createLink] = usePostV1AlbumsByIdInviteLinksMutation();
-  const [revokeLink] = useDeleteV1AlbumsByIdInviteLinksAndLinkIdMutation();
-  const [removeMember] = useDeleteV1AlbumsByIdMembersAndUserIdMutation();
+  const [invite] = useInviteToAlbumMutation();
+  const [createLink] = useCreateAlbumInviteLinkMutation();
+  const [revokeLink] = useRevokeAlbumLinkInviteMutation();
+  const [removeMember] = useRemoveAlbumMemberMutation();
 
   const baseUrl = useMemo(
     () => (typeof window !== "undefined" ? window.location.origin : ""),

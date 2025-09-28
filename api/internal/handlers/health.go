@@ -9,7 +9,7 @@ import (
 )
 
 func RegisterHealth(s *fuego.Server, _ *app.App) {
-	fuego.Get(s, "/v1/health", func(c fuego.ContextNoBody) (api.StatusResponse, error) {
+	fuego.Get(s, "/health", func(c fuego.ContextNoBody) (api.StatusResponse, error) {
 		return api.StatusResponse{Status: "ok"}, nil
-	}, option.Summary("Healthcheck"))
+	}, option.Summary("Healthcheck"), option.OperationID("HealthCheck"))
 }

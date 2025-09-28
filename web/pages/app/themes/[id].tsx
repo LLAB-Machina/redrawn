@@ -10,19 +10,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useGetV1ThemesQuery } from "@/services/genApi";
+import { useListThemesQuery } from "@/services/genApi";
 import { useMemo } from "react";
 
 export default function ThemeDetailsPage() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
 
-  const {
-    data: themes,
-    isLoading,
-    isFetching,
-    error,
-  } = useGetV1ThemesQuery({});
+  const { data: themes, isLoading, isFetching, error } = useListThemesQuery({});
 
   const theme = useMemo(() => {
     if (!id || !themes) return undefined;

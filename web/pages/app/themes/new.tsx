@@ -10,13 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { usePostV1ThemesMutation } from "@/services/genApi";
+import { useCreateThemeMutation } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
 export default function NewThemePage() {
   const router = useRouter();
-  const [createTheme, { isLoading }] = usePostV1ThemesMutation();
+  const [createTheme, { isLoading }] = useCreateThemeMutation();
   const [name, setName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);

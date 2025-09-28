@@ -6,6 +6,7 @@ import (
 	"redrawn/api/internal/services"
 
 	"github.com/go-fuego/fuego"
+	"github.com/go-fuego/fuego/option"
 )
 
 type createThemeReq = api.CreateThemeRequest
@@ -13,13 +14,13 @@ type createThemeReq = api.CreateThemeRequest
 func RegisterThemes(s *fuego.Server, a *app.App) {
 	service := services.NewThemesService(a)
 
-	fuego.Get(s, "/v1/themes", func(c fuego.ContextNoBody) ([]api.Theme, error) {
+	fuego.Get(s, "/themes", func(c fuego.ContextNoBody) ([]api.Theme, error) {
 		return service.List(c.Context())
-	})
+	}, option.Summary("List themes"), option.OperationID("ListThemes"))
 
 	fuego.Post(
 		s,
-		"/v1/themes",
+		"/themes",
 		func(c fuego.ContextWithBody[createThemeReq]) (api.IDResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -27,5 +28,7 @@ func RegisterThemes(s *fuego.Server, a *app.App) {
 			}
 			return service.Create(c.Context(), body.Name, body.Prompt)
 		},
+		option.Summary("Create theme"),
+		option.OperationID("CreateTheme"),
 	)
 }

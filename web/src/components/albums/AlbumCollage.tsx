@@ -21,7 +21,7 @@ type PropsByPhotos = {
 export type AlbumCollageProps = PropsByIds | PropsByPhotos;
 
 export function AlbumCollage(props: AlbumCollageProps) {
-  const [triggerFileUrl] = api.useLazyGetV1FilesByIdUrlQuery();
+  const [triggerFileUrl] = api.useLazyGetPhotoFileUrlQuery();
   const [urls, setUrls] = React.useState<string[]>([]);
 
   const sizes =

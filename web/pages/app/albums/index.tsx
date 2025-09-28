@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useGetV1AlbumsQuery } from "@/services/genApi";
+import { useListAlbumsQuery } from "@/services/genApi";
 import React from "react";
 import { Plus, Users, Eye, Lock } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +16,7 @@ import { AlbumCollage } from "@/components/albums/AlbumCollage";
 // import { formatDistanceToNow } from "date-fns";
 
 export default function AlbumsPage() {
-  const { data: albums, isLoading, error } = useGetV1AlbumsQuery({});
+  const { data: albums, isLoading, error } = useListAlbumsQuery({});
 
   if (isLoading) {
     return (

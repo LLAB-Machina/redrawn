@@ -3,12 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useGetV1MeQuery, usePatchV1MeMutation } from "@/services/genApi";
+import { useMeQuery, useUpdateMeMutation } from "@/services/genApi";
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-  const { data: me } = useGetV1MeQuery({});
-  const [updateMe, { isLoading }] = usePatchV1MeMutation();
+  const { data: me } = useMeQuery({});
+  const [updateMe, { isLoading }] = useUpdateMeMutation();
   const [name, setName] = useState("");
 
   useEffect(() => {

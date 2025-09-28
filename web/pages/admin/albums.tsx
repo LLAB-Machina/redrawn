@@ -1,9 +1,9 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
-import { useGetV1AdminAlbumsQuery } from "@/services/genApi";
+import { useAdminListAlbumsQuery } from "@/services/genApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminAlbumsPage() {
-  const { data } = useGetV1AdminAlbumsQuery({});
+  const { data } = useAdminListAlbumsQuery({});
 
   return (
     <AppLayout>

@@ -1,9 +1,9 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import {
-  useGetV1AdminPricesQuery,
-  usePostV1AdminPricesMutation,
-  useDeleteV1AdminPricesByIdMutation,
-  usePutV1AdminPricesByIdMutation,
+  useAdminListPricesQuery,
+  useAdminCreatePriceMutation,
+  useAdminDeletePriceMutation,
+  useAdminUpdatePriceMutation,
 } from "@/services/genApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 export default function AdminPricesPage() {
-  const { data, refetch } = useGetV1AdminPricesQuery({});
-  const [createPrice] = usePostV1AdminPricesMutation();
-  const [updatePrice] = usePutV1AdminPricesByIdMutation();
-  const [deletePrice] = useDeleteV1AdminPricesByIdMutation();
+  const { data, refetch } = useAdminListPricesQuery({});
+  const [createPrice] = useAdminCreatePriceMutation();
+  const [updatePrice] = useAdminUpdatePriceMutation();
+  const [deletePrice] = useAdminDeletePriceMutation();
 
   const [name, setName] = useState("");
   const [credits, setCredits] = useState<number>(10);

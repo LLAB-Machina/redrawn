@@ -1,9 +1,9 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
-import { useGetV1AdminUsersQuery } from "@/services/genApi";
+import { useAdminListUsersQuery } from "@/services/genApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminUsersPage() {
-  const { data } = useGetV1AdminUsersQuery({});
+  const { data } = useAdminListUsersQuery({});
 
   return (
     <AppLayout>

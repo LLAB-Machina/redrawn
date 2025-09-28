@@ -1,14 +1,14 @@
 import { AppLayout } from "@/components/layouts/AppLayout";
 import {
-  useGetV1AdminJobsQuery,
-  useGetV1AdminJobsSummaryQuery,
+  useAdminListJobsQuery,
+  useAdminGetJobSummaryQuery,
 } from "@/services/genApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminJobsPage() {
-  const { data: jobs } = useGetV1AdminJobsQuery({});
-  const { data: summary } = useGetV1AdminJobsSummaryQuery({});
+  const { data: jobs } = useAdminListJobsQuery({});
+  const { data: summary } = useAdminGetJobSummaryQuery({});
 
   return (
     <AppLayout>

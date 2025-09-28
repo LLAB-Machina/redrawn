@@ -103,6 +103,9 @@ lint: ## Lint Go and Web projects
 	cd api && golangci-lint run ./...
 	cd web && npm run lint
 
+tsc:
+	cd web && npm run tsc
+
 test: ## Run Go and Web test suites
 	cd api && go test ./... -count=1
 
@@ -159,6 +162,8 @@ install-git-hooks: ## Install Git pre-push hook
 			  echo "make code-gen"; \
 			  echo "echo '[pre-push] Running make lint'"; \
 			  echo "make lint"; \
+			  echo "echo '[pre-push] Running make tsc'"; \
+			  echo "make tsc"; \
 			  echo "echo '[pre-push] Running make format'"; \
 			  echo "make format"; \
 			  echo "echo '[pre-push] Building Go API'"; \

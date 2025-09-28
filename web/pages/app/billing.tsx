@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  useGetV1BillingPricesQuery,
-  usePostV1BillingCreateCheckoutSessionMutation,
+  useListActivePricesQuery,
+  useCreateCheckoutSessionMutation,
 } from "@/services/genApi";
 import { useAuth } from "@/hooks/useAuth";
 import { CreditCard, Coins, Zap, Check } from "lucide-react";
@@ -18,11 +18,11 @@ import { useState } from "react";
 
 export default function BillingPage() {
   const { user } = useAuth();
-  const { data: prices, isLoading: pricesLoading } = useGetV1BillingPricesQuery(
+  const { data: prices, isLoading: pricesLoading } = useListActivePricesQuery(
     {}
   );
   const [createCheckoutSession, { isLoading: checkoutLoading }] =
-    usePostV1BillingCreateCheckoutSessionMutation();
+    useCreateCheckoutSessionMutation();
   const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
   const handlePurchase = async (priceId: string) => {

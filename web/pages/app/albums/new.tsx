@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  usePostV1AlbumsMutation,
-  useLazyGetV1AlbumSlugsBySlugCheckQuery,
+  useCreateAlbumMutation,
+  useLazySlugAvailabilityQuery,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -26,13 +26,13 @@ import { toast } from "sonner";
 
 export default function NewAlbumPage() {
   const router = useRouter();
-  const [createAlbum] = usePostV1AlbumsMutation();
+  const [createAlbum] = useCreateAlbumMutation();
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [triggerSlugCheck, { data: slugStatus, isFetching: checkingSlug }] =
-    useLazyGetV1AlbumSlugsBySlugCheckQuery();
+    useLazySlugAvailabilityQuery();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const checkingDelayRef = useRef<NodeJS.Timeout | null>(null);
   const [showChecking, setShowChecking] = useState(false);

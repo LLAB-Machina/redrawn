@@ -8,12 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useGetV1ThemesQuery } from "@/services/genApi";
+import { useListThemesQuery } from "@/services/genApi";
 import { Plus, Palette, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function ThemesPage() {
-  const { data: themes, isLoading, error } = useGetV1ThemesQuery({});
+  const { data: themes, isLoading, error } = useListThemesQuery({});
 
   if (isLoading) {
     return (

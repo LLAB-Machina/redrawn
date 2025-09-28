@@ -8,6 +8,7 @@ import (
 	"redrawn/api/internal/services"
 
 	"github.com/go-fuego/fuego"
+	"github.com/go-fuego/fuego/option"
 )
 
 func RegisterBilling(s *fuego.Server, a *app.App) {
@@ -15,7 +16,7 @@ func RegisterBilling(s *fuego.Server, a *app.App) {
 
 	fuego.Post(
 		s,
-		"/v1/billing/create-checkout-session",
+		"/create-checkout-session",
 		func(c fuego.ContextWithBody[api.CreateCheckoutSessionRequest]) (api.URLResponse, error) {
 			body, err := BindAndValidate(c)
 			if err != nil {
@@ -27,14 +28,16 @@ func RegisterBilling(s *fuego.Server, a *app.App) {
 			}
 			return api.URLResponse{URL: url}, nil
 		},
+		option.Summary("Create Stripe checkout session"),
+		option.OperationID("CreateCheckoutSession"),
 	)
 
 	// List active prices for display on pricing page
-	fuego.Get(s, "/v1/billing/prices", func(c fuego.ContextNoBody) ([]api.Price, error) {
+	fuego.Get(s, "/prices", func(c fuego.ContextNoBody) ([]api.Price, error) {
 		return service.ListActivePrices(c.Context())
-	})
+	}, option.Summary("List active prices"), option.OperationID("ListActivePrices"))
 
-	fuego.Post(s, "/v1/stripe/webhook", func(c fuego.ContextNoBody) (api.OkResponse, error) {
+	fuego.Post(s, "/stripe/webhook", func(c fuego.ContextNoBody) (api.OkResponse, error) {
 		r := c.Request()
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -45,5 +48,5 @@ func RegisterBilling(s *fuego.Server, a *app.App) {
 			return api.OkResponse{}, err
 		}
 		return api.OkResponse{Ok: "true"}, nil
-	})
+	}, option.Summary("Stripe webhook"), option.OperationID("StripeWebhook"))
 }
