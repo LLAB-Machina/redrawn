@@ -96,7 +96,7 @@ make reset-db
 
 ### OpenAPI & client generation
 ```bash
-make openapi            # outputs api/doc/openapi.json
+make openapi            # outputs api/openapi.json
 make generate-clients   # updates web/src/services/genApi.ts and related
 ```
 

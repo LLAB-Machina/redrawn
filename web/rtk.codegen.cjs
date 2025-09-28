@@ -1,6 +1,6 @@
 /** @type {import('@rtk-query/codegen-openapi').ConfigFile} */
 module.exports = {
-  schemaFile: "../api/doc/openapi.json",
+  schemaFile: "../api/openapi.json",
   apiFile: "./src/services/emptyApi.ts",
   apiImport: "emptySplitApi",
   outputFile: "./src/services/genApi.ts",

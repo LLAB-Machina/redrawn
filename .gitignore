@@ -27,3 +27,4 @@ docker-data/
 api/logs/jobs
 web-old/.next
 .env.prod
+api/doc/openapi.json
