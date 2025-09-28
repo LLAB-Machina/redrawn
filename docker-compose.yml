@@ -12,7 +12,7 @@ services:
     networks:
       - redrawn_network
     ports:
-      - "5433:5432"
+      - "5432:5432"
 
   api:
     build:
@@ -77,7 +77,7 @@ services:
     image: ghcr.io/riverqueue/riverui:latest
     restart: unless-stopped
     environment:
-      - DATABASE_URL=${DATABASE_URL:-postgres://redrawn:redrawn@postgres:5432/redrawn?sslmode=disable}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
       - RIVER_BASIC_AUTH_USER=${RIVER_BASIC_AUTH_USER}
       - RIVER_BASIC_AUTH_PASS=${RIVER_BASIC_AUTH_PASS}
       - RIVER_LOG_LEVEL=${RIVER_LOG_LEVEL:-info}
