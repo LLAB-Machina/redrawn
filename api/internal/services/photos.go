@@ -340,7 +340,10 @@ func (s *PhotosService) MarkAsFavorite(
 	return nil
 }
 
-func (s *PhotosService) extractImageMetadata(ctx context.Context, file *generated.File) (*PhotoMetadata, error) {
+func (s *PhotosService) extractImageMetadata(
+	ctx context.Context,
+	file *generated.File,
+) (*PhotoMetadata, error) {
 	if s.app.Storage == nil {
 		return nil, errors.New("storage not configured")
 	}

@@ -27,7 +27,10 @@ func NewMetadataService() *MetadataService {
 	return &MetadataService{}
 }
 
-func (s *MetadataService) ExtractMetadata(ctx context.Context, imageReader io.Reader) (*PhotoMetadata, error) {
+func (s *MetadataService) ExtractMetadata(
+	ctx context.Context,
+	imageReader io.Reader,
+) (*PhotoMetadata, error) {
 	exif.RegisterParsers(mknote.All...)
 
 	x, err := exif.Decode(imageReader)
