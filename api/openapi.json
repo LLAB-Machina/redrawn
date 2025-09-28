@@ -590,7 +590,6 @@
               },
               "type": "object"
             },
-            "nullable": true,
             "type": "array"
           },
           "id": {

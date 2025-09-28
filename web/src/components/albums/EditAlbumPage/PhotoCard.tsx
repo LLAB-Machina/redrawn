@@ -1,64 +1,76 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { api } from "@/services/genApi";
+import { Button } from "@/components/ui/button";
+import {
+  GeneratedPhoto,
+  OriginalPhoto,
+  useGeneratePhotoMutation,
+} from "@/services/genApi";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Zap, RefreshCw } from "lucide-react";
+import { ImageIcon, RefreshCw, Sparkles } from "lucide-react";
 import Image from "next/image";
+import { LoadingBar } from "@/components/ui/loading-bar";
 
 interface PhotoCardProps {
-  original: {
-    id?: string;
-    file_id?: string | null;
-    processing?: number | null;
-  };
+  originalPhoto: OriginalPhoto;
   index: number;
   ensureFileUrl: (fileId?: string | null) => Promise<string | null>;
   selectedThemeId: string;
-  onGenerate: () => void;
 }
 
 export default function PhotoCard({
-  original,
+  originalPhoto,
   index,
   ensureFileUrl,
   selectedThemeId,
-  onGenerate,
 }: PhotoCardProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [generatedImages, setGeneratedImages] = useState<
-    Array<{ file_id?: string | null; url?: string | null; state?: string }>
-  >([]);
-  const [showGenerated, setShowGenerated] = useState(false);
-  const [triggerGenerated] = api.useLazyListGeneratedPhotosQuery();
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null
+  );
+  const [favoriteGeneratedPhoto, setFavoriteGeneratedPhoto] =
+    useState<GeneratedPhoto | null>(null);
+
+  const [generatePhoto] = useGeneratePhotoMutation();
 
   useEffect(() => {
-    ensureFileUrl(original.file_id).then(setImageUrl);
-  }, [original.file_id, ensureFileUrl]);
+    ensureFileUrl(originalPhoto.file_id).then(setOriginalImageUrl);
+  }, [originalPhoto.file_id, ensureFileUrl]);
 
-  const loadGenerated = async () => {
-    if (!original.id) return;
+  useEffect(() => {
+    ensureFileUrl(favoriteGeneratedPhoto?.file_id).then(setGeneratedImageUrl);
+  }, [favoriteGeneratedPhoto?.file_id, ensureFileUrl]);
+
+  useEffect(() => {
+    if (
+      originalPhoto.generated_photos &&
+      originalPhoto.generated_photos.length > 0
+    ) {
+      const favoritePhoto =
+        originalPhoto.generated_photos.find(
+          (generated) => generated.is_favorite
+        ) ?? originalPhoto.generated_photos[0];
+      if (favoritePhoto.state === "finished") {
+        setFavoriteGeneratedPhoto(favoritePhoto);
+      }
+    }
+  }, [originalPhoto.generated_photos]);
+
+  const noGeneratedPhotos = originalPhoto.generated_photos?.length === 0;
+
+  const handleGeneratePhoto = async () => {
+    if (!selectedThemeId) return;
 
     try {
-      const data = await triggerGenerated({ id: original.id }).unwrap();
-      const imagesWithUrls = await Promise.all(
-        data.map(async (img) => ({
-          ...img,
-          url: await ensureFileUrl(img.file_id),
-        }))
-      );
-      setGeneratedImages(imagesWithUrls);
+      await generatePhoto({
+        id: originalPhoto.id!,
+        generateRequest: {
+          theme_id: selectedThemeId,
+        },
+      }).unwrap();
     } catch (error) {
-      console.error("Failed to load generated images:", error);
+      console.error("Failed to generate photo:", error);
     }
-  };
-
-  const handleShowGenerated = () => {
-    if (!showGenerated) {
-      loadGenerated();
-    }
-    setShowGenerated(!showGenerated);
   };
 
   return (
@@ -68,73 +80,64 @@ export default function PhotoCard({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Card className="group overflow-hidden">
-        <div className="aspect-square bg-muted relative overflow-hidden">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt="Original photo"
-              fill
-              className="object-cover transition-transform group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          )}
-        </div>
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <Button size="sm" onClick={onGenerate} disabled={!selectedThemeId}>
-              <Zap className="h-4 w-4 mr-1" />
-              Generate
-            </Button>
-            {(original.processing ?? 0) > 0 && (
-              <Badge variant="secondary" className="text-xs">
-                Processing ×{original.processing}
-              </Badge>
-            )}
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full text-xs"
-            onClick={handleShowGenerated}
-          >
-            {showGenerated ? "Hide" : "Show"} Generated
-          </Button>
-
-          {showGenerated && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="grid grid-cols-2 gap-2"
-            >
-              {generatedImages.map((img, i) => (
-                <div
-                  key={i}
-                  className="aspect-square bg-muted rounded overflow-hidden"
-                >
-                  {img.url ? (
-                    <Image
-                      src={img.url}
-                      alt="Generated"
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                      {img.state}
-                    </div>
-                  )}
+      <Card className="group">
+        <CardContent className="p-0">
+          <div className="flex flex-row overflow-hidden rounded-lg">
+            <div className="aspect-square bg-muted relative w-48 h-48">
+              {originalImageUrl ? (
+                <Image
+                  src={originalImageUrl}
+                  alt="Original photo"
+                  fill
+                  className="object-cover transition-transform"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
-              ))}
-            </motion.div>
-          )}
+              )}
+            </div>
+            <div className="aspect-square bg-muted relative overflow-hidden w-48 h-48">
+              {generatedImageUrl && (
+                <Image
+                  src={generatedImageUrl}
+                  alt="Generated photo"
+                  fill
+                  className="object-cover transition-transform"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              )}
+              {!generatedImageUrl && !noGeneratedPhotos && (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-4">
+                  <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <div className="w-full max-w-32">
+                    <LoadingBar duration={30} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Generating...</p>
+                </div>
+              )}
+              {noGeneratedPhotos && (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 p-4">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      No generated images
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={handleGeneratePhoto}
+                      disabled={!selectedThemeId}
+                      className="gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Generate
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
     </motion.div>

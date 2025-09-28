@@ -927,16 +927,14 @@ export type OriginalPhoto = {
   captured_at?: string | null;
   created_at?: string;
   file_id?: string | null;
-  generated_photos?:
-    | {
-        error?: string | null;
-        file_id?: string | null;
-        id?: string;
-        is_favorite?: boolean;
-        state?: string;
-        theme_id?: string | null;
-      }[]
-    | null;
+  generated_photos?: {
+    error?: string | null;
+    file_id?: string | null;
+    id?: string;
+    is_favorite?: boolean;
+    state?: string;
+    theme_id?: string | null;
+  }[];
   id?: string;
   image_height?: number | null;
   image_width?: number | null;

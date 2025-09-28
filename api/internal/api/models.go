@@ -65,7 +65,7 @@ type OriginalPhoto struct {
 	FileID    string    `json:"file_id,omitempty"`
 	// Number of generated photos currently in processing state for this original
 	Processing      int              `json:"processing,omitempty"`
-	GeneratedPhotos []GeneratedPhoto `json:"generated_photos,omitempty"`
+	GeneratedPhotos []GeneratedPhoto `json:"generated_photos"`
 	// EXIF metadata
 	CapturedAt   *time.Time `json:"captured_at,omitempty"`
 	Latitude     *float64   `json:"latitude,omitempty"`

@@ -4,9 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   useGetAlbumByIdQuery,
   useListThemesQuery,
-  useGeneratePhotoMutation,
   api,
   useListOriginalPhotosQuery,
+  OriginalPhoto,
 } from "@/services/genApi";
 import { useRouter } from "next/router";
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -21,10 +21,26 @@ export default function EditAlbumPage() {
   const { id } = router.query as { id: string };
 
   const { data: album } = useGetAlbumByIdQuery({ id }, { skip: !id });
-  const { data: originals } = useListOriginalPhotosQuery({ id }, { skip: !id });
+  const [originals, setOriginals] = useState<OriginalPhoto[]>([]);
+  const { data: originalData } = useListOriginalPhotosQuery(
+    { id },
+    {
+      skip: !id,
+      pollingInterval: originals?.some(
+        (original) => original?.processing ?? 0 > 0
+      )
+        ? 1000
+        : undefined,
+    }
+  );
   const { data: themes } = useListThemesQuery({});
 
-  const [generateImage] = useGeneratePhotoMutation();
+  useEffect(() => {
+    if (originalData) {
+      setOriginals(originalData);
+    }
+  }, [originalData]);
+
   const [triggerFileUrl] = api.useLazyGetPhotoFileUrlQuery();
 
   const [selectedThemeId, setSelectedThemeId] = useState<string>("");
@@ -100,23 +116,15 @@ export default function EditAlbumPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="flex flex-wrap gap-3">
               <AnimatePresence>
                 {originals.map((original, index) => (
                   <PhotoCard
                     key={original.id}
-                    original={original}
+                    originalPhoto={original}
                     index={index}
                     ensureFileUrl={ensureFileUrl}
                     selectedThemeId={selectedThemeId}
-                    onGenerate={() => {
-                      if (original.id && selectedThemeId) {
-                        generateImage({
-                          id: original.id,
-                          generateRequest: { theme_id: selectedThemeId },
-                        });
-                      }
-                    }}
                   />
                 ))}
               </AnimatePresence>
