@@ -251,7 +251,7 @@ func seedThemes(ctx context.Context, client *generated.Client) error {
 		{
 			Name:   "Ghibli",
 			Slug:   "ghibli",
-			Prompt: "Studio Ghibli style, soft watercolor backgrounds, warm pastel palette, whimsical, gentle lighting, delicate linework, film-grain, storybook aesthetic, keep facial expressions and details",
+			Prompt: "Transform this image in the style of Studio Ghibli. Just like their biggest fan and admirer would, training for years to master the technique to near perfection. ",
 		},
 	}
 
