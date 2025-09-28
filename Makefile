@@ -81,7 +81,7 @@ setup-all: ## Automatically run complete setup from scratch (install, env, db, m
 	@echo ""
 	@echo "🎉 Then visit http://localhost:3000"
 
-.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install install-git-hooks openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list setup setup-all
+.PHONY: api web migrate-diff migrate-apply lint test docker-up docker-down db-up db-down install install-git-hooks openapi generate-clients ent-gen code-gen reset-db uphead init-env compose-dev-up compose-dev-down compose-prod-up compose-prod-down format build-api local-stripe local-stripe-trigger seed-db grant-credits river-up river-down river-list setup setup-all downgrade
 
 api: ## Run API locally (requires Postgres running via docker compose)
 	@AIR_BIN=$$(go env GOPATH)/bin/air; \
@@ -146,31 +146,75 @@ install: ## Install Go, Atlas, Node, and other local dev deps (macOS/Debian/Ubun
 	@echo "Done. You can now run: 'docker compose up -d postgres' and then 'make dev'"
 
 
-install-git-hooks: ## Install Git pre-push hook
-	@echo "Installing Git pre-push hook..."
-	@HOOK_DIR=.git/hooks; HOOK_PATH=$$HOOK_DIR/pre-push; \
+install-git-hooks: ## Install Git pre-push and post-merge hooks
+	@echo "Installing Git hooks..."
+	@HOOK_DIR=.git/hooks; \
 		if [ -d .git ]; then \
 			mkdir -p $$HOOK_DIR; \
+			echo "Installing pre-push hook..."; \
+			PRE_PUSH_PATH=$$HOOK_DIR/pre-push; \
 			( \
 			  echo "#!/bin/sh"; \
 			  echo "set -e"; \
-			  echo 'REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"'; \
+			  echo ""; \
+			  echo 'REPO_ROOT="$$(git rev-parse --show-toplevel 2>/dev/null || pwd)"'; \
 			  echo 'cd "$$REPO_ROOT"'; \
+			  echo ""; \
+			  echo "# Function to check for uncommitted changes"; \
+			  echo "check_no_changes() {"; \
+			  echo '  if [ -n "$$(git status --porcelain)" ]; then'; \
+			  echo '    echo "❌ [pre-push] ERROR: Files were modified during hook execution:"'; \
+			  echo '    git status --porcelain'; \
+			  echo '    echo ""'; \
+			  echo '    echo "This usually means a formatting or code generation tool made changes."'; \
+			  echo '    echo "Please commit these changes and try pushing again."'; \
+			  echo '    exit 1'; \
+			  echo "  fi"; \
+			  echo "}"; \
+			  echo ""; \
+			  echo "# Initial check"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Running make revision'"; \
 			  echo "make revision"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Running make code-gen'"; \
 			  echo "make code-gen"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Running make lint'"; \
 			  echo "make lint"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Running make tsc'"; \
 			  echo "make tsc"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Running make format'"; \
 			  echo "make format"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
 			  echo "echo '[pre-push] Building Go API'"; \
 			  echo "make build-api"; \
-			) > $$HOOK_PATH; \
-			chmod +x $$HOOK_PATH; \
-			echo "Git pre-push hook installed at $$HOOK_PATH"; \
+			  echo "check_no_changes"; \
+			  echo ""; \
+			  echo "echo '✅ [pre-push] All checks passed!'"; \
+			) > $$PRE_PUSH_PATH; \
+			chmod +x $$PRE_PUSH_PATH; \
+			echo "Installing post-merge hook..."; \
+			POST_MERGE_PATH=$$HOOK_DIR/post-merge; \
+			( \
+			  echo "#!/bin/sh"; \
+			  echo "# Auto-update git hooks after pull/merge"; \
+			  echo 'REPO_ROOT="$$(git rev-parse --show-toplevel 2>/dev/null || pwd)"'; \
+			  echo 'cd "$$REPO_ROOT"'; \
+			  echo "echo '[post-merge] Updating git hooks...'"; \
+			  echo "make install-git-hooks >/dev/null 2>&1 || true"; \
+			  echo "echo '[post-merge] Git hooks updated.'"; \
+			) > $$POST_MERGE_PATH; \
+			chmod +x $$POST_MERGE_PATH; \
+			echo "Git hooks installed: pre-push, post-merge"; \
 		else \
 			echo "No .git directory found; skipping Git hook installation."; \
 		fi
@@ -200,6 +244,10 @@ revision: ## Generate Atlas migration from Ent schemas
 uphead: ## Apply Atlas migrations
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
 	atlas migrate apply --dir file://migrations --url '$(DATABASE_URL)'
+
+downgrade: ## Roll back the most recent Atlas migration
+	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
+	atlas migrate down --dir file://migrations --url '$(DATABASE_URL)' --steps 1
 
 reset-db: ## Force-reset Postgres data (dev), re-apply migrations, then River (DANGER)
 	@if [ -z "$(DATABASE_URL)" ]; then echo "DATABASE_URL not set (set it in .env or environment)"; exit 1; fi
