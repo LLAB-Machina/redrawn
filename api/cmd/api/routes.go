@@ -39,9 +39,9 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 
 	// Public endpoints
 	handlers.RegisterHealth(s, a)
-	authGroup := fuego.Group(s, "v1/auth")
+	authGroup := fuego.Group(s, "/v1/auth")
 	handlers.RegisterAuth(authGroup, a)
-	publicGroup := fuego.Group(s, "v1/public")
+	publicGroup := fuego.Group(s, "/v1/public")
 	handlers.RegisterPublic(publicGroup, a)
 
 	// Protected endpoints (require session)

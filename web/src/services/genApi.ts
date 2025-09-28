@@ -4,11 +4,11 @@ export const addTagTypes = [
   "v1/albums",
   "v1/albums/membership",
   "v1/albums/photos",
+  "v1/auth",
   "v1/billing",
+  "v1/public",
   "v1/themes",
   "v1/users",
-  "v1/auth",
-  "v1/public",
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -354,6 +354,34 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["v1/albums"],
       }),
+      authGoogleCallback: build.query<
+        AuthGoogleCallbackApiResponse,
+        AuthGoogleCallbackApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/auth/google/callback`,
+          headers: { Accept: queryArg.accept },
+        }),
+        providesTags: ["v1/auth"],
+      }),
+      authGoogleStart: build.query<
+        AuthGoogleStartApiResponse,
+        AuthGoogleStartApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/auth/google/start`,
+          headers: { Accept: queryArg.accept },
+        }),
+        providesTags: ["v1/auth"],
+      }),
+      authLogout: build.mutation<AuthLogoutApiResponse, AuthLogoutApiArg>({
+        query: (queryArg) => ({
+          url: `/v1/auth/logout`,
+          method: "POST",
+          headers: { Accept: queryArg.accept },
+        }),
+        invalidatesTags: ["v1/auth"],
+      }),
       createCheckoutSession: build.mutation<
         CreateCheckoutSessionApiResponse,
         CreateCheckoutSessionApiArg
@@ -387,6 +415,26 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["v1/billing"],
       }),
+      previewInviteLink: build.query<
+        PreviewInviteLinkApiResponse,
+        PreviewInviteLinkApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/public/albums/${queryArg.id}/invite/${queryArg.token}`,
+          headers: { Accept: queryArg.accept },
+        }),
+        providesTags: ["v1/public"],
+      }),
+      getPublicAlbumBySlug: build.query<
+        GetPublicAlbumBySlugApiResponse,
+        GetPublicAlbumBySlugApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/v1/public/albums/${queryArg.slug}`,
+          headers: { Accept: queryArg.accept },
+        }),
+        providesTags: ["v1/public"],
+      }),
       listThemes: build.query<ListThemesApiResponse, ListThemesApiArg>({
         query: (queryArg) => ({
           url: `/v1/themes/themes`,
@@ -418,54 +466,6 @@ const injectedRtkApi = api
           headers: { Accept: queryArg.accept },
         }),
         invalidatesTags: ["v1/users"],
-      }),
-      authGoogleCallback: build.query<
-        AuthGoogleCallbackApiResponse,
-        AuthGoogleCallbackApiArg
-      >({
-        query: (queryArg) => ({
-          url: `v1/auth/google/callback`,
-          headers: { Accept: queryArg.accept },
-        }),
-        providesTags: ["v1/auth"],
-      }),
-      authGoogleStart: build.query<
-        AuthGoogleStartApiResponse,
-        AuthGoogleStartApiArg
-      >({
-        query: (queryArg) => ({
-          url: `v1/auth/google/start`,
-          headers: { Accept: queryArg.accept },
-        }),
-        providesTags: ["v1/auth"],
-      }),
-      authLogout: build.mutation<AuthLogoutApiResponse, AuthLogoutApiArg>({
-        query: (queryArg) => ({
-          url: `v1/auth/logout`,
-          method: "POST",
-          headers: { Accept: queryArg.accept },
-        }),
-        invalidatesTags: ["v1/auth"],
-      }),
-      previewInviteLink: build.query<
-        PreviewInviteLinkApiResponse,
-        PreviewInviteLinkApiArg
-      >({
-        query: (queryArg) => ({
-          url: `v1/public/albums/${queryArg.id}/invite/${queryArg.token}`,
-          headers: { Accept: queryArg.accept },
-        }),
-        providesTags: ["v1/public"],
-      }),
-      getPublicAlbumBySlug: build.query<
-        GetPublicAlbumBySlugApiResponse,
-        GetPublicAlbumBySlugApiArg
-      >({
-        query: (queryArg) => ({
-          url: `v1/public/albums/${queryArg.slug}`,
-          headers: { Accept: queryArg.accept },
-        }),
-        providesTags: ["v1/public"],
       }),
     }),
     overrideExisting: false,
@@ -664,6 +664,18 @@ export type UpdateAlbumApiArg = {
   /** Request body for api.AlbumUpdateRequest */
   albumUpdateRequest: AlbumUpdateRequest;
 };
+export type AuthGoogleCallbackApiResponse = /** status 200 OK */ OkResponse;
+export type AuthGoogleCallbackApiArg = {
+  accept?: string;
+};
+export type AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
+export type AuthGoogleStartApiArg = {
+  accept?: string;
+};
+export type AuthLogoutApiResponse = /** status 200 OK */ OkResponse;
+export type AuthLogoutApiArg = {
+  accept?: string;
+};
 export type CreateCheckoutSessionApiResponse = /** status 200 OK */ UrlResponse;
 export type CreateCheckoutSessionApiArg = {
   accept?: string;
@@ -677,6 +689,18 @@ export type ListActivePricesApiArg = {
 export type StripeWebhookApiResponse = /** status 200 OK */ OkResponse;
 export type StripeWebhookApiArg = {
   accept?: string;
+};
+export type PreviewInviteLinkApiResponse =
+  /** status 200 OK */ InviteLinkPreview;
+export type PreviewInviteLinkApiArg = {
+  accept?: string;
+  id: string;
+  token: string;
+};
+export type GetPublicAlbumBySlugApiResponse = /** status 200 OK */ PublicAlbum;
+export type GetPublicAlbumBySlugApiArg = {
+  accept?: string;
+  slug: string;
 };
 export type ListThemesApiResponse = /** status 200 OK */ Theme[];
 export type ListThemesApiArg = {
@@ -697,30 +721,6 @@ export type UpdateMeApiArg = {
   accept?: string;
   /** Request body for api.PatchMeRequest */
   patchMeRequest: PatchMeRequest;
-};
-export type AuthGoogleCallbackApiResponse = /** status 200 OK */ OkResponse;
-export type AuthGoogleCallbackApiArg = {
-  accept?: string;
-};
-export type AuthGoogleStartApiResponse = /** status 200 OK */ UrlResponse;
-export type AuthGoogleStartApiArg = {
-  accept?: string;
-};
-export type AuthLogoutApiResponse = /** status 200 OK */ OkResponse;
-export type AuthLogoutApiArg = {
-  accept?: string;
-};
-export type PreviewInviteLinkApiResponse =
-  /** status 200 OK */ InviteLinkPreview;
-export type PreviewInviteLinkApiArg = {
-  accept?: string;
-  id: string;
-  token: string;
-};
-export type GetPublicAlbumBySlugApiResponse = /** status 200 OK */ PublicAlbum;
-export type GetPublicAlbumBySlugApiArg = {
-  accept?: string;
-  slug: string;
 };
 export type StatusResponse = {
   status?: string;
@@ -920,26 +920,6 @@ export type AlbumUpdateRequest = {
 export type CreateCheckoutSessionRequest = {
   price_id: string;
 };
-export type Theme = {
-  id?: string;
-  name?: string;
-  prompt?: string | null;
-  slug?: string;
-};
-export type CreateThemeRequest = {
-  name?: string;
-  prompt?: string;
-};
-export type User = {
-  credits?: number;
-  email?: string;
-  id?: string;
-  name?: string | null;
-  plan?: string;
-};
-export type PatchMeRequest = {
-  name?: string | null;
-};
 export type InviteLinkPreview = {
   album_id?: string;
   album_name?: string;
@@ -963,6 +943,26 @@ export type PublicAlbum = {
     id?: string;
   }[];
   slug?: string;
+};
+export type Theme = {
+  id?: string;
+  name?: string;
+  prompt?: string | null;
+  slug?: string;
+};
+export type CreateThemeRequest = {
+  name?: string;
+  prompt?: string;
+};
+export type User = {
+  credits?: number;
+  email?: string;
+  id?: string;
+  name?: string | null;
+  plan?: string;
+};
+export type PatchMeRequest = {
+  name?: string | null;
 };
 export const {
   useHealthCheckQuery,
@@ -1014,23 +1014,23 @@ export const {
   useGetAlbumByIdQuery,
   useLazyGetAlbumByIdQuery,
   useUpdateAlbumMutation,
+  useAuthGoogleCallbackQuery,
+  useLazyAuthGoogleCallbackQuery,
+  useAuthGoogleStartQuery,
+  useLazyAuthGoogleStartQuery,
+  useAuthLogoutMutation,
   useCreateCheckoutSessionMutation,
   useListActivePricesQuery,
   useLazyListActivePricesQuery,
   useStripeWebhookMutation,
+  usePreviewInviteLinkQuery,
+  useLazyPreviewInviteLinkQuery,
+  useGetPublicAlbumBySlugQuery,
+  useLazyGetPublicAlbumBySlugQuery,
   useListThemesQuery,
   useLazyListThemesQuery,
   useCreateThemeMutation,
   useMeQuery,
   useLazyMeQuery,
   useUpdateMeMutation,
-  useAuthGoogleCallbackQuery,
-  useLazyAuthGoogleCallbackQuery,
-  useAuthGoogleStartQuery,
-  useLazyAuthGoogleStartQuery,
-  useAuthLogoutMutation,
-  usePreviewInviteLinkQuery,
-  useLazyPreviewInviteLinkQuery,
-  useGetPublicAlbumBySlugQuery,
-  useLazyGetPublicAlbumBySlugQuery,
 } = injectedRtkApi;
