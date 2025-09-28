@@ -66,6 +66,14 @@ type OriginalPhoto struct {
 	// Number of generated photos currently in processing state for this original
 	Processing      int              `json:"processing,omitempty"`
 	GeneratedPhotos []GeneratedPhoto `json:"generated_photos,omitempty"`
+	// EXIF metadata
+	CapturedAt   *time.Time `json:"captured_at,omitempty"`
+	Latitude     *float64   `json:"latitude,omitempty"`
+	Longitude    *float64   `json:"longitude,omitempty"`
+	LocationName *string    `json:"location_name,omitempty"`
+	ImageWidth   *int       `json:"image_width,omitempty"`
+	ImageHeight  *int       `json:"image_height,omitempty"`
+	Orientation  *string    `json:"orientation,omitempty"`
 }
 
 type GeneratedPhoto struct {

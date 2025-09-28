@@ -80,6 +80,41 @@ func DeletedAt(v time.Time) predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// CapturedAt applies equality check predicate on the "captured_at" field. It's identical to CapturedAtEQ.
+func CapturedAt(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldCapturedAt, v))
+}
+
+// Latitude applies equality check predicate on the "latitude" field. It's identical to LatitudeEQ.
+func Latitude(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLatitude, v))
+}
+
+// Longitude applies equality check predicate on the "longitude" field. It's identical to LongitudeEQ.
+func Longitude(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLongitude, v))
+}
+
+// LocationName applies equality check predicate on the "location_name" field. It's identical to LocationNameEQ.
+func LocationName(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLocationName, v))
+}
+
+// ImageWidth applies equality check predicate on the "image_width" field. It's identical to ImageWidthEQ.
+func ImageWidth(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldImageWidth, v))
+}
+
+// ImageHeight applies equality check predicate on the "image_height" field. It's identical to ImageHeightEQ.
+func ImageHeight(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldImageHeight, v))
+}
+
+// Orientation applies equality check predicate on the "orientation" field. It's identical to OrientationEQ.
+func Orientation(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldOrientation, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldEQ(FieldCreatedAt, v))
@@ -208,6 +243,406 @@ func DeletedAtIsNil() predicate.OriginalPhoto {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.OriginalPhoto {
 	return predicate.OriginalPhoto(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// CapturedAtEQ applies the EQ predicate on the "captured_at" field.
+func CapturedAtEQ(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldCapturedAt, v))
+}
+
+// CapturedAtNEQ applies the NEQ predicate on the "captured_at" field.
+func CapturedAtNEQ(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldCapturedAt, v))
+}
+
+// CapturedAtIn applies the In predicate on the "captured_at" field.
+func CapturedAtIn(vs ...time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldCapturedAt, vs...))
+}
+
+// CapturedAtNotIn applies the NotIn predicate on the "captured_at" field.
+func CapturedAtNotIn(vs ...time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldCapturedAt, vs...))
+}
+
+// CapturedAtGT applies the GT predicate on the "captured_at" field.
+func CapturedAtGT(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldCapturedAt, v))
+}
+
+// CapturedAtGTE applies the GTE predicate on the "captured_at" field.
+func CapturedAtGTE(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldCapturedAt, v))
+}
+
+// CapturedAtLT applies the LT predicate on the "captured_at" field.
+func CapturedAtLT(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldCapturedAt, v))
+}
+
+// CapturedAtLTE applies the LTE predicate on the "captured_at" field.
+func CapturedAtLTE(v time.Time) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldCapturedAt, v))
+}
+
+// CapturedAtIsNil applies the IsNil predicate on the "captured_at" field.
+func CapturedAtIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldCapturedAt))
+}
+
+// CapturedAtNotNil applies the NotNil predicate on the "captured_at" field.
+func CapturedAtNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldCapturedAt))
+}
+
+// LatitudeEQ applies the EQ predicate on the "latitude" field.
+func LatitudeEQ(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLatitude, v))
+}
+
+// LatitudeNEQ applies the NEQ predicate on the "latitude" field.
+func LatitudeNEQ(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldLatitude, v))
+}
+
+// LatitudeIn applies the In predicate on the "latitude" field.
+func LatitudeIn(vs ...float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldLatitude, vs...))
+}
+
+// LatitudeNotIn applies the NotIn predicate on the "latitude" field.
+func LatitudeNotIn(vs ...float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldLatitude, vs...))
+}
+
+// LatitudeGT applies the GT predicate on the "latitude" field.
+func LatitudeGT(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldLatitude, v))
+}
+
+// LatitudeGTE applies the GTE predicate on the "latitude" field.
+func LatitudeGTE(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldLatitude, v))
+}
+
+// LatitudeLT applies the LT predicate on the "latitude" field.
+func LatitudeLT(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldLatitude, v))
+}
+
+// LatitudeLTE applies the LTE predicate on the "latitude" field.
+func LatitudeLTE(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldLatitude, v))
+}
+
+// LatitudeIsNil applies the IsNil predicate on the "latitude" field.
+func LatitudeIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldLatitude))
+}
+
+// LatitudeNotNil applies the NotNil predicate on the "latitude" field.
+func LatitudeNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldLatitude))
+}
+
+// LongitudeEQ applies the EQ predicate on the "longitude" field.
+func LongitudeEQ(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLongitude, v))
+}
+
+// LongitudeNEQ applies the NEQ predicate on the "longitude" field.
+func LongitudeNEQ(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldLongitude, v))
+}
+
+// LongitudeIn applies the In predicate on the "longitude" field.
+func LongitudeIn(vs ...float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldLongitude, vs...))
+}
+
+// LongitudeNotIn applies the NotIn predicate on the "longitude" field.
+func LongitudeNotIn(vs ...float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldLongitude, vs...))
+}
+
+// LongitudeGT applies the GT predicate on the "longitude" field.
+func LongitudeGT(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldLongitude, v))
+}
+
+// LongitudeGTE applies the GTE predicate on the "longitude" field.
+func LongitudeGTE(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldLongitude, v))
+}
+
+// LongitudeLT applies the LT predicate on the "longitude" field.
+func LongitudeLT(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldLongitude, v))
+}
+
+// LongitudeLTE applies the LTE predicate on the "longitude" field.
+func LongitudeLTE(v float64) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldLongitude, v))
+}
+
+// LongitudeIsNil applies the IsNil predicate on the "longitude" field.
+func LongitudeIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldLongitude))
+}
+
+// LongitudeNotNil applies the NotNil predicate on the "longitude" field.
+func LongitudeNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldLongitude))
+}
+
+// LocationNameEQ applies the EQ predicate on the "location_name" field.
+func LocationNameEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldLocationName, v))
+}
+
+// LocationNameNEQ applies the NEQ predicate on the "location_name" field.
+func LocationNameNEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldLocationName, v))
+}
+
+// LocationNameIn applies the In predicate on the "location_name" field.
+func LocationNameIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldLocationName, vs...))
+}
+
+// LocationNameNotIn applies the NotIn predicate on the "location_name" field.
+func LocationNameNotIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldLocationName, vs...))
+}
+
+// LocationNameGT applies the GT predicate on the "location_name" field.
+func LocationNameGT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldLocationName, v))
+}
+
+// LocationNameGTE applies the GTE predicate on the "location_name" field.
+func LocationNameGTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldLocationName, v))
+}
+
+// LocationNameLT applies the LT predicate on the "location_name" field.
+func LocationNameLT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldLocationName, v))
+}
+
+// LocationNameLTE applies the LTE predicate on the "location_name" field.
+func LocationNameLTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldLocationName, v))
+}
+
+// LocationNameContains applies the Contains predicate on the "location_name" field.
+func LocationNameContains(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContains(FieldLocationName, v))
+}
+
+// LocationNameHasPrefix applies the HasPrefix predicate on the "location_name" field.
+func LocationNameHasPrefix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasPrefix(FieldLocationName, v))
+}
+
+// LocationNameHasSuffix applies the HasSuffix predicate on the "location_name" field.
+func LocationNameHasSuffix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasSuffix(FieldLocationName, v))
+}
+
+// LocationNameIsNil applies the IsNil predicate on the "location_name" field.
+func LocationNameIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldLocationName))
+}
+
+// LocationNameNotNil applies the NotNil predicate on the "location_name" field.
+func LocationNameNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldLocationName))
+}
+
+// LocationNameEqualFold applies the EqualFold predicate on the "location_name" field.
+func LocationNameEqualFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEqualFold(FieldLocationName, v))
+}
+
+// LocationNameContainsFold applies the ContainsFold predicate on the "location_name" field.
+func LocationNameContainsFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContainsFold(FieldLocationName, v))
+}
+
+// ImageWidthEQ applies the EQ predicate on the "image_width" field.
+func ImageWidthEQ(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldImageWidth, v))
+}
+
+// ImageWidthNEQ applies the NEQ predicate on the "image_width" field.
+func ImageWidthNEQ(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldImageWidth, v))
+}
+
+// ImageWidthIn applies the In predicate on the "image_width" field.
+func ImageWidthIn(vs ...int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldImageWidth, vs...))
+}
+
+// ImageWidthNotIn applies the NotIn predicate on the "image_width" field.
+func ImageWidthNotIn(vs ...int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldImageWidth, vs...))
+}
+
+// ImageWidthGT applies the GT predicate on the "image_width" field.
+func ImageWidthGT(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldImageWidth, v))
+}
+
+// ImageWidthGTE applies the GTE predicate on the "image_width" field.
+func ImageWidthGTE(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldImageWidth, v))
+}
+
+// ImageWidthLT applies the LT predicate on the "image_width" field.
+func ImageWidthLT(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldImageWidth, v))
+}
+
+// ImageWidthLTE applies the LTE predicate on the "image_width" field.
+func ImageWidthLTE(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldImageWidth, v))
+}
+
+// ImageWidthIsNil applies the IsNil predicate on the "image_width" field.
+func ImageWidthIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldImageWidth))
+}
+
+// ImageWidthNotNil applies the NotNil predicate on the "image_width" field.
+func ImageWidthNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldImageWidth))
+}
+
+// ImageHeightEQ applies the EQ predicate on the "image_height" field.
+func ImageHeightEQ(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldImageHeight, v))
+}
+
+// ImageHeightNEQ applies the NEQ predicate on the "image_height" field.
+func ImageHeightNEQ(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldImageHeight, v))
+}
+
+// ImageHeightIn applies the In predicate on the "image_height" field.
+func ImageHeightIn(vs ...int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldImageHeight, vs...))
+}
+
+// ImageHeightNotIn applies the NotIn predicate on the "image_height" field.
+func ImageHeightNotIn(vs ...int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldImageHeight, vs...))
+}
+
+// ImageHeightGT applies the GT predicate on the "image_height" field.
+func ImageHeightGT(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldImageHeight, v))
+}
+
+// ImageHeightGTE applies the GTE predicate on the "image_height" field.
+func ImageHeightGTE(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldImageHeight, v))
+}
+
+// ImageHeightLT applies the LT predicate on the "image_height" field.
+func ImageHeightLT(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldImageHeight, v))
+}
+
+// ImageHeightLTE applies the LTE predicate on the "image_height" field.
+func ImageHeightLTE(v int) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldImageHeight, v))
+}
+
+// ImageHeightIsNil applies the IsNil predicate on the "image_height" field.
+func ImageHeightIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldImageHeight))
+}
+
+// ImageHeightNotNil applies the NotNil predicate on the "image_height" field.
+func ImageHeightNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldImageHeight))
+}
+
+// OrientationEQ applies the EQ predicate on the "orientation" field.
+func OrientationEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEQ(FieldOrientation, v))
+}
+
+// OrientationNEQ applies the NEQ predicate on the "orientation" field.
+func OrientationNEQ(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNEQ(FieldOrientation, v))
+}
+
+// OrientationIn applies the In predicate on the "orientation" field.
+func OrientationIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIn(FieldOrientation, vs...))
+}
+
+// OrientationNotIn applies the NotIn predicate on the "orientation" field.
+func OrientationNotIn(vs ...string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotIn(FieldOrientation, vs...))
+}
+
+// OrientationGT applies the GT predicate on the "orientation" field.
+func OrientationGT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGT(FieldOrientation, v))
+}
+
+// OrientationGTE applies the GTE predicate on the "orientation" field.
+func OrientationGTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldGTE(FieldOrientation, v))
+}
+
+// OrientationLT applies the LT predicate on the "orientation" field.
+func OrientationLT(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLT(FieldOrientation, v))
+}
+
+// OrientationLTE applies the LTE predicate on the "orientation" field.
+func OrientationLTE(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldLTE(FieldOrientation, v))
+}
+
+// OrientationContains applies the Contains predicate on the "orientation" field.
+func OrientationContains(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContains(FieldOrientation, v))
+}
+
+// OrientationHasPrefix applies the HasPrefix predicate on the "orientation" field.
+func OrientationHasPrefix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasPrefix(FieldOrientation, v))
+}
+
+// OrientationHasSuffix applies the HasSuffix predicate on the "orientation" field.
+func OrientationHasSuffix(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldHasSuffix(FieldOrientation, v))
+}
+
+// OrientationIsNil applies the IsNil predicate on the "orientation" field.
+func OrientationIsNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldIsNull(FieldOrientation))
+}
+
+// OrientationNotNil applies the NotNil predicate on the "orientation" field.
+func OrientationNotNil() predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldNotNull(FieldOrientation))
+}
+
+// OrientationEqualFold applies the EqualFold predicate on the "orientation" field.
+func OrientationEqualFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldEqualFold(FieldOrientation, v))
+}
+
+// OrientationContainsFold applies the ContainsFold predicate on the "orientation" field.
+func OrientationContainsFold(v string) predicate.OriginalPhoto {
+	return predicate.OriginalPhoto(sql.FieldContainsFold(FieldOrientation, v))
 }
 
 // HasAlbum applies the HasEdge predicate on the "album" edge.

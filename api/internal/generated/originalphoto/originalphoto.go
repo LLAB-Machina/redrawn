@@ -19,6 +19,20 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldCapturedAt holds the string denoting the captured_at field in the database.
+	FieldCapturedAt = "captured_at"
+	// FieldLatitude holds the string denoting the latitude field in the database.
+	FieldLatitude = "latitude"
+	// FieldLongitude holds the string denoting the longitude field in the database.
+	FieldLongitude = "longitude"
+	// FieldLocationName holds the string denoting the location_name field in the database.
+	FieldLocationName = "location_name"
+	// FieldImageWidth holds the string denoting the image_width field in the database.
+	FieldImageWidth = "image_width"
+	// FieldImageHeight holds the string denoting the image_height field in the database.
+	FieldImageHeight = "image_height"
+	// FieldOrientation holds the string denoting the orientation field in the database.
+	FieldOrientation = "orientation"
 	// EdgeAlbum holds the string denoting the album edge name in mutations.
 	EdgeAlbum = "album"
 	// EdgeFile holds the string denoting the file edge name in mutations.
@@ -74,6 +88,13 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldCapturedAt,
+	FieldLatitude,
+	FieldLongitude,
+	FieldLocationName,
+	FieldImageWidth,
+	FieldImageHeight,
+	FieldOrientation,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "original_photos"
@@ -131,6 +152,41 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByCapturedAt orders the results by the captured_at field.
+func ByCapturedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCapturedAt, opts...).ToFunc()
+}
+
+// ByLatitude orders the results by the latitude field.
+func ByLatitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLatitude, opts...).ToFunc()
+}
+
+// ByLongitude orders the results by the longitude field.
+func ByLongitude(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLongitude, opts...).ToFunc()
+}
+
+// ByLocationName orders the results by the location_name field.
+func ByLocationName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLocationName, opts...).ToFunc()
+}
+
+// ByImageWidth orders the results by the image_width field.
+func ByImageWidth(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageWidth, opts...).ToFunc()
+}
+
+// ByImageHeight orders the results by the image_height field.
+func ByImageHeight(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageHeight, opts...).ToFunc()
+}
+
+// ByOrientation orders the results by the orientation field.
+func ByOrientation(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrientation, opts...).ToFunc()
 }
 
 // ByAlbumField orders the results by album field.

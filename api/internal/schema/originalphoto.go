@@ -18,6 +18,15 @@ func (OriginalPhoto) Mixin() []ent.Mixin {
 func (OriginalPhoto) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").DefaultFunc(newID),
+		// EXIF metadata - Location & Time
+		field.Time("captured_at").Optional().Nillable(),
+		field.Float("latitude").Optional().Nillable(),
+		field.Float("longitude").Optional().Nillable(),
+		field.String("location_name").Optional().Nillable(),
+		// Image Properties
+		field.Int("image_width").Optional().Nillable(),
+		field.Int("image_height").Optional().Nillable(),
+		field.String("orientation").Optional().Nillable(),
 	}
 }
 

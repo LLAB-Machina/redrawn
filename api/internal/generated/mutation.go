@@ -7209,6 +7209,17 @@ type OriginalPhotoMutation struct {
 	created_at           *time.Time
 	updated_at           *time.Time
 	deleted_at           *time.Time
+	captured_at          *time.Time
+	latitude             *float64
+	addlatitude          *float64
+	longitude            *float64
+	addlongitude         *float64
+	location_name        *string
+	image_width          *int
+	addimage_width       *int
+	image_height         *int
+	addimage_height      *int
+	orientation          *string
 	clearedFields        map[string]struct{}
 	album                *string
 	clearedalbum         bool
@@ -7450,6 +7461,433 @@ func (m *OriginalPhotoMutation) DeletedAtCleared() bool {
 func (m *OriginalPhotoMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, originalphoto.FieldDeletedAt)
+}
+
+// SetCapturedAt sets the "captured_at" field.
+func (m *OriginalPhotoMutation) SetCapturedAt(t time.Time) {
+	m.captured_at = &t
+}
+
+// CapturedAt returns the value of the "captured_at" field in the mutation.
+func (m *OriginalPhotoMutation) CapturedAt() (r time.Time, exists bool) {
+	v := m.captured_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCapturedAt returns the old "captured_at" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldCapturedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCapturedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCapturedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCapturedAt: %w", err)
+	}
+	return oldValue.CapturedAt, nil
+}
+
+// ClearCapturedAt clears the value of the "captured_at" field.
+func (m *OriginalPhotoMutation) ClearCapturedAt() {
+	m.captured_at = nil
+	m.clearedFields[originalphoto.FieldCapturedAt] = struct{}{}
+}
+
+// CapturedAtCleared returns if the "captured_at" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) CapturedAtCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldCapturedAt]
+	return ok
+}
+
+// ResetCapturedAt resets all changes to the "captured_at" field.
+func (m *OriginalPhotoMutation) ResetCapturedAt() {
+	m.captured_at = nil
+	delete(m.clearedFields, originalphoto.FieldCapturedAt)
+}
+
+// SetLatitude sets the "latitude" field.
+func (m *OriginalPhotoMutation) SetLatitude(f float64) {
+	m.latitude = &f
+	m.addlatitude = nil
+}
+
+// Latitude returns the value of the "latitude" field in the mutation.
+func (m *OriginalPhotoMutation) Latitude() (r float64, exists bool) {
+	v := m.latitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLatitude returns the old "latitude" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldLatitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLatitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLatitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLatitude: %w", err)
+	}
+	return oldValue.Latitude, nil
+}
+
+// AddLatitude adds f to the "latitude" field.
+func (m *OriginalPhotoMutation) AddLatitude(f float64) {
+	if m.addlatitude != nil {
+		*m.addlatitude += f
+	} else {
+		m.addlatitude = &f
+	}
+}
+
+// AddedLatitude returns the value that was added to the "latitude" field in this mutation.
+func (m *OriginalPhotoMutation) AddedLatitude() (r float64, exists bool) {
+	v := m.addlatitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (m *OriginalPhotoMutation) ClearLatitude() {
+	m.latitude = nil
+	m.addlatitude = nil
+	m.clearedFields[originalphoto.FieldLatitude] = struct{}{}
+}
+
+// LatitudeCleared returns if the "latitude" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) LatitudeCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldLatitude]
+	return ok
+}
+
+// ResetLatitude resets all changes to the "latitude" field.
+func (m *OriginalPhotoMutation) ResetLatitude() {
+	m.latitude = nil
+	m.addlatitude = nil
+	delete(m.clearedFields, originalphoto.FieldLatitude)
+}
+
+// SetLongitude sets the "longitude" field.
+func (m *OriginalPhotoMutation) SetLongitude(f float64) {
+	m.longitude = &f
+	m.addlongitude = nil
+}
+
+// Longitude returns the value of the "longitude" field in the mutation.
+func (m *OriginalPhotoMutation) Longitude() (r float64, exists bool) {
+	v := m.longitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLongitude returns the old "longitude" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldLongitude(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLongitude is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLongitude requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLongitude: %w", err)
+	}
+	return oldValue.Longitude, nil
+}
+
+// AddLongitude adds f to the "longitude" field.
+func (m *OriginalPhotoMutation) AddLongitude(f float64) {
+	if m.addlongitude != nil {
+		*m.addlongitude += f
+	} else {
+		m.addlongitude = &f
+	}
+}
+
+// AddedLongitude returns the value that was added to the "longitude" field in this mutation.
+func (m *OriginalPhotoMutation) AddedLongitude() (r float64, exists bool) {
+	v := m.addlongitude
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (m *OriginalPhotoMutation) ClearLongitude() {
+	m.longitude = nil
+	m.addlongitude = nil
+	m.clearedFields[originalphoto.FieldLongitude] = struct{}{}
+}
+
+// LongitudeCleared returns if the "longitude" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) LongitudeCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldLongitude]
+	return ok
+}
+
+// ResetLongitude resets all changes to the "longitude" field.
+func (m *OriginalPhotoMutation) ResetLongitude() {
+	m.longitude = nil
+	m.addlongitude = nil
+	delete(m.clearedFields, originalphoto.FieldLongitude)
+}
+
+// SetLocationName sets the "location_name" field.
+func (m *OriginalPhotoMutation) SetLocationName(s string) {
+	m.location_name = &s
+}
+
+// LocationName returns the value of the "location_name" field in the mutation.
+func (m *OriginalPhotoMutation) LocationName() (r string, exists bool) {
+	v := m.location_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLocationName returns the old "location_name" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldLocationName(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLocationName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLocationName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLocationName: %w", err)
+	}
+	return oldValue.LocationName, nil
+}
+
+// ClearLocationName clears the value of the "location_name" field.
+func (m *OriginalPhotoMutation) ClearLocationName() {
+	m.location_name = nil
+	m.clearedFields[originalphoto.FieldLocationName] = struct{}{}
+}
+
+// LocationNameCleared returns if the "location_name" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) LocationNameCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldLocationName]
+	return ok
+}
+
+// ResetLocationName resets all changes to the "location_name" field.
+func (m *OriginalPhotoMutation) ResetLocationName() {
+	m.location_name = nil
+	delete(m.clearedFields, originalphoto.FieldLocationName)
+}
+
+// SetImageWidth sets the "image_width" field.
+func (m *OriginalPhotoMutation) SetImageWidth(i int) {
+	m.image_width = &i
+	m.addimage_width = nil
+}
+
+// ImageWidth returns the value of the "image_width" field in the mutation.
+func (m *OriginalPhotoMutation) ImageWidth() (r int, exists bool) {
+	v := m.image_width
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageWidth returns the old "image_width" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldImageWidth(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImageWidth is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImageWidth requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageWidth: %w", err)
+	}
+	return oldValue.ImageWidth, nil
+}
+
+// AddImageWidth adds i to the "image_width" field.
+func (m *OriginalPhotoMutation) AddImageWidth(i int) {
+	if m.addimage_width != nil {
+		*m.addimage_width += i
+	} else {
+		m.addimage_width = &i
+	}
+}
+
+// AddedImageWidth returns the value that was added to the "image_width" field in this mutation.
+func (m *OriginalPhotoMutation) AddedImageWidth() (r int, exists bool) {
+	v := m.addimage_width
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (m *OriginalPhotoMutation) ClearImageWidth() {
+	m.image_width = nil
+	m.addimage_width = nil
+	m.clearedFields[originalphoto.FieldImageWidth] = struct{}{}
+}
+
+// ImageWidthCleared returns if the "image_width" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) ImageWidthCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldImageWidth]
+	return ok
+}
+
+// ResetImageWidth resets all changes to the "image_width" field.
+func (m *OriginalPhotoMutation) ResetImageWidth() {
+	m.image_width = nil
+	m.addimage_width = nil
+	delete(m.clearedFields, originalphoto.FieldImageWidth)
+}
+
+// SetImageHeight sets the "image_height" field.
+func (m *OriginalPhotoMutation) SetImageHeight(i int) {
+	m.image_height = &i
+	m.addimage_height = nil
+}
+
+// ImageHeight returns the value of the "image_height" field in the mutation.
+func (m *OriginalPhotoMutation) ImageHeight() (r int, exists bool) {
+	v := m.image_height
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageHeight returns the old "image_height" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldImageHeight(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImageHeight is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImageHeight requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageHeight: %w", err)
+	}
+	return oldValue.ImageHeight, nil
+}
+
+// AddImageHeight adds i to the "image_height" field.
+func (m *OriginalPhotoMutation) AddImageHeight(i int) {
+	if m.addimage_height != nil {
+		*m.addimage_height += i
+	} else {
+		m.addimage_height = &i
+	}
+}
+
+// AddedImageHeight returns the value that was added to the "image_height" field in this mutation.
+func (m *OriginalPhotoMutation) AddedImageHeight() (r int, exists bool) {
+	v := m.addimage_height
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (m *OriginalPhotoMutation) ClearImageHeight() {
+	m.image_height = nil
+	m.addimage_height = nil
+	m.clearedFields[originalphoto.FieldImageHeight] = struct{}{}
+}
+
+// ImageHeightCleared returns if the "image_height" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) ImageHeightCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldImageHeight]
+	return ok
+}
+
+// ResetImageHeight resets all changes to the "image_height" field.
+func (m *OriginalPhotoMutation) ResetImageHeight() {
+	m.image_height = nil
+	m.addimage_height = nil
+	delete(m.clearedFields, originalphoto.FieldImageHeight)
+}
+
+// SetOrientation sets the "orientation" field.
+func (m *OriginalPhotoMutation) SetOrientation(s string) {
+	m.orientation = &s
+}
+
+// Orientation returns the value of the "orientation" field in the mutation.
+func (m *OriginalPhotoMutation) Orientation() (r string, exists bool) {
+	v := m.orientation
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrientation returns the old "orientation" field's value of the OriginalPhoto entity.
+// If the OriginalPhoto object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OriginalPhotoMutation) OldOrientation(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrientation is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrientation requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrientation: %w", err)
+	}
+	return oldValue.Orientation, nil
+}
+
+// ClearOrientation clears the value of the "orientation" field.
+func (m *OriginalPhotoMutation) ClearOrientation() {
+	m.orientation = nil
+	m.clearedFields[originalphoto.FieldOrientation] = struct{}{}
+}
+
+// OrientationCleared returns if the "orientation" field was cleared in this mutation.
+func (m *OriginalPhotoMutation) OrientationCleared() bool {
+	_, ok := m.clearedFields[originalphoto.FieldOrientation]
+	return ok
+}
+
+// ResetOrientation resets all changes to the "orientation" field.
+func (m *OriginalPhotoMutation) ResetOrientation() {
+	m.orientation = nil
+	delete(m.clearedFields, originalphoto.FieldOrientation)
 }
 
 // SetAlbumID sets the "album" edge to the Album entity by id.
@@ -7711,7 +8149,7 @@ func (m *OriginalPhotoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OriginalPhotoMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, originalphoto.FieldCreatedAt)
 	}
@@ -7720,6 +8158,27 @@ func (m *OriginalPhotoMutation) Fields() []string {
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, originalphoto.FieldDeletedAt)
+	}
+	if m.captured_at != nil {
+		fields = append(fields, originalphoto.FieldCapturedAt)
+	}
+	if m.latitude != nil {
+		fields = append(fields, originalphoto.FieldLatitude)
+	}
+	if m.longitude != nil {
+		fields = append(fields, originalphoto.FieldLongitude)
+	}
+	if m.location_name != nil {
+		fields = append(fields, originalphoto.FieldLocationName)
+	}
+	if m.image_width != nil {
+		fields = append(fields, originalphoto.FieldImageWidth)
+	}
+	if m.image_height != nil {
+		fields = append(fields, originalphoto.FieldImageHeight)
+	}
+	if m.orientation != nil {
+		fields = append(fields, originalphoto.FieldOrientation)
 	}
 	return fields
 }
@@ -7735,6 +8194,20 @@ func (m *OriginalPhotoMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case originalphoto.FieldDeletedAt:
 		return m.DeletedAt()
+	case originalphoto.FieldCapturedAt:
+		return m.CapturedAt()
+	case originalphoto.FieldLatitude:
+		return m.Latitude()
+	case originalphoto.FieldLongitude:
+		return m.Longitude()
+	case originalphoto.FieldLocationName:
+		return m.LocationName()
+	case originalphoto.FieldImageWidth:
+		return m.ImageWidth()
+	case originalphoto.FieldImageHeight:
+		return m.ImageHeight()
+	case originalphoto.FieldOrientation:
+		return m.Orientation()
 	}
 	return nil, false
 }
@@ -7750,6 +8223,20 @@ func (m *OriginalPhotoMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldUpdatedAt(ctx)
 	case originalphoto.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case originalphoto.FieldCapturedAt:
+		return m.OldCapturedAt(ctx)
+	case originalphoto.FieldLatitude:
+		return m.OldLatitude(ctx)
+	case originalphoto.FieldLongitude:
+		return m.OldLongitude(ctx)
+	case originalphoto.FieldLocationName:
+		return m.OldLocationName(ctx)
+	case originalphoto.FieldImageWidth:
+		return m.OldImageWidth(ctx)
+	case originalphoto.FieldImageHeight:
+		return m.OldImageHeight(ctx)
+	case originalphoto.FieldOrientation:
+		return m.OldOrientation(ctx)
 	}
 	return nil, fmt.Errorf("unknown OriginalPhoto field %s", name)
 }
@@ -7780,6 +8267,55 @@ func (m *OriginalPhotoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeletedAt(v)
 		return nil
+	case originalphoto.FieldCapturedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCapturedAt(v)
+		return nil
+	case originalphoto.FieldLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLatitude(v)
+		return nil
+	case originalphoto.FieldLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLongitude(v)
+		return nil
+	case originalphoto.FieldLocationName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLocationName(v)
+		return nil
+	case originalphoto.FieldImageWidth:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageWidth(v)
+		return nil
+	case originalphoto.FieldImageHeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageHeight(v)
+		return nil
+	case originalphoto.FieldOrientation:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrientation(v)
+		return nil
 	}
 	return fmt.Errorf("unknown OriginalPhoto field %s", name)
 }
@@ -7787,13 +8323,36 @@ func (m *OriginalPhotoMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *OriginalPhotoMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addlatitude != nil {
+		fields = append(fields, originalphoto.FieldLatitude)
+	}
+	if m.addlongitude != nil {
+		fields = append(fields, originalphoto.FieldLongitude)
+	}
+	if m.addimage_width != nil {
+		fields = append(fields, originalphoto.FieldImageWidth)
+	}
+	if m.addimage_height != nil {
+		fields = append(fields, originalphoto.FieldImageHeight)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *OriginalPhotoMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case originalphoto.FieldLatitude:
+		return m.AddedLatitude()
+	case originalphoto.FieldLongitude:
+		return m.AddedLongitude()
+	case originalphoto.FieldImageWidth:
+		return m.AddedImageWidth()
+	case originalphoto.FieldImageHeight:
+		return m.AddedImageHeight()
+	}
 	return nil, false
 }
 
@@ -7802,6 +8361,34 @@ func (m *OriginalPhotoMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *OriginalPhotoMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case originalphoto.FieldLatitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLatitude(v)
+		return nil
+	case originalphoto.FieldLongitude:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLongitude(v)
+		return nil
+	case originalphoto.FieldImageWidth:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddImageWidth(v)
+		return nil
+	case originalphoto.FieldImageHeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddImageHeight(v)
+		return nil
 	}
 	return fmt.Errorf("unknown OriginalPhoto numeric field %s", name)
 }
@@ -7812,6 +8399,27 @@ func (m *OriginalPhotoMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(originalphoto.FieldDeletedAt) {
 		fields = append(fields, originalphoto.FieldDeletedAt)
+	}
+	if m.FieldCleared(originalphoto.FieldCapturedAt) {
+		fields = append(fields, originalphoto.FieldCapturedAt)
+	}
+	if m.FieldCleared(originalphoto.FieldLatitude) {
+		fields = append(fields, originalphoto.FieldLatitude)
+	}
+	if m.FieldCleared(originalphoto.FieldLongitude) {
+		fields = append(fields, originalphoto.FieldLongitude)
+	}
+	if m.FieldCleared(originalphoto.FieldLocationName) {
+		fields = append(fields, originalphoto.FieldLocationName)
+	}
+	if m.FieldCleared(originalphoto.FieldImageWidth) {
+		fields = append(fields, originalphoto.FieldImageWidth)
+	}
+	if m.FieldCleared(originalphoto.FieldImageHeight) {
+		fields = append(fields, originalphoto.FieldImageHeight)
+	}
+	if m.FieldCleared(originalphoto.FieldOrientation) {
+		fields = append(fields, originalphoto.FieldOrientation)
 	}
 	return fields
 }
@@ -7830,6 +8438,27 @@ func (m *OriginalPhotoMutation) ClearField(name string) error {
 	case originalphoto.FieldDeletedAt:
 		m.ClearDeletedAt()
 		return nil
+	case originalphoto.FieldCapturedAt:
+		m.ClearCapturedAt()
+		return nil
+	case originalphoto.FieldLatitude:
+		m.ClearLatitude()
+		return nil
+	case originalphoto.FieldLongitude:
+		m.ClearLongitude()
+		return nil
+	case originalphoto.FieldLocationName:
+		m.ClearLocationName()
+		return nil
+	case originalphoto.FieldImageWidth:
+		m.ClearImageWidth()
+		return nil
+	case originalphoto.FieldImageHeight:
+		m.ClearImageHeight()
+		return nil
+	case originalphoto.FieldOrientation:
+		m.ClearOrientation()
+		return nil
 	}
 	return fmt.Errorf("unknown OriginalPhoto nullable field %s", name)
 }
@@ -7846,6 +8475,27 @@ func (m *OriginalPhotoMutation) ResetField(name string) error {
 		return nil
 	case originalphoto.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case originalphoto.FieldCapturedAt:
+		m.ResetCapturedAt()
+		return nil
+	case originalphoto.FieldLatitude:
+		m.ResetLatitude()
+		return nil
+	case originalphoto.FieldLongitude:
+		m.ResetLongitude()
+		return nil
+	case originalphoto.FieldLocationName:
+		m.ResetLocationName()
+		return nil
+	case originalphoto.FieldImageWidth:
+		m.ResetImageWidth()
+		return nil
+	case originalphoto.FieldImageHeight:
+		m.ResetImageHeight()
+		return nil
+	case originalphoto.FieldOrientation:
+		m.ResetOrientation()
 		return nil
 	}
 	return fmt.Errorf("unknown OriginalPhoto field %s", name)

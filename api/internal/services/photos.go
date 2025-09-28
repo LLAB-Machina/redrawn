@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -14,6 +15,8 @@ import (
 	"redrawn/api/internal/generated/album"
 	"redrawn/api/internal/generated/generatedphoto"
 	"redrawn/api/internal/generated/originalphoto"
+
+	"entgo.io/ent/dialect/sql"
 )
 
 type PhotosService struct{ app *app.App }
@@ -63,19 +66,51 @@ func (s *PhotosService) CreateOriginal(
 	if !ok {
 		return api.IDResponse{}, errorsx.ErrUnauthorized
 	}
-	// IDs are strings now; no parsing needed
 	// Ensure file exists
-	if _, err := s.app.Db.File.Get(ctx, fileID); err != nil {
+	file, err := s.app.Db.File.Get(ctx, fileID)
+	if err != nil {
 		if generated.IsNotFound(err) {
 			return api.IDResponse{}, errorsx.ErrNotFound
 		}
 		return api.IDResponse{}, err
 	}
-	o, err := s.app.Db.OriginalPhoto.Create().
+
+	// Create the OriginalPhoto record builder
+	builder := s.app.Db.OriginalPhoto.Create().
 		SetAlbumID(albumID).
 		SetFileID(fileID).
-		SetUploadedByID(uid).
-		Save(ctx)
+		SetUploadedByID(uid)
+
+	if strings.HasPrefix(file.MimeType, "image/") {
+		metadata, err := s.extractImageMetadata(ctx, file)
+		if err != nil {
+			// TODO: Add proper logging here
+		} else if metadata != nil {
+			if metadata.CapturedAt != nil {
+				builder = builder.SetCapturedAt(*metadata.CapturedAt)
+			}
+			if metadata.Latitude != nil {
+				builder = builder.SetLatitude(*metadata.Latitude)
+			}
+			if metadata.Longitude != nil {
+				builder = builder.SetLongitude(*metadata.Longitude)
+			}
+			if metadata.LocationName != nil {
+				builder = builder.SetLocationName(*metadata.LocationName)
+			}
+			if metadata.ImageWidth != nil {
+				builder = builder.SetImageWidth(*metadata.ImageWidth)
+			}
+			if metadata.ImageHeight != nil {
+				builder = builder.SetImageHeight(*metadata.ImageHeight)
+			}
+			if metadata.Orientation != nil {
+				builder = builder.SetOrientation(*metadata.Orientation)
+			}
+		}
+	}
+
+	o, err := builder.Save(ctx)
 	if err != nil {
 		return api.IDResponse{}, err
 	}
@@ -94,6 +129,10 @@ func (s *PhotosService) ListOriginals(
 				WithFile().
 				WithTheme()
 		}).
+		Order(
+			originalphoto.ByCapturedAt(sql.OrderAsc()),
+			originalphoto.ByCreatedAt(sql.OrderAsc()),
+		).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -101,8 +140,15 @@ func (s *PhotosService) ListOriginals(
 	out := make([]api.OriginalPhoto, 0, len(items))
 	for _, o := range items {
 		op := api.OriginalPhoto{
-			ID:        o.ID,
-			CreatedAt: o.CreatedAt,
+			ID:           o.ID,
+			CreatedAt:    o.CreatedAt,
+			CapturedAt:   o.CapturedAt,
+			Latitude:     o.Latitude,
+			Longitude:    o.Longitude,
+			LocationName: o.LocationName,
+			ImageWidth:   o.ImageWidth,
+			ImageHeight:  o.ImageHeight,
+			Orientation:  o.Orientation,
 		}
 		if o.Edges.File != nil {
 			op.FileID = o.Edges.File.ID
@@ -292,4 +338,29 @@ func (s *PhotosService) MarkAsFavorite(
 		return err
 	}
 	return nil
+}
+
+func (s *PhotosService) extractImageMetadata(ctx context.Context, file *generated.File) (*PhotoMetadata, error) {
+	if s.app.Storage == nil {
+		return nil, errors.New("storage not configured")
+	}
+
+	data, _, err := s.app.Storage.Download(ctx, file.ProviderKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download file: %w", err)
+	}
+
+	reader := bytes.NewReader(data)
+
+	metadataService := NewMetadataService()
+	metadata, err := metadataService.ExtractMetadata(ctx, reader)
+	if err != nil {
+		return nil, err
+	}
+
+	if metadata.CapturedAt == nil {
+		metadata.CapturedAt = &file.CreatedAt
+	}
+
+	return metadata, nil
 }

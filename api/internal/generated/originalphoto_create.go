@@ -51,6 +51,104 @@ func (_c *OriginalPhotoCreate) SetNillableDeletedAt(v *time.Time) *OriginalPhoto
 	return _c
 }
 
+// SetCapturedAt sets the "captured_at" field.
+func (_c *OriginalPhotoCreate) SetCapturedAt(v time.Time) *OriginalPhotoCreate {
+	_c.mutation.SetCapturedAt(v)
+	return _c
+}
+
+// SetNillableCapturedAt sets the "captured_at" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableCapturedAt(v *time.Time) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetCapturedAt(*v)
+	}
+	return _c
+}
+
+// SetLatitude sets the "latitude" field.
+func (_c *OriginalPhotoCreate) SetLatitude(v float64) *OriginalPhotoCreate {
+	_c.mutation.SetLatitude(v)
+	return _c
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableLatitude(v *float64) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetLatitude(*v)
+	}
+	return _c
+}
+
+// SetLongitude sets the "longitude" field.
+func (_c *OriginalPhotoCreate) SetLongitude(v float64) *OriginalPhotoCreate {
+	_c.mutation.SetLongitude(v)
+	return _c
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableLongitude(v *float64) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetLongitude(*v)
+	}
+	return _c
+}
+
+// SetLocationName sets the "location_name" field.
+func (_c *OriginalPhotoCreate) SetLocationName(v string) *OriginalPhotoCreate {
+	_c.mutation.SetLocationName(v)
+	return _c
+}
+
+// SetNillableLocationName sets the "location_name" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableLocationName(v *string) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetLocationName(*v)
+	}
+	return _c
+}
+
+// SetImageWidth sets the "image_width" field.
+func (_c *OriginalPhotoCreate) SetImageWidth(v int) *OriginalPhotoCreate {
+	_c.mutation.SetImageWidth(v)
+	return _c
+}
+
+// SetNillableImageWidth sets the "image_width" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableImageWidth(v *int) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetImageWidth(*v)
+	}
+	return _c
+}
+
+// SetImageHeight sets the "image_height" field.
+func (_c *OriginalPhotoCreate) SetImageHeight(v int) *OriginalPhotoCreate {
+	_c.mutation.SetImageHeight(v)
+	return _c
+}
+
+// SetNillableImageHeight sets the "image_height" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableImageHeight(v *int) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetImageHeight(*v)
+	}
+	return _c
+}
+
+// SetOrientation sets the "orientation" field.
+func (_c *OriginalPhotoCreate) SetOrientation(v string) *OriginalPhotoCreate {
+	_c.mutation.SetOrientation(v)
+	return _c
+}
+
+// SetNillableOrientation sets the "orientation" field if the given value is not nil.
+func (_c *OriginalPhotoCreate) SetNillableOrientation(v *string) *OriginalPhotoCreate {
+	if v != nil {
+		_c.SetOrientation(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *OriginalPhotoCreate) SetID(v string) *OriginalPhotoCreate {
 	_c.mutation.SetID(v)
@@ -238,6 +336,34 @@ func (_c *OriginalPhotoCreate) createSpec() (*OriginalPhoto, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(originalphoto.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.CapturedAt(); ok {
+		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)
+		_node.CapturedAt = &value
+	}
+	if value, ok := _c.mutation.Latitude(); ok {
+		_spec.SetField(originalphoto.FieldLatitude, field.TypeFloat64, value)
+		_node.Latitude = &value
+	}
+	if value, ok := _c.mutation.Longitude(); ok {
+		_spec.SetField(originalphoto.FieldLongitude, field.TypeFloat64, value)
+		_node.Longitude = &value
+	}
+	if value, ok := _c.mutation.LocationName(); ok {
+		_spec.SetField(originalphoto.FieldLocationName, field.TypeString, value)
+		_node.LocationName = &value
+	}
+	if value, ok := _c.mutation.ImageWidth(); ok {
+		_spec.SetField(originalphoto.FieldImageWidth, field.TypeInt, value)
+		_node.ImageWidth = &value
+	}
+	if value, ok := _c.mutation.ImageHeight(); ok {
+		_spec.SetField(originalphoto.FieldImageHeight, field.TypeInt, value)
+		_node.ImageHeight = &value
+	}
+	if value, ok := _c.mutation.Orientation(); ok {
+		_spec.SetField(originalphoto.FieldOrientation, field.TypeString, value)
+		_node.Orientation = &value
 	}
 	if nodes := _c.mutation.AlbumIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

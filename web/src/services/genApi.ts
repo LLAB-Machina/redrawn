@@ -924,6 +924,7 @@ export type UploadInitRequest = {
   size?: number;
 };
 export type OriginalPhoto = {
+  captured_at?: string | null;
   created_at?: string;
   file_id?: string | null;
   generated_photos?:
@@ -937,6 +938,12 @@ export type OriginalPhoto = {
       }[]
     | null;
   id?: string;
+  image_height?: number | null;
+  image_width?: number | null;
+  latitude?: number | null;
+  location_name?: string | null;
+  longitude?: number | null;
+  orientation?: string | null;
   processing?: number | null;
 };
 export type TaskStatusResponse = {

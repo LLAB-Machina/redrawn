@@ -26,6 +26,20 @@ type OriginalPhoto struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// CapturedAt holds the value of the "captured_at" field.
+	CapturedAt *time.Time `json:"captured_at,omitempty"`
+	// Latitude holds the value of the "latitude" field.
+	Latitude *float64 `json:"latitude,omitempty"`
+	// Longitude holds the value of the "longitude" field.
+	Longitude *float64 `json:"longitude,omitempty"`
+	// LocationName holds the value of the "location_name" field.
+	LocationName *string `json:"location_name,omitempty"`
+	// ImageWidth holds the value of the "image_width" field.
+	ImageWidth *int `json:"image_width,omitempty"`
+	// ImageHeight holds the value of the "image_height" field.
+	ImageHeight *int `json:"image_height,omitempty"`
+	// Orientation holds the value of the "orientation" field.
+	Orientation *string `json:"orientation,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OriginalPhotoQuery when eager-loading is set.
 	Edges                 OriginalPhotoEdges `json:"edges"`
@@ -108,9 +122,13 @@ func (*OriginalPhoto) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case originalphoto.FieldID:
+		case originalphoto.FieldLatitude, originalphoto.FieldLongitude:
+			values[i] = new(sql.NullFloat64)
+		case originalphoto.FieldImageWidth, originalphoto.FieldImageHeight:
+			values[i] = new(sql.NullInt64)
+		case originalphoto.FieldID, originalphoto.FieldLocationName, originalphoto.FieldOrientation:
 			values[i] = new(sql.NullString)
-		case originalphoto.FieldCreatedAt, originalphoto.FieldUpdatedAt, originalphoto.FieldDeletedAt:
+		case originalphoto.FieldCreatedAt, originalphoto.FieldUpdatedAt, originalphoto.FieldDeletedAt, originalphoto.FieldCapturedAt:
 			values[i] = new(sql.NullTime)
 		case originalphoto.ForeignKeys[0]: // album_original_photos
 			values[i] = new(sql.NullString)
@@ -157,6 +175,55 @@ func (_m *OriginalPhoto) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
+			}
+		case originalphoto.FieldCapturedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field captured_at", values[i])
+			} else if value.Valid {
+				_m.CapturedAt = new(time.Time)
+				*_m.CapturedAt = value.Time
+			}
+		case originalphoto.FieldLatitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field latitude", values[i])
+			} else if value.Valid {
+				_m.Latitude = new(float64)
+				*_m.Latitude = value.Float64
+			}
+		case originalphoto.FieldLongitude:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field longitude", values[i])
+			} else if value.Valid {
+				_m.Longitude = new(float64)
+				*_m.Longitude = value.Float64
+			}
+		case originalphoto.FieldLocationName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field location_name", values[i])
+			} else if value.Valid {
+				_m.LocationName = new(string)
+				*_m.LocationName = value.String
+			}
+		case originalphoto.FieldImageWidth:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field image_width", values[i])
+			} else if value.Valid {
+				_m.ImageWidth = new(int)
+				*_m.ImageWidth = int(value.Int64)
+			}
+		case originalphoto.FieldImageHeight:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field image_height", values[i])
+			} else if value.Valid {
+				_m.ImageHeight = new(int)
+				*_m.ImageHeight = int(value.Int64)
+			}
+		case originalphoto.FieldOrientation:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field orientation", values[i])
+			} else if value.Valid {
+				_m.Orientation = new(string)
+				*_m.Orientation = value.String
 			}
 		case originalphoto.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -249,6 +316,41 @@ func (_m *OriginalPhoto) String() string {
 	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.CapturedAt; v != nil {
+		builder.WriteString("captured_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.Latitude; v != nil {
+		builder.WriteString("latitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Longitude; v != nil {
+		builder.WriteString("longitude=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.LocationName; v != nil {
+		builder.WriteString("location_name=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.ImageWidth; v != nil {
+		builder.WriteString("image_width=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ImageHeight; v != nil {
+		builder.WriteString("image_height=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Orientation; v != nil {
+		builder.WriteString("orientation=")
+		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')
 	return builder.String()

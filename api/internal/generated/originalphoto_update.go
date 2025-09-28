@@ -81,6 +81,174 @@ func (_u *OriginalPhotoUpdate) ClearDeletedAt() *OriginalPhotoUpdate {
 	return _u
 }
 
+// SetCapturedAt sets the "captured_at" field.
+func (_u *OriginalPhotoUpdate) SetCapturedAt(v time.Time) *OriginalPhotoUpdate {
+	_u.mutation.SetCapturedAt(v)
+	return _u
+}
+
+// SetNillableCapturedAt sets the "captured_at" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableCapturedAt(v *time.Time) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetCapturedAt(*v)
+	}
+	return _u
+}
+
+// ClearCapturedAt clears the value of the "captured_at" field.
+func (_u *OriginalPhotoUpdate) ClearCapturedAt() *OriginalPhotoUpdate {
+	_u.mutation.ClearCapturedAt()
+	return _u
+}
+
+// SetLatitude sets the "latitude" field.
+func (_u *OriginalPhotoUpdate) SetLatitude(v float64) *OriginalPhotoUpdate {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableLatitude(v *float64) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetLatitude(*v)
+	}
+	return _u
+}
+
+// AddLatitude adds value to the "latitude" field.
+func (_u *OriginalPhotoUpdate) AddLatitude(v float64) *OriginalPhotoUpdate {
+	_u.mutation.AddLatitude(v)
+	return _u
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (_u *OriginalPhotoUpdate) ClearLatitude() *OriginalPhotoUpdate {
+	_u.mutation.ClearLatitude()
+	return _u
+}
+
+// SetLongitude sets the "longitude" field.
+func (_u *OriginalPhotoUpdate) SetLongitude(v float64) *OriginalPhotoUpdate {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableLongitude(v *float64) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetLongitude(*v)
+	}
+	return _u
+}
+
+// AddLongitude adds value to the "longitude" field.
+func (_u *OriginalPhotoUpdate) AddLongitude(v float64) *OriginalPhotoUpdate {
+	_u.mutation.AddLongitude(v)
+	return _u
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (_u *OriginalPhotoUpdate) ClearLongitude() *OriginalPhotoUpdate {
+	_u.mutation.ClearLongitude()
+	return _u
+}
+
+// SetLocationName sets the "location_name" field.
+func (_u *OriginalPhotoUpdate) SetLocationName(v string) *OriginalPhotoUpdate {
+	_u.mutation.SetLocationName(v)
+	return _u
+}
+
+// SetNillableLocationName sets the "location_name" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableLocationName(v *string) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetLocationName(*v)
+	}
+	return _u
+}
+
+// ClearLocationName clears the value of the "location_name" field.
+func (_u *OriginalPhotoUpdate) ClearLocationName() *OriginalPhotoUpdate {
+	_u.mutation.ClearLocationName()
+	return _u
+}
+
+// SetImageWidth sets the "image_width" field.
+func (_u *OriginalPhotoUpdate) SetImageWidth(v int) *OriginalPhotoUpdate {
+	_u.mutation.ResetImageWidth()
+	_u.mutation.SetImageWidth(v)
+	return _u
+}
+
+// SetNillableImageWidth sets the "image_width" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableImageWidth(v *int) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetImageWidth(*v)
+	}
+	return _u
+}
+
+// AddImageWidth adds value to the "image_width" field.
+func (_u *OriginalPhotoUpdate) AddImageWidth(v int) *OriginalPhotoUpdate {
+	_u.mutation.AddImageWidth(v)
+	return _u
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (_u *OriginalPhotoUpdate) ClearImageWidth() *OriginalPhotoUpdate {
+	_u.mutation.ClearImageWidth()
+	return _u
+}
+
+// SetImageHeight sets the "image_height" field.
+func (_u *OriginalPhotoUpdate) SetImageHeight(v int) *OriginalPhotoUpdate {
+	_u.mutation.ResetImageHeight()
+	_u.mutation.SetImageHeight(v)
+	return _u
+}
+
+// SetNillableImageHeight sets the "image_height" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableImageHeight(v *int) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetImageHeight(*v)
+	}
+	return _u
+}
+
+// AddImageHeight adds value to the "image_height" field.
+func (_u *OriginalPhotoUpdate) AddImageHeight(v int) *OriginalPhotoUpdate {
+	_u.mutation.AddImageHeight(v)
+	return _u
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (_u *OriginalPhotoUpdate) ClearImageHeight() *OriginalPhotoUpdate {
+	_u.mutation.ClearImageHeight()
+	return _u
+}
+
+// SetOrientation sets the "orientation" field.
+func (_u *OriginalPhotoUpdate) SetOrientation(v string) *OriginalPhotoUpdate {
+	_u.mutation.SetOrientation(v)
+	return _u
+}
+
+// SetNillableOrientation sets the "orientation" field if the given value is not nil.
+func (_u *OriginalPhotoUpdate) SetNillableOrientation(v *string) *OriginalPhotoUpdate {
+	if v != nil {
+		_u.SetOrientation(*v)
+	}
+	return _u
+}
+
+// ClearOrientation clears the value of the "orientation" field.
+func (_u *OriginalPhotoUpdate) ClearOrientation() *OriginalPhotoUpdate {
+	_u.mutation.ClearOrientation()
+	return _u
+}
+
 // SetAlbumID sets the "album" edge to the Album entity by ID.
 func (_u *OriginalPhotoUpdate) SetAlbumID(id string) *OriginalPhotoUpdate {
 	_u.mutation.SetAlbumID(id)
@@ -273,6 +441,60 @@ func (_u *OriginalPhotoUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(originalphoto.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CapturedAt(); ok {
+		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)
+	}
+	if _u.mutation.CapturedAtCleared() {
+		_spec.ClearField(originalphoto.FieldCapturedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Latitude(); ok {
+		_spec.SetField(originalphoto.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLatitude(); ok {
+		_spec.AddField(originalphoto.FieldLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LatitudeCleared() {
+		_spec.ClearField(originalphoto.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Longitude(); ok {
+		_spec.SetField(originalphoto.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLongitude(); ok {
+		_spec.AddField(originalphoto.FieldLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LongitudeCleared() {
+		_spec.ClearField(originalphoto.FieldLongitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.LocationName(); ok {
+		_spec.SetField(originalphoto.FieldLocationName, field.TypeString, value)
+	}
+	if _u.mutation.LocationNameCleared() {
+		_spec.ClearField(originalphoto.FieldLocationName, field.TypeString)
+	}
+	if value, ok := _u.mutation.ImageWidth(); ok {
+		_spec.SetField(originalphoto.FieldImageWidth, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedImageWidth(); ok {
+		_spec.AddField(originalphoto.FieldImageWidth, field.TypeInt, value)
+	}
+	if _u.mutation.ImageWidthCleared() {
+		_spec.ClearField(originalphoto.FieldImageWidth, field.TypeInt)
+	}
+	if value, ok := _u.mutation.ImageHeight(); ok {
+		_spec.SetField(originalphoto.FieldImageHeight, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedImageHeight(); ok {
+		_spec.AddField(originalphoto.FieldImageHeight, field.TypeInt, value)
+	}
+	if _u.mutation.ImageHeightCleared() {
+		_spec.ClearField(originalphoto.FieldImageHeight, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Orientation(); ok {
+		_spec.SetField(originalphoto.FieldOrientation, field.TypeString, value)
+	}
+	if _u.mutation.OrientationCleared() {
+		_spec.ClearField(originalphoto.FieldOrientation, field.TypeString)
 	}
 	if _u.mutation.AlbumCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -519,6 +741,174 @@ func (_u *OriginalPhotoUpdateOne) ClearDeletedAt() *OriginalPhotoUpdateOne {
 	return _u
 }
 
+// SetCapturedAt sets the "captured_at" field.
+func (_u *OriginalPhotoUpdateOne) SetCapturedAt(v time.Time) *OriginalPhotoUpdateOne {
+	_u.mutation.SetCapturedAt(v)
+	return _u
+}
+
+// SetNillableCapturedAt sets the "captured_at" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableCapturedAt(v *time.Time) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetCapturedAt(*v)
+	}
+	return _u
+}
+
+// ClearCapturedAt clears the value of the "captured_at" field.
+func (_u *OriginalPhotoUpdateOne) ClearCapturedAt() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearCapturedAt()
+	return _u
+}
+
+// SetLatitude sets the "latitude" field.
+func (_u *OriginalPhotoUpdateOne) SetLatitude(v float64) *OriginalPhotoUpdateOne {
+	_u.mutation.ResetLatitude()
+	_u.mutation.SetLatitude(v)
+	return _u
+}
+
+// SetNillableLatitude sets the "latitude" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableLatitude(v *float64) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetLatitude(*v)
+	}
+	return _u
+}
+
+// AddLatitude adds value to the "latitude" field.
+func (_u *OriginalPhotoUpdateOne) AddLatitude(v float64) *OriginalPhotoUpdateOne {
+	_u.mutation.AddLatitude(v)
+	return _u
+}
+
+// ClearLatitude clears the value of the "latitude" field.
+func (_u *OriginalPhotoUpdateOne) ClearLatitude() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearLatitude()
+	return _u
+}
+
+// SetLongitude sets the "longitude" field.
+func (_u *OriginalPhotoUpdateOne) SetLongitude(v float64) *OriginalPhotoUpdateOne {
+	_u.mutation.ResetLongitude()
+	_u.mutation.SetLongitude(v)
+	return _u
+}
+
+// SetNillableLongitude sets the "longitude" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableLongitude(v *float64) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetLongitude(*v)
+	}
+	return _u
+}
+
+// AddLongitude adds value to the "longitude" field.
+func (_u *OriginalPhotoUpdateOne) AddLongitude(v float64) *OriginalPhotoUpdateOne {
+	_u.mutation.AddLongitude(v)
+	return _u
+}
+
+// ClearLongitude clears the value of the "longitude" field.
+func (_u *OriginalPhotoUpdateOne) ClearLongitude() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearLongitude()
+	return _u
+}
+
+// SetLocationName sets the "location_name" field.
+func (_u *OriginalPhotoUpdateOne) SetLocationName(v string) *OriginalPhotoUpdateOne {
+	_u.mutation.SetLocationName(v)
+	return _u
+}
+
+// SetNillableLocationName sets the "location_name" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableLocationName(v *string) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetLocationName(*v)
+	}
+	return _u
+}
+
+// ClearLocationName clears the value of the "location_name" field.
+func (_u *OriginalPhotoUpdateOne) ClearLocationName() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearLocationName()
+	return _u
+}
+
+// SetImageWidth sets the "image_width" field.
+func (_u *OriginalPhotoUpdateOne) SetImageWidth(v int) *OriginalPhotoUpdateOne {
+	_u.mutation.ResetImageWidth()
+	_u.mutation.SetImageWidth(v)
+	return _u
+}
+
+// SetNillableImageWidth sets the "image_width" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableImageWidth(v *int) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetImageWidth(*v)
+	}
+	return _u
+}
+
+// AddImageWidth adds value to the "image_width" field.
+func (_u *OriginalPhotoUpdateOne) AddImageWidth(v int) *OriginalPhotoUpdateOne {
+	_u.mutation.AddImageWidth(v)
+	return _u
+}
+
+// ClearImageWidth clears the value of the "image_width" field.
+func (_u *OriginalPhotoUpdateOne) ClearImageWidth() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearImageWidth()
+	return _u
+}
+
+// SetImageHeight sets the "image_height" field.
+func (_u *OriginalPhotoUpdateOne) SetImageHeight(v int) *OriginalPhotoUpdateOne {
+	_u.mutation.ResetImageHeight()
+	_u.mutation.SetImageHeight(v)
+	return _u
+}
+
+// SetNillableImageHeight sets the "image_height" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableImageHeight(v *int) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetImageHeight(*v)
+	}
+	return _u
+}
+
+// AddImageHeight adds value to the "image_height" field.
+func (_u *OriginalPhotoUpdateOne) AddImageHeight(v int) *OriginalPhotoUpdateOne {
+	_u.mutation.AddImageHeight(v)
+	return _u
+}
+
+// ClearImageHeight clears the value of the "image_height" field.
+func (_u *OriginalPhotoUpdateOne) ClearImageHeight() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearImageHeight()
+	return _u
+}
+
+// SetOrientation sets the "orientation" field.
+func (_u *OriginalPhotoUpdateOne) SetOrientation(v string) *OriginalPhotoUpdateOne {
+	_u.mutation.SetOrientation(v)
+	return _u
+}
+
+// SetNillableOrientation sets the "orientation" field if the given value is not nil.
+func (_u *OriginalPhotoUpdateOne) SetNillableOrientation(v *string) *OriginalPhotoUpdateOne {
+	if v != nil {
+		_u.SetOrientation(*v)
+	}
+	return _u
+}
+
+// ClearOrientation clears the value of the "orientation" field.
+func (_u *OriginalPhotoUpdateOne) ClearOrientation() *OriginalPhotoUpdateOne {
+	_u.mutation.ClearOrientation()
+	return _u
+}
+
 // SetAlbumID sets the "album" edge to the Album entity by ID.
 func (_u *OriginalPhotoUpdateOne) SetAlbumID(id string) *OriginalPhotoUpdateOne {
 	_u.mutation.SetAlbumID(id)
@@ -741,6 +1131,60 @@ func (_u *OriginalPhotoUpdateOne) sqlSave(ctx context.Context) (_node *OriginalP
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(originalphoto.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CapturedAt(); ok {
+		_spec.SetField(originalphoto.FieldCapturedAt, field.TypeTime, value)
+	}
+	if _u.mutation.CapturedAtCleared() {
+		_spec.ClearField(originalphoto.FieldCapturedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Latitude(); ok {
+		_spec.SetField(originalphoto.FieldLatitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLatitude(); ok {
+		_spec.AddField(originalphoto.FieldLatitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LatitudeCleared() {
+		_spec.ClearField(originalphoto.FieldLatitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.Longitude(); ok {
+		_spec.SetField(originalphoto.FieldLongitude, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedLongitude(); ok {
+		_spec.AddField(originalphoto.FieldLongitude, field.TypeFloat64, value)
+	}
+	if _u.mutation.LongitudeCleared() {
+		_spec.ClearField(originalphoto.FieldLongitude, field.TypeFloat64)
+	}
+	if value, ok := _u.mutation.LocationName(); ok {
+		_spec.SetField(originalphoto.FieldLocationName, field.TypeString, value)
+	}
+	if _u.mutation.LocationNameCleared() {
+		_spec.ClearField(originalphoto.FieldLocationName, field.TypeString)
+	}
+	if value, ok := _u.mutation.ImageWidth(); ok {
+		_spec.SetField(originalphoto.FieldImageWidth, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedImageWidth(); ok {
+		_spec.AddField(originalphoto.FieldImageWidth, field.TypeInt, value)
+	}
+	if _u.mutation.ImageWidthCleared() {
+		_spec.ClearField(originalphoto.FieldImageWidth, field.TypeInt)
+	}
+	if value, ok := _u.mutation.ImageHeight(); ok {
+		_spec.SetField(originalphoto.FieldImageHeight, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedImageHeight(); ok {
+		_spec.AddField(originalphoto.FieldImageHeight, field.TypeInt, value)
+	}
+	if _u.mutation.ImageHeightCleared() {
+		_spec.ClearField(originalphoto.FieldImageHeight, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Orientation(); ok {
+		_spec.SetField(originalphoto.FieldOrientation, field.TypeString, value)
+	}
+	if _u.mutation.OrientationCleared() {
+		_spec.ClearField(originalphoto.FieldOrientation, field.TypeString)
 	}
 	if _u.mutation.AlbumCleared() {
 		edge := &sqlgraph.EdgeSpec{

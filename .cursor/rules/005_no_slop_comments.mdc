@@ -1,0 +1,83 @@
+---
+alwaysApply: true
+---
+
+# NO SLOP COMMENTS - ZERO TOLERANCE
+
+**NEVER write comments that restate what the code obviously does. Code should be self-documenting.**
+
+## BANNED COMMENT PATTERNS:
+- Any comment that just describes the next line of code
+- Comments that restate function/method names
+- Comments that describe obvious operations (create, get, set, call, return)
+- Section headers for obvious groupings
+- Comments explaining standard language constructs
+
+## EXAMPLES OF BANNED COMMENTS:
+```go
+// ❌ BANNED - restates the code
+// Create a new user
+user := NewUser()
+
+// ❌ BANNED - obvious from function name  
+// Download the file from storage
+data, err := storage.Download(key)
+
+// ❌ BANNED - restates the assignment
+// Set the user ID
+req.UserID = userID
+
+// ❌ BANNED - obvious from method call
+// Save to database
+db.Save(user)
+
+// ❌ BANNED - section headers for obvious groupings
+// Validation
+if err := validate(req); err != nil { ... }
+
+// ❌ BANNED - explains standard Go constructs
+// Check for errors
+if err != nil { ... }
+
+// ❌ BANNED - restates the loop
+// Iterate over items
+for _, item := range items { ... }
+
+// ❌ BANNED - obvious from the return
+// Return the result
+return result, nil
+```
+
+## ONLY ACCEPTABLE COMMENTS:
+1. **TODOs** - `// TODO: Add rate limiting`
+2. **Bug workarounds** - `// Workaround for upstream bug #1234`
+3. **Non-obvious business rules** - `// Credits expire after 365 days per company policy`
+4. **Complex algorithms** - `// Using Haversine formula for distance calculation`
+5. **External API constraints** - `// Stripe requires amount in cents`
+6. **Performance notes** - `// This query is intentionally not indexed due to write performance`
+
+## STRICT ENFORCEMENT:
+- **Default assumption**: NO COMMENT NEEDED
+- **Before writing any comment**: Ask "Would a competent developer understand this code without the comment?"
+- **If yes**: DELETE the comment
+- **If no**: Rewrite the code to be clearer instead of adding a comment
+
+## ZERO TOLERANCE EXAMPLES:
+```go
+// ❌ DELETE IMMEDIATELY
+// Extract metadata using the metadata service
+// Create the OriginalPhoto record builder  
+// Populate metadata fields
+// Download the file from storage
+// Create a reader from the downloaded data
+// Set metadata fields if available
+// Register all known makernote parsers
+// Extract image dimensions
+// Extract GPS coordinates
+// Count how many generated photos are processing
+// Ensure file exists
+// Check if user is authenticated
+```
+
+## THE RULE:
+**If you can remove the comment and the code is still perfectly clear to any competent developer, the comment is BANNED and must be deleted.**

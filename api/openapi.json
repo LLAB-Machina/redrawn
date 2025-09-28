@@ -550,6 +550,11 @@
       "OriginalPhoto": {
         "description": "OriginalPhoto schema",
         "properties": {
+          "captured_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
           "created_at": {
             "format": "date-time",
             "type": "string"
@@ -589,6 +594,32 @@
             "type": "array"
           },
           "id": {
+            "type": "string"
+          },
+          "image_height": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "image_width": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "latitude": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "location_name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "longitude": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "orientation": {
+            "nullable": true,
             "type": "string"
           },
           "processing": {
