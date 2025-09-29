@@ -45,8 +45,14 @@ export default function EditAlbumPage() {
 
   const [selectedThemeId, setSelectedThemeId] = useState<string>("");
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
+  const fileUrlsRef = useRef<Record<string, string>>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    fileUrlsRef.current = fileUrls;
+  }, [fileUrls]);
 
   // Set default theme
   useEffect(() => {
@@ -58,7 +64,9 @@ export default function EditAlbumPage() {
   const ensureFileUrl = useCallback(
     async (fileId?: string | null): Promise<string | null> => {
       if (!fileId) return null;
-      if (fileUrls[fileId]) return fileUrls[fileId];
+
+      // Use ref to avoid dependency on fileUrls state
+      if (fileUrlsRef.current[fileId]) return fileUrlsRef.current[fileId];
 
       try {
         const data = await triggerFileUrl({ id: fileId }).unwrap();
@@ -71,7 +79,7 @@ export default function EditAlbumPage() {
         return null;
       }
     },
-    [fileUrls, triggerFileUrl]
+    [triggerFileUrl]
   );
 
   if (!album) {

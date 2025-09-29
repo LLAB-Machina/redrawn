@@ -7,9 +7,10 @@ import {
 } from "@/services/genApi";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { ImageIcon, RefreshCw, Sparkles } from "lucide-react";
+import { ImageIcon, RefreshCw, Sparkles, Settings } from "lucide-react";
 import Image from "next/image";
 import { LoadingBar } from "@/components/ui/loading-bar";
+import PhotoSettingsDialog from "./PhotoSettingsDialog";
 
 interface PhotoCardProps {
   originalPhoto: OriginalPhoto;
@@ -30,6 +31,7 @@ export default function PhotoCard({
   );
   const [favoriteGeneratedPhoto, setFavoriteGeneratedPhoto] =
     useState<GeneratedPhoto | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [generatePhoto] = useGeneratePhotoMutation();
 
@@ -80,7 +82,15 @@ export default function PhotoCard({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <Card className="group">
+      <Card className="group relative">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 z-10 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm hover:bg-background/90"
+          onClick={() => setSettingsOpen(true)}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
         <CardContent className="p-0">
           <div className="flex flex-row overflow-hidden rounded-lg">
             <div className="aspect-square bg-muted relative w-48 h-48">
@@ -140,6 +150,14 @@ export default function PhotoCard({
           </div>
         </CardContent>
       </Card>
+      <PhotoSettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        originalPhotoId={originalPhoto.id!}
+        generatedPhotos={originalPhoto.generated_photos || []}
+        ensureFileUrl={ensureFileUrl}
+        selectedThemeId={selectedThemeId}
+      />
     </motion.div>
   );
 }
