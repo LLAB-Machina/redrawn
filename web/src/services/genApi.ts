@@ -905,6 +905,7 @@ export type GeneratedPhoto = {
   file_id?: string | null;
   id?: string;
   is_favorite?: boolean;
+  started_at?: string | null;
   state?: string;
   theme_id?: string | null;
 };
@@ -932,6 +933,7 @@ export type OriginalPhoto = {
     file_id?: string | null;
     id?: string;
     is_favorite?: boolean;
+    started_at?: string | null;
     state?: string;
     theme_id?: string | null;
   }[];

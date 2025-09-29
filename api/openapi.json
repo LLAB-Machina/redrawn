@@ -283,6 +283,10 @@
           "is_favorite": {
             "type": "boolean"
           },
+          "started_at": {
+            "nullable": true,
+            "type": "string"
+          },
           "state": {
             "type": "string"
           },
@@ -579,6 +583,10 @@
                 },
                 "is_favorite": {
                   "type": "boolean"
+                },
+                "started_at": {
+                  "nullable": true,
+                  "type": "string"
                 },
                 "state": {
                   "type": "string"
