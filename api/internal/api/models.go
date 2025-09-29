@@ -83,6 +83,7 @@ type GeneratedPhoto struct {
 	FileID     string `json:"file_id,omitempty"`
 	ThemeID    string `json:"theme_id,omitempty"`
 	IsFavorite bool   `json:"is_favorite"`
+	StartedAt  string `json:"started_at,omitempty"`
 }
 
 type UploadInitResponse struct {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -162,6 +163,7 @@ func (s *PhotosService) ListOriginals(
 					ID:         g.ID,
 					State:      string(g.Status),
 					IsFavorite: g.IsFavorite,
+					StartedAt:  g.StartedAt.Format(time.RFC3339),
 				}
 				if g.ErrorMessage != nil {
 					gp.Error = *g.ErrorMessage
@@ -177,6 +179,9 @@ func (s *PhotosService) ListOriginals(
 				}
 				generated = append(generated, gp)
 			}
+			sort.Slice(generated, func(i, j int) bool {
+				return generated[i].StartedAt < generated[j].StartedAt
+			})
 			op.GeneratedPhotos = generated
 			op.Processing = processingCount
 		}
