@@ -81,8 +81,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Initialize Jet DB connection
+	jetDB, err := db.OpenJet(context.Background())
+	if err != nil {
+		slog.Error("jet db open failed", slog.String("err", err.Error()))
+		os.Exit(1)
+	}
+
 	application := &app.App{Config: cfg}
 	application.Db = dbClient
+	application.JetDB = jetDB
 
 	// External clients
 	application.OpenAI = openaiclient.NewFromConfig(cfg)

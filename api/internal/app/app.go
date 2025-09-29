@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
@@ -19,6 +20,7 @@ import (
 type App struct {
 	Config  config.Config
 	Db      *generated.Client
+	JetDB   *sql.DB
 	Queue   TaskQueue
 	River   *river.Client[pgx.Tx]
 	OpenAI  openai.Client

@@ -393,3 +393,6 @@ local-stripe-trigger: ## Trigger a simple payment event to verify webhook plumbi
 	fi
 	stripe trigger payment_intent.succeeded
 
+gen-sql: ## Generate Jet types from database
+	jet -dsn=$(DATABASE_URL) -path=./api/generated/
+
