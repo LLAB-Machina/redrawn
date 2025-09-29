@@ -150,11 +150,11 @@ export default function PhotoSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Choose Favorite Photo</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+        <div className="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto">
           {allRelevantPhotos.map((photo, index) => (
             <motion.div
               key={photo.id}
