@@ -23,6 +23,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -206,6 +207,16 @@ export default function AdminPage() {
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Manage Pricing
                 </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <a
+                  href="https://riverui.redrawn.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open RiverUI
+                </a>
               </Button>
             </div>
           </CardContent>

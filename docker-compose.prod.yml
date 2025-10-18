@@ -31,6 +31,27 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  river-migrate:
+    image: golang:1.24-alpine
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --no-cache git && \
+        go install github.com/riverqueue/river/cmd/river@latest && \
+        river migrate-up --line main --database-url "postgres://redrawn:${POSTGRES_PASSWORD}@db:5432/redrawn?sslmode=disable"
+    environment:
+      - GOPATH=/go
+      - PATH=/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - go_cache:/go/pkg/mod
+      - go_bin:/go/bin
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: on-failure
+
   api:
     build:
       context: ./api
@@ -58,6 +79,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      river-migrate:
+        condition: service_completed_successfully
     ports:
       - "8082:8080"
     restart: unless-stopped
@@ -84,6 +107,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      river-migrate:
+        condition: service_completed_successfully
     ports:
       - "8087:8080"
 
@@ -108,4 +133,6 @@ services:
 
 volumes:
   db_data:
+  go_cache:
+  go_bin:
 

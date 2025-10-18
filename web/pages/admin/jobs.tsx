@@ -5,6 +5,8 @@ import {
 } from "@/services/genApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 
 export default function AdminJobsPage() {
   const { data: jobs } = useAdminListJobsQuery({});
@@ -13,6 +15,20 @@ export default function AdminJobsPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Job Queue</h1>
+          <Button variant="outline" asChild>
+            <a
+              href="https://riverui.redrawn.app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open RiverUI
+            </a>
+          </Button>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader>
