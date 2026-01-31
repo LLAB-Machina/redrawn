@@ -5,15 +5,18 @@ import (
 	"log/slog"
 
 	"redrawn/internal/config"
+	"redrawn/internal/services"
 
 	_ "github.com/lib/pq"
 )
 
 // App holds application-wide dependencies
 type App struct {
-	Config *config.Config
-	DB     *sql.DB
-	Logger *slog.Logger
+	Config      *config.Config
+	DB          *sql.DB
+	Logger      *slog.Logger
+	UserService *services.UserService
+	AuthService *services.AuthService
 }
 
 // New creates a new App instance
@@ -33,10 +36,16 @@ func New(cfg *config.Config) (*App, error) {
 
 	logger.Info("Connected to database")
 
+	// Initialize services
+	userService := services.NewUserService(db)
+	authService := services.NewAuthService(userService, cfg.API.JWTSecret)
+
 	return &App{
-		Config: cfg,
-		DB:     db,
-		Logger: logger,
+		Config:      cfg,
+		DB:          db,
+		Logger:      logger,
+		UserService: userService,
+		AuthService: authService,
 	}, nil
 }
 

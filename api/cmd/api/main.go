@@ -49,10 +49,8 @@ func generateOpenAPI() error {
 	
 	// Create a server just for OpenAPI generation
 	s := fuego.NewServer()
-	registerRoutes(s)
+	registerRoutes(s, nil)
 	
-	// Output OpenAPI spec
-	// Fuego generates this automatically, we just need to print it
 	return nil
 }
 
@@ -81,16 +79,20 @@ func runServer() error {
 	)
 
 	// Register routes
-	registerRoutes(s)
+	registerRoutes(s, application)
 
 	// Run server
 	return s.Run()
 }
 
-func registerRoutes(s *fuego.Server) {
+func registerRoutes(s *fuego.Server, a *app.App) {
 	// Health check
 	healthHandler := handlers.NewHealthHandler(version)
 	healthHandler.RegisterRoutes(s)
 
-	// TODO: Register more routes
+	// Auth routes
+	if a != nil {
+		authHandler := handlers.NewAuthHandler(a)
+		authHandler.RegisterRoutes(s)
+	}
 }
