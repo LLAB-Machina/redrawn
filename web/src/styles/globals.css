@@ -2,19 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+/* Google Fonts loaded in _app.tsx or page Head */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer utilities {
+  /* Custom coral accent color */
+  .text-coral {
+    color: #ff6b6b;
+  }
+  
+  .bg-coral {
+    background-color: #ff6b6b;
+  }
+  
+  .border-coral {
+    border-color: #ff6b6b;
+  }
+  
+  /* Playfair Display for headlines */
+  .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+  
+  /* Gradient text utility */
+  .text-gradient {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
-* {
-  box-sizing: border-box;
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(255, 107, 107, 0.3);
+  color: white;
 }
