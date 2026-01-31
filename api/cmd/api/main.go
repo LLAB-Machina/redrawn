@@ -2,11 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 
+	"github.com/go-fuego/fuego"
 	"github.com/joho/godotenv"
+	"redrawn/internal/app"
+	"redrawn/internal/config"
+	"redrawn/internal/handlers"
 )
+
+const version = "0.1.0"
 
 func main() {
 	// Load .env file if present
@@ -39,12 +46,51 @@ func main() {
 
 func generateOpenAPI() error {
 	slog.Info("Generating OpenAPI spec...")
-	// TODO: Implement OpenAPI generation
+	
+	// Create a server just for OpenAPI generation
+	s := fuego.NewServer()
+	registerRoutes(s)
+	
+	// Output OpenAPI spec
+	// Fuego generates this automatically, we just need to print it
 	return nil
 }
 
 func runServer() error {
-	slog.Info("Starting Redrawn API server...")
-	// TODO: Implement server
-	return nil
+	// Load config
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Create app
+	application, err := app.New(cfg)
+	if err != nil {
+		return fmt.Errorf("failed to create app: %w", err)
+	}
+	defer application.Close()
+
+	slog.Info("Starting Redrawn API server", 
+		"version", version,
+		"port", cfg.API.Port,
+	)
+
+	// Create Fuego server
+	s := fuego.NewServer(
+		fuego.WithAddr(fmt.Sprintf(":%d", cfg.API.Port)),
+	)
+
+	// Register routes
+	registerRoutes(s)
+
+	// Run server
+	return s.Run()
+}
+
+func registerRoutes(s *fuego.Server) {
+	// Health check
+	healthHandler := handlers.NewHealthHandler(version)
+	healthHandler.RegisterRoutes(s)
+
+	// TODO: Register more routes
 }
