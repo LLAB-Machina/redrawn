@@ -1,0 +1,55 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+bin/
+*.exe
+*.dll
+*.so
+
+# Generated files (never edit)
+api/internal/gen/*
+web/src/services/genApi.ts
+api/openapi.json
+
+# Database
+docker-data/
+*.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Go
+*.test
+*.out
+_gocache/
+_gomodcache/
+
+# Misc
+.tmp/
+.temp/
+cache/
