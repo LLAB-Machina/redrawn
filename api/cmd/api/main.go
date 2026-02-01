@@ -90,9 +90,21 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 	healthHandler := handlers.NewHealthHandler(version)
 	healthHandler.RegisterRoutes(s)
 
-	// Auth routes
 	if a != nil {
+		// Auth routes
 		authHandler := handlers.NewAuthHandler(a)
 		authHandler.RegisterRoutes(s)
+
+		// Album routes
+		albumHandler := handlers.NewAlbumHandler(a)
+		albumHandler.RegisterRoutes(s)
+
+		// Photo routes
+		photoHandler := handlers.NewPhotoHandler(a)
+		photoHandler.RegisterRoutes(s)
+
+		// Theme routes
+		themeHandler := handlers.NewThemeHandler(a)
+		themeHandler.RegisterRoutes(s)
 	}
 }

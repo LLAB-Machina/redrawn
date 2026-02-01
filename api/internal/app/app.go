@@ -12,11 +12,14 @@ import (
 
 // App holds application-wide dependencies
 type App struct {
-	Config      *config.Config
-	DB          *sql.DB
-	Logger      *slog.Logger
-	UserService *services.UserService
-	AuthService *services.AuthService
+	Config        *config.Config
+	DB            *sql.DB
+	Logger        *slog.Logger
+	UserService   *services.UserService
+	AuthService   *services.AuthService
+	AlbumService  *services.AlbumService
+	PhotoService  *services.PhotoService
+	ThemeService  *services.ThemeService
 }
 
 // New creates a new App instance
@@ -39,13 +42,19 @@ func New(cfg *config.Config) (*App, error) {
 	// Initialize services
 	userService := services.NewUserService(db)
 	authService := services.NewAuthService(userService, cfg.API.JWTSecret)
+	albumService := services.NewAlbumService(db)
+	photoService := services.NewPhotoService(db)
+	themeService := services.NewThemeService(db)
 
 	return &App{
-		Config:      cfg,
-		DB:          db,
-		Logger:      logger,
-		UserService: userService,
-		AuthService: authService,
+		Config:       cfg,
+		DB:           db,
+		Logger:       logger,
+		UserService:  userService,
+		AuthService:  authService,
+		AlbumService: albumService,
+		PhotoService: photoService,
+		ThemeService: themeService,
 	}, nil
 }
 
