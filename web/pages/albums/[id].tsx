@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Layout from '../../src/components/Layout'
+import PhotoViewer from '../../src/components/PhotoViewer'
 import { 
   useGetAlbumQuery, 
   useListAlbumPhotosQuery,
@@ -15,6 +16,7 @@ export default function AlbumDetailPage() {
   const albumId = typeof id === 'string' ? id : ''
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [viewerPhotoIndex, setViewerPhotoIndex] = useState<number | null>(null)
   
   const { data: albumData, isLoading: albumLoading, error: albumError } = useGetAlbumQuery(albumId, { skip: !albumId })
   const { data: photosData, isLoading: photosLoading } = useListAlbumPhotosQuery(albumId, { skip: !albumId })
@@ -40,6 +42,19 @@ export default function AlbumDetailPage() {
       await confirmAlbum(albumId).unwrap()
     } catch (err) {
       console.error('Failed to confirm album:', err)
+    }
+  }
+
+  const openViewer = (index: number) => setViewerPhotoIndex(index)
+  const closeViewer = () => setViewerPhotoIndex(null)
+  const goToNext = () => {
+    if (viewerPhotoIndex !== null && viewerPhotoIndex < photos.length - 1) {
+      setViewerPhotoIndex(viewerPhotoIndex + 1)
+    }
+  }
+  const goToPrev = () => {
+    if (viewerPhotoIndex !== null && viewerPhotoIndex > 0) {
+      setViewerPhotoIndex(viewerPhotoIndex - 1)
     }
   }
 
@@ -181,10 +196,11 @@ export default function AlbumDetailPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {photos.map((photo) => (
+            {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="group relative aspect-square bg-slate-100 rounded-lg overflow-hidden"
+                onClick={() => openViewer(index)}
+                className="group relative aspect-square bg-slate-100 rounded-lg overflow-hidden cursor-pointer"
               >
                 {/* Placeholder for actual image */}
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -255,6 +271,17 @@ export default function AlbumDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Photo viewer modal */}
+      <PhotoViewer
+        photo={viewerPhotoIndex !== null ? photos[viewerPhotoIndex] : null}
+        photos={photos}
+        onClose={closeViewer}
+        onNext={goToNext}
+        onPrev={goToPrev}
+        hasNext={viewerPhotoIndex !== null && viewerPhotoIndex < photos.length - 1}
+        hasPrev={viewerPhotoIndex !== null && viewerPhotoIndex > 0}
+      />
     </Layout>
   )
 }
