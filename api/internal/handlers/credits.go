@@ -9,6 +9,16 @@ import (
 	"redrawn/internal/app"
 )
 
+// isAdmin checks if a user ID is in the admin list
+func (h *CreditHandler) isAdmin(userID string) bool {
+	for _, id := range h.app.Config.AdminUserIDs {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
+
 // CreditHandler handles credit-related HTTP requests
 type CreditHandler struct {
 	app *app.App
@@ -109,7 +119,10 @@ type AdminAddCreditsRequest struct {
 
 // AdminAddCredits adds credits to a user (admin only)
 func (h *CreditHandler) AdminAddCredits(c fuego.ContextWithBody[AdminAddCreditsRequest]) (CreditResponse, error) {
-	// TODO: Add admin authorization check
+	userID := c.Context().Value("user_id").(string)
+	if !h.isAdmin(userID) {
+		return CreditResponse{}, fuego.ForbiddenError{Detail: "admin access required"}
+	}
 
 	targetUserID := c.PathParam("user_id")
 	if targetUserID == "" {
@@ -145,7 +158,10 @@ func (h *CreditHandler) AdminAddCredits(c fuego.ContextWithBody[AdminAddCreditsR
 
 // AdminGetUserBalance returns a specific user's balance (admin only)
 func (h *CreditHandler) AdminGetUserBalance(c fuego.ContextNoBody) (CreditResponse, error) {
-	// TODO: Add admin authorization check
+	userID := c.Context().Value("user_id").(string)
+	if !h.isAdmin(userID) {
+		return CreditResponse{}, fuego.ForbiddenError{Detail: "admin access required"}
+	}
 
 	targetUserID := c.PathParam("user_id")
 	if targetUserID == "" {
@@ -168,7 +184,10 @@ func (h *CreditHandler) AdminGetUserBalance(c fuego.ContextNoBody) (CreditRespon
 
 // AdminGetUserTransactions returns a specific user's transaction history (admin only)
 func (h *CreditHandler) AdminGetUserTransactions(c fuego.ContextNoBody) (TransactionHistoryResponse, error) {
-	// TODO: Add admin authorization check
+	userID := c.Context().Value("user_id").(string)
+	if !h.isAdmin(userID) {
+		return TransactionHistoryResponse{}, fuego.ForbiddenError{Detail: "admin access required"}
+	}
 
 	targetUserID := c.PathParam("user_id")
 	if targetUserID == "" {

@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // Config holds all application configuration
 type Config struct {
-	Database DatabaseConfig
-	Storage  StorageConfig
-	API      APIConfig
-	Stripe   StripeConfig
-	OpenAI   OpenAIConfig
+	Database     DatabaseConfig
+	Storage      StorageConfig
+	API          APIConfig
+	Stripe       StripeConfig
+	OpenAI       OpenAIConfig
+	AdminUserIDs []string // List of user IDs with admin privileges
 }
 
 // DatabaseConfig holds database settings
@@ -74,6 +76,7 @@ func Load() (*Config, error) {
 		OpenAI: OpenAIConfig{
 			APIKey: getEnv("OPENAI_API_KEY", ""),
 		},
+		AdminUserIDs: getSliceEnv("ADMIN_USER_IDS", []string{}),
 	}, nil
 }
 
@@ -98,6 +101,21 @@ func getBoolEnv(key string, defaultVal bool) bool {
 		if b, err := strconv.ParseBool(v); err == nil {
 			return b
 		}
+	}
+	return defaultVal
+}
+
+func getSliceEnv(key string, defaultVal []string) []string {
+	if v := os.Getenv(key); v != "" {
+		// Split by comma and trim spaces
+		parts := strings.Split(v, ",")
+		result := make([]string, 0, len(parts))
+		for _, p := range parts {
+			if trimmed := strings.TrimSpace(p); trimmed != "" {
+				result = append(result, trimmed)
+			}
+		}
+		return result
 	}
 	return defaultVal
 }

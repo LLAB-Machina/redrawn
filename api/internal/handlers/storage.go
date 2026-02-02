@@ -138,8 +138,15 @@ func (h *StorageHandler) Delete(c *fuego.ContextNoBody) (DeleteFileResponse, err
 		return DeleteFileResponse{}, errors.New("storage key required")
 	}
 
-	// TODO: Check if user owns the photo with this storage key
-	// For now, we allow deletion (the photo record will still exist in DB)
+	// Check if user owns the photo with this storage key
+	photo, err := h.app.PhotoService.GetByStorageKey(c.Context(), storageKey)
+	if err != nil {
+		return DeleteFileResponse{}, fuego.NotFoundError{Detail: "photo not found"}
+	}
+
+	if photo.UserID != userID {
+		return DeleteFileResponse{}, fuego.ForbiddenError{Detail: "you do not own this file"}
+	}
 
 	if err := h.app.StorageService.DeleteObject(c.Context(), storageKey); err != nil {
 		return DeleteFileResponse{}, err

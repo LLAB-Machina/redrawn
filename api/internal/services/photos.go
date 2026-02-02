@@ -295,3 +295,47 @@ func (s *PhotoService) CountByAlbum(ctx context.Context, albumID string) (int, e
 	).Scan(&count)
 	return count, err
 }
+
+// GetByStorageKey retrieves a photo by its storage key
+func (s *PhotoService) GetByStorageKey(ctx context.Context, storageKey string) (*Photo, error) {
+	photo := &Photo{}
+	var filename, mimeType sql.NullString
+	var sizeBytes sql.NullInt64
+	var width, height sql.NullInt32
+
+	err := s.db.QueryRowContext(ctx,
+		`SELECT id, album_id, user_id, storage_key, filename, mime_type, size_bytes, width, height, status, created_at
+		 FROM photos WHERE storage_key = $1`,
+		storageKey,
+	).Scan(
+		&photo.ID, &photo.AlbumID, &photo.UserID, &photo.StorageKey,
+		&filename, &mimeType, &sizeBytes, &width, &height, &photo.Status, &photo.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("photo not found")
+		}
+		return nil, err
+	}
+
+	if filename.Valid {
+		photo.Filename = &filename.String
+	}
+	if mimeType.Valid {
+		photo.MimeType = &mimeType.String
+	}
+	if sizeBytes.Valid {
+		photo.SizeBytes = &sizeBytes.Int64
+	}
+	if width.Valid {
+		w := int(width.Int32)
+		photo.Width = &w
+	}
+	if height.Valid {
+		h := int(height.Int32)
+		photo.Height = &h
+	}
+
+	return photo, nil
+}
