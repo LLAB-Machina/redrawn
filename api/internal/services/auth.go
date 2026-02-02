@@ -44,31 +44,27 @@ type LoginResponse struct {
 
 // Login authenticates a user and returns a JWT token
 func (s *AuthService) Login(ctx context.Context, input LoginInput) (*LoginResponse, error) {
-	// For now, simplified: just check email exists and create user if not
-	// In production, you'd verify password hash
-	
-	user, err := s.userService.GetByEmail(ctx, input.Email)
+	// Get user with password hash
+	userWithPassword, err := s.userService.GetByEmailWithPassword(ctx, input.Email)
 	if err != nil {
-		// If user doesn't exist, create one (simplified auth for MVP)
 		if errors.Is(err, errors.New("user not found")) {
-			user, err = s.userService.Create(ctx, CreateUserInput{
-				Email:    input.Email,
-				Name:     "",
-				Password: input.Password,
-			})
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err
+			return nil, errors.New("invalid credentials")
 		}
+		return nil, err
 	}
 
-	// TODO: Verify password hash against stored hash
-	// For now, we'll skip this for MVP
-	_ = bcrypt.CompareHashAndPassword
+	// Verify password hash against stored hash
+	if userWithPassword.PasswordHash == "" {
+		return nil, errors.New("invalid credentials")
+	}
+	
+	err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.PasswordHash), []byte(input.Password))
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
 
 	// Generate JWT token
+	user := &userWithPassword.User
 	token, err := s.generateToken(user)
 	if err != nil {
 		return nil, err

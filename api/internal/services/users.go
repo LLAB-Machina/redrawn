@@ -27,6 +27,12 @@ type CreateUserInput struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+// UserWithPassword holds user data with password hash
+type UserWithPassword struct {
+	User
+	PasswordHash string
+}
+
 // UserService handles user business logic
 type UserService struct {
 	db *sql.DB
@@ -70,17 +76,13 @@ func (s *UserService) Create(ctx context.Context, input CreateUserInput) (*User,
 	}
 
 	_, err = s.db.ExecContext(ctx,
-		`INSERT INTO users (id, email, name, status, created_at, updated_at) 
-		 VALUES ($1, $2, $3, $4, $5, $6)`,
-		user.ID, user.Email, user.Name, user.Status, user.CreatedAt, user.UpdatedAt,
+		`INSERT INTO users (id, email, name, status, password_hash, created_at, updated_at) 
+		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		user.ID, user.Email, user.Name, user.Status, string(hash), user.CreatedAt, user.UpdatedAt,
 	)
 	if err != nil {
 		return nil, err
 	}
-
-	// Store password hash (in a real app, this would be a separate table)
-	// For now, we'll skip this and assume OAuth/JWT only
-	_ = hash
 
 	return user, nil
 }
@@ -110,6 +112,24 @@ func (s *UserService) GetByEmail(ctx context.Context, email string) (*User, erro
 		"SELECT id, email, name, status, created_at, updated_at FROM users WHERE email = $1",
 		email,
 	).Scan(&user.ID, &user.Email, &user.Name, &user.Status, &user.CreatedAt, &user.UpdatedAt)
+	
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// GetByEmailWithPassword retrieves a user with password hash for authentication
+func (s *UserService) GetByEmailWithPassword(ctx context.Context, email string) (*UserWithPassword, error) {
+	user := &UserWithPassword{}
+	err := s.db.QueryRowContext(ctx,
+		"SELECT id, email, name, status, password_hash, created_at, updated_at FROM users WHERE email = $1",
+		email,
+	).Scan(&user.ID, &user.Email, &user.Name, &user.Status, &user.PasswordHash, &user.CreatedAt, &user.UpdatedAt)
 	
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

@@ -2,9 +2,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useDispatch } from 'react-redux'
+import { setCredentials } from '@/services/authSlice'
+import type { AppDispatch } from '@/services/store'
 
 export default function Register() {
   const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -28,7 +32,8 @@ export default function Register() {
       }
 
       const data = await response.json()
-      // TODO: Store token in Redux
+      // Store token in Redux
+      dispatch(setCredentials({ user: data.user, token: data.token }))
       router.push('/dashboard')
     } catch (err) {
       setError('Registration failed. Please try again.')

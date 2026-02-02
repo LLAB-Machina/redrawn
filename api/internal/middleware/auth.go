@@ -6,12 +6,20 @@ import (
 	"strings"
 
 	"github.com/go-fuego/fuego"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // contextKey is a type for context keys
 type contextKey string
 
 const userIDKey contextKey = "userID"
+
+// Claims represents JWT claims (duplicated from auth service to avoid circular import)
+type Claims struct {
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	jwt.RegisteredClaims
+}
 
 // AuthMiddleware creates a middleware that validates JWT tokens
 func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
@@ -32,15 +40,36 @@ func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
 
 			tokenString := parts[1]
 
-			// TODO: Validate JWT token and extract user ID
-			// For now, we'll just pass through and let handlers check
-			// This is a placeholder for full JWT validation
-			_ = tokenString
-			_ = jwtSecret
+			// Validate JWT token and extract user ID
+			claims, err := validateToken(tokenString, jwtSecret)
+			if err != nil {
+				// Token invalid - continue without user context
+				next.ServeHTTP(w, r)
+				return
+			}
 
-			next.ServeHTTP(w, r)
+			// Add user ID to context
+			ctx := WithUserID(r.Context(), claims.UserID)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+// validateToken validates a JWT token and returns the claims
+func validateToken(tokenString string, jwtSecret string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecret), nil
+	})
+	
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, jwt.ErrSignatureInvalid
 }
 
 // GetUserIDFromContext extracts user ID from context
