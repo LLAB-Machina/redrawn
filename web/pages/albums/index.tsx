@@ -3,6 +3,28 @@ import Link from 'next/link'
 import Layout from '@/components/Layout'
 import { useListAlbumsQuery } from '@/services/api'
 
+// Generate consistent colors from string (album ID)
+function stringToColor(str: string, index: number): string {
+  const colors = [
+    ['#667eea', '#764ba2'], // purple
+    ['#f093fb', '#f5576c'], // pink-red
+    ['#4facfe', '#00f2fe'], // blue-cyan
+    ['#43e97b', '#38f9d7'], // green
+    ['#fa709a', '#fee140'], // pink-yellow
+    ['#30cfd0', '#330867'], // teal-purple
+    ['#a8edea', '#fed6e3'], // mint-pink
+    ['#ff9a9e', '#fecfef'], // rose
+    ['#ffecd2', '#fcb69f'], // peach
+    ['#667eea', '#764ba2'], // indigo
+  ]
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const colorPair = colors[Math.abs(hash) % colors.length]
+  return colorPair[index]
+}
+
 export default function AlbumsPage() {
   const { data, isLoading, error } = useListAlbumsQuery()
   const albums = data?.albums ?? []
@@ -79,11 +101,25 @@ export default function AlbumsPage() {
                 href={`/albums/${album.id}`}
                 className="group bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all"
               >
-                {/* Album cover placeholder */}
-                <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center group-hover:from-slate-200 group-hover:to-slate-300 transition-colors">
-                  <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+                {/* Album cover with colorful gradient based on album ID */}
+                <div 
+                  className="aspect-video flex items-center justify-center relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${stringToColor(album.id, 0)} 0%, ${stringToColor(album.id, 1)} 100%)`
+                  }}
+                >
+                  {/* Pattern overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    }}
+                  />
+                  <div className="relative z-10 text-white/90">
+                    <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                 </div>
 
                 <div className="p-4">
