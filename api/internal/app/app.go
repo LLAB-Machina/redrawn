@@ -22,6 +22,7 @@ type App struct {
 	ThemeService          *services.ThemeService
 	GeneratedPhotoService *services.GeneratedPhotoService
 	CreditService         *services.CreditService
+	PaymentService        *services.PaymentService
 }
 
 // New creates a new App instance
@@ -49,6 +50,7 @@ func New(cfg *config.Config) (*App, error) {
 	themeService := services.NewThemeService(db)
 	generatedPhotoService := services.NewGeneratedPhotoService(db)
 	creditService := services.NewCreditService(db)
+	paymentService := services.NewPaymentService(cfg.Stripe.SecretKey, cfg.Stripe.WebhookSecret, creditService)
 
 	return &App{
 		Config:                cfg,
@@ -61,6 +63,7 @@ func New(cfg *config.Config) (*App, error) {
 		ThemeService:          themeService,
 		GeneratedPhotoService: generatedPhotoService,
 		CreditService:         creditService,
+		PaymentService:        paymentService,
 	}, nil
 }
 
