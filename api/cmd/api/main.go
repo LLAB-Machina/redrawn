@@ -106,5 +106,13 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 		// Theme routes
 		themeHandler := handlers.NewThemeHandler(a)
 		themeHandler.RegisterRoutes(s)
+
+		// Generated photo routes
+		generatedPhotoHandler := handlers.NewGeneratedPhotoHandler(a)
+		generatedPhotoHandler.RegisterRoutes(s)
+
+		// Credit routes
+		creditHandler := handlers.NewCreditHandler(a)
+		creditHandler.RegisterRoutes(s)
 	}
 }
