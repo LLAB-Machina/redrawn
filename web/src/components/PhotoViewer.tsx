@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom'
 
 interface Photo {
   id: string
-  filename: string
-  storage_key: string
-  mime_type: string
+  filename?: string
+  storage_key?: string
+  mime_type?: string
   status: string
   created_at: string
 }
@@ -144,7 +144,7 @@ export default function PhotoViewer({
         {/* Photo info */}
         <div className="mt-4 text-center">
           <p className="text-white font-medium truncate max-w-md">
-            {photo.filename}
+            {photo.filename || 'Untitled'}
           </p>
           <p className="text-white/50 text-sm mt-1">
             {photoNumber} of {totalPhotos} • {new Date(photo.created_at).toLocaleDateString()}

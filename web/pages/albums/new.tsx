@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Layout from '../../src/components/Layout'
-import { useCreateAlbumMutation } from '../../src/services/api'
+import Layout from '@/components/Layout'
+import { useCreateAlbumMutation } from '@/services/api'
 
 export default function NewAlbumPage() {
   const router = useRouter()

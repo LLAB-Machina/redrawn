@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Layout from '../../src/components/Layout'
-import PhotoViewer from '../../src/components/PhotoViewer'
+import Layout from '@/components/Layout'
+import PhotoViewer from '@/components/PhotoViewer'
 import { 
   useGetAlbumQuery, 
   useListAlbumPhotosQuery,
   useDeleteAlbumMutation,
   useConfirmAlbumMutation,
-} from '../../src/services/api'
+} from '@/services/api'
 
 export default function AlbumDetailPage() {
   const router = useRouter()

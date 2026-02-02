@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import Layout from '../src/components/Layout'
-import { useListAlbumsQuery } from '../src/services/api'
+import Layout from '@/components/Layout'
+import { useListAlbumsQuery } from '@/services/api'
 
 export default function AlbumsPage() {
   const { data, isLoading, error } = useListAlbumsQuery()

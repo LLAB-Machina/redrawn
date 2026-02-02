@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import Layout from '../../src/components/Layout'
-import { useGetAlbumQuery, useCreatePhotoMutation } from '../../src/services/api'
+import Layout from '@/components/Layout'
+import { useGetAlbumQuery, useCreatePhotoMutation } from '@/services/api'
 
 interface UploadingFile {
   id: string

@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import Layout from '../src/components/Layout'
+import Layout from '@/components/Layout'
 import { 
   useListAlbumsQuery, 
   useListThemesQuery,
   useGetCreditBalanceQuery,
-} from '../src/services/api'
+} from '@/services/api'
 
 export default function DashboardPage() {
   const { data: albumsData, isLoading: albumsLoading } = useListAlbumsQuery()

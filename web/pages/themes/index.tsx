@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
-import Layout from '../src/components/Layout'
-import { useListThemesQuery } from '../src/services/api'
+import Layout from '@/components/Layout'
+import { useListThemesQuery } from '@/services/api'
 
 export default function ThemesPage() {
   const { data, isLoading, error } = useListThemesQuery()
