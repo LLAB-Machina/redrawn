@@ -118,5 +118,9 @@ func registerRoutes(s *fuego.Server, a *app.App) {
 		// Payment routes
 		paymentHandler := handlers.NewPaymentHandler(a)
 		paymentHandler.RegisterRoutes(s)
+
+		// Storage routes
+		storageHandler := handlers.NewStorageHandler(a)
+		storageHandler.RegisterRoutes(s)
 	}
 }

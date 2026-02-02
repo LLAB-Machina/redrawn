@@ -139,6 +139,28 @@ export interface ListGeneratedPhotosResponse {
   generated_photos: GeneratedPhoto[]
 }
 
+// Storage types
+export interface GetUploadURLRequest {
+  filename: string
+  mime_type: string
+  size: number
+}
+
+export interface GetUploadURLResponse {
+  upload_url: string
+  storage_key: string
+  expires_at: number
+}
+
+export interface GetDownloadURLRequest {
+  storage_key: string
+}
+
+export interface GetDownloadURLResponse {
+  download_url: string
+  expires_at: number
+}
+
 // Extended API
 export const api = emptyApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -268,6 +290,28 @@ export const api = emptyApi.injectEndpoints({
       }),
       invalidatesTags: ['GeneratedPhoto', 'Credit'],
     }),
+
+    // Storage endpoints
+    getUploadURL: builder.mutation<GetUploadURLResponse, GetUploadURLRequest>({
+      query: (body) => ({
+        url: '/storage/upload-url',
+        method: 'POST',
+        body,
+      }),
+    }),
+    getDownloadURL: builder.mutation<GetDownloadURLResponse, GetDownloadURLRequest>({
+      query: (body) => ({
+        url: '/storage/download-url',
+        method: 'POST',
+        body,
+      }),
+    }),
+    deleteFile: builder.mutation<{ status: string }, string>({
+      query: (storageKey) => ({
+        url: `/storage/${storageKey}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 })
 
@@ -298,4 +342,8 @@ export const {
   useListGeneratedPhotosQuery,
   useListGeneratedByPhotoQuery,
   useCreateGeneratedPhotoMutation,
+  // Storage hooks
+  useGetUploadURLMutation,
+  useGetDownloadURLMutation,
+  useDeleteFileMutation,
 } = api

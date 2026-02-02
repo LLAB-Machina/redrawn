@@ -1,7 +1,9 @@
 package app
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
 
 	"redrawn/internal/config"
@@ -23,6 +25,7 @@ type App struct {
 	GeneratedPhotoService *services.GeneratedPhotoService
 	CreditService         *services.CreditService
 	PaymentService        *services.PaymentService
+	StorageService        *services.StorageService
 }
 
 // New creates a new App instance
@@ -51,6 +54,23 @@ func New(cfg *config.Config) (*App, error) {
 	generatedPhotoService := services.NewGeneratedPhotoService(db)
 	creditService := services.NewCreditService(db)
 	paymentService := services.NewPaymentService(cfg.Stripe.SecretKey, cfg.Stripe.WebhookSecret, creditService)
+	
+	// Initialize storage service
+	storageService, err := services.NewStorageService(
+		cfg.Storage.Endpoint,
+		cfg.Storage.AccessKey,
+		cfg.Storage.SecretKey,
+		cfg.Storage.Bucket,
+		cfg.Storage.UseSSL,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create storage service: %w", err)
+	}
+	
+	// Ensure bucket exists
+	if err := storageService.EnsureBucket(context.Background()); err != nil {
+		logger.Warn("Failed to ensure storage bucket exists", "error", err)
+	}
 
 	return &App{
 		Config:                cfg,
@@ -64,6 +84,7 @@ func New(cfg *config.Config) (*App, error) {
 		GeneratedPhotoService: generatedPhotoService,
 		CreditService:         creditService,
 		PaymentService:        paymentService,
+		StorageService:        storageService,
 	}, nil
 }
 

@@ -3,6 +3,10 @@ module redrawn
 go 1.22
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.26.1
+	github.com/aws/aws-sdk-go-v2/config v1.27.10
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.10
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.1
 	github.com/go-fuego/fuego v0.14.0
 	github.com/go-jet/jet/v2 v2.11.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
