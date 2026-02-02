@@ -102,6 +102,43 @@ export interface CreditBalance {
   balance: number
 }
 
+export interface PurchaseCreditsRequest {
+  amount: number
+  payment_method: 'stripe' | 'paypal'
+}
+
+export interface PurchaseCreditsResponse {
+  client_secret?: string
+  checkout_url?: string
+  amount: number
+}
+
+// Generated Photo types
+export interface GeneratedPhoto {
+  id: string
+  group_id: string
+  user_id: string
+  original_photo_id: string
+  theme_id: string
+  storage_key: string
+  status: 'queued' | 'processing' | 'completed' | 'error'
+  credits_used: number
+  error_message?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateGeneratedPhotoRequest {
+  original_photo_id: string
+  theme_id: string
+  storage_key: string
+  credits_used?: number
+}
+
+export interface ListGeneratedPhotosResponse {
+  generated_photos: GeneratedPhoto[]
+}
+
 // Extended API
 export const api = emptyApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -199,9 +236,37 @@ export const api = emptyApi.injectEndpoints({
     // Credit endpoints
     getCreditBalance: builder.query<CreditBalance, void>({
       query: () => '/credits/balance',
+      providesTags: ['Credit'],
     }),
     listCreditTransactions: builder.query<{ transactions: CreditTransaction[]; has_more: boolean }, { limit?: number; offset?: number }>({
       query: ({ limit = 20, offset = 0 }) => `/credits/transactions?limit=${limit}&offset=${offset}`,
+    }),
+    purchaseCredits: builder.mutation<PurchaseCreditsResponse, PurchaseCreditsRequest>({
+      query: (body) => ({
+        url: '/credits/purchase',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Credit'],
+    }),
+
+    // Generated Photo endpoints
+    listGeneratedPhotos: builder.query<ListGeneratedPhotosResponse, void>({
+      query: () => '/generated-photos',
+      providesTags: ['GeneratedPhoto'],
+    }),
+    listGeneratedByPhoto: builder.query<ListGeneratedPhotosResponse, string>({
+      query: (photoId) => `/photos/${photoId}/generated`,
+      providesTags: (result, error, photoId) => 
+        result?.generated_photos?.map((g) => ({ type: 'GeneratedPhoto', id: g.id })) || [{ type: 'GeneratedPhoto', id: photoId }],
+    }),
+    createGeneratedPhoto: builder.mutation<GeneratedPhoto, CreateGeneratedPhotoRequest>({
+      query: (body) => ({
+        url: '/generated-photos',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['GeneratedPhoto', 'Credit'],
     }),
   }),
 })
@@ -228,4 +293,9 @@ export const {
   // Credit hooks
   useGetCreditBalanceQuery,
   useListCreditTransactionsQuery,
+  usePurchaseCreditsMutation,
+  // Generated Photo hooks
+  useListGeneratedPhotosQuery,
+  useListGeneratedByPhotoQuery,
+  useCreateGeneratedPhotoMutation,
 } = api

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import Layout from '@/components/Layout'
 import { 
   useListAlbumsQuery, 
@@ -7,6 +8,7 @@ import {
 } from '@/services/api'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { data: albumsData, isLoading: albumsLoading } = useListAlbumsQuery()
   const { data: themesData, isLoading: themesLoading } = useListThemesQuery()
   const { data: creditsData } = useGetCreditBalanceQuery()
@@ -159,9 +161,12 @@ export default function DashboardPage() {
               <p className="text-sm text-amber-700 mb-4">
                 Credits are used for AI photo generation.
               </p>
-              <button className="w-full py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors text-sm">
-                Buy Credits
-              </button>
+              <Link
+              href="/credits"
+              className="block w-full py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors text-sm text-center"
+            >
+              Buy Credits
+            </Link>
             </div>
 
             {/* Available Themes */}

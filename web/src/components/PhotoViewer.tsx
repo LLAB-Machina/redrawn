@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 
 interface Photo {
   id: string
@@ -161,14 +162,15 @@ export default function PhotoViewer({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </button>
-          <button
+          <Link
+            href={`/themes/apply?photo=${photo?.id}`}
             className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             title="Apply theme"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
-          </button>
+          </Link>
           <button
             className="p-2 text-white/70 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors"
             title="Delete"

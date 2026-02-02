@@ -1,11 +1,17 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import Layout from '@/components/Layout'
 import { useListThemesQuery } from '@/services/api'
 
 export default function ThemesPage() {
+  const router = useRouter()
   const { data, isLoading, error } = useListThemesQuery()
   const themes = data?.themes ?? []
+  
+  const handleUseTheme = (themeId: string) => {
+    router.push(`/themes/apply?theme=${themeId}`)
+  }
 
   return (
     <Layout title="Themes - Redrawn">
@@ -86,7 +92,10 @@ export default function ThemesPage() {
                     <p className="text-sm text-slate-600 mt-1 line-clamp-2">{theme.description}</p>
                   )}
                   <div className="mt-4 flex items-center gap-2">
-                    <button className="flex-1 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors text-sm">
+                    <button 
+                      onClick={() => handleUseTheme(theme.id)}
+                      className="flex-1 py-2 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors text-sm"
+                    >
                       Use Theme
                     </button>
                     <button className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100">
