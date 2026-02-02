@@ -14,7 +14,7 @@ export const emptyApi = createApi({
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ['User', 'Album', 'Photo', 'Theme'],
+  tagTypes: ['User', 'Album', 'Photo', 'Theme', 'Credit'],
 })
 
 // This will be extended with generated endpoints later
