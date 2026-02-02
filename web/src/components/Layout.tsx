@@ -16,6 +16,7 @@ export default function Layout({ children, title = 'Redrawn' }: LayoutProps) {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/albums', label: 'Albums' },
     { href: '/themes', label: 'Themes' },
+    { href: '/generated', label: 'Generated' },
   ]
 
   return (
